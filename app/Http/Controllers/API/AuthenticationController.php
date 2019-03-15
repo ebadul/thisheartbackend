@@ -16,13 +16,15 @@ use Illuminate\Support\Facades\Log;
 class AuthenticationController extends BaseController
 {
     public function login(Request $request){
-        $user = User::where('email',$request->email)->first();
-        Log::info("Email = ".$request->email);
-        Log::info("Password = ".$request->password);
-        Log::info("User Name = ".$user->name);
+        $user = User::where('email', '=', $request->email)->first();
+        //Log::info("Email = ".$request->email);
+        //Log::info("Password = ".$request->password);
 
-        if($user){
-            
+        if($user === null){
+            return response()->json([
+                'message' => 'Email not exist!',
+            ], 401);
+        }else{
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
                 $tokenResult = $user->createToken('ThisHeartAccessToken');
@@ -39,10 +41,6 @@ class AuthenticationController extends BaseController
                     'message' => 'Password mismatch!'
                 ], 422);
             }
-        }else{
-            response()->json([
-                'message' => 'Email not exist!',
-            ], 401);
         }
     }
      
@@ -64,6 +62,13 @@ class AuthenticationController extends BaseController
 
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());       
+        }
+
+        $userData = User::where('email', '=', $request->email)->first();
+        if($userData){
+            return response()->json([
+                'message' => 'Email already exist. Please use another.',
+            ], 406);
         }
 
         $input = $request->all();
