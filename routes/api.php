@@ -32,3 +32,5 @@ Route::middleware('auth:api')->group( function () {
 Route::post('password/email', 'API\PasswordResetController@getResetToken');
 Route::get('password/find/{token}', 'API\PasswordResetController@findToken');
 Route::post('password/reset', 'API\PasswordResetController@reset');
+
+Route::post('upload/image', 'API\MemoriesController@storeImage');

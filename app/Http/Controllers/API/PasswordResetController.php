@@ -11,7 +11,7 @@ use App\PasswordReset;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class PasswordResetController extends Controller
+class PasswordResetController extends BaseController
 {
     /**
      * Create token password reset
@@ -43,7 +43,7 @@ class PasswordResetController extends Controller
         //Log::info("Token = ".$passwordReset->token);
 
         $to_name = $user->name;
-        $to_email = "al.mamun74bd@gmail.com";//$user->email;
+        $to_email = $user->email;
         $data = array(
             'url' => 'http://localhost:8000/api/password/find/'.$passwordReset->token,
         );
