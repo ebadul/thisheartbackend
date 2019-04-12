@@ -20,11 +20,6 @@ class CreateMemoriesTable extends Migration
             $table->string('filename');
             $table->string('filetype');
             $table->timestamps();
-
-            $table->foreign('user_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('cascade');
         });
     }
 
