@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\DiagnosisInfo;
 use App\MedicalHistory;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class MedicalHistoryController extends BaseController
 {
@@ -81,21 +82,28 @@ class MedicalHistoryController extends BaseController
  
     }
 
-    public function addDiagnosisNameForPartner(Request $request)
+    public function saveMedicalHistory(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'history_list' => 'required',
-            'user_id' => 'required',
-            'member_type' => 'required'
-        ]);
-        $historyList = json_decode($request->history_list);
-        //Log::info("Request = ".$historyList->name);
-        foreach ($historyList as $historyId) {
-            $historyInfo = new MedicalHistory();
-            $historyInfo->diagnosis_id = $historyId;
-            $historyInfo->user_id = $request->user_id;
-            $historyInfo->member_type = $request->member_type;
-            $historyInfo->save();
+        Log::info("user_id = ".$request->user_id ." member_type ".$request->member_type);
+        //$diagnosisList = json_decode($request->diagnosis_list);
+        $diagnosisList = $request->diagnosis_list;
+        //Log::info("Request = ".json_encode($diagnosisList));
+        //DB::enableQueryLog();
+        foreach ($diagnosisList as $diagnosisId) {
+            Log::info("diagnosisId = ".$diagnosisId);
+            $matchThese = ['user_id' => $request->user_id, 'diagnosis_id' => $diagnosisId, 'member_type' => $request->member_type];
+            $dataInfo = MedicalHistory::where($matchThese)->get();
+            Log::info($dataInfo);
+            //$query = DB::getQueryLog();
+            //Log::info($query);
+
+            if(count($dataInfo) == 0){
+                $historyInfo = new MedicalHistory();
+                $historyInfo->diagnosis_id = $diagnosisId;
+                $historyInfo->user_id = $request->user_id;
+                $historyInfo->member_type = $request->member_type;
+                $historyInfo->save();
+            }
             //Log::info("Request = ".$historyId);
         }
 
@@ -114,16 +122,27 @@ class MedicalHistoryController extends BaseController
                 'message' => 'Data deleted successfully!',
                 'historyInfo' => $historyInfo
             ],200);
-        } 
- 
+        }
     }
 
     public function getHistoryByUserId($id)
     {
         //Get the data
-        $historyInfo = MedicalHistory::where('user_id','=',$id)->get();
+        //Log::info("Get in");
+        $historyInfo = DB::table('medical_histories')->join('diagnosis_infos','diagnosis_id','=','diagnosis_infos.id')
+        ->where('user_id','=',$id)->select('medical_histories.id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
 
-        return response()->json($diagnosisInfo, 200);
+        return response()->json($historyInfo, 200);
+    }
+
+    public function getHistoryByMemberType($type,$id)
+    {
+        //Get the data
+        //Log::info("Id ".$id  ." Type= ".$type);
+        $historyInfo = DB::table('medical_histories')->join('diagnosis_infos','diagnosis_id','=','diagnosis_infos.id')
+        ->where('user_id','=',$id)->where('member_type','=',$type)->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
+
+        return response()->json($historyInfo, 200);
     }
 
 }

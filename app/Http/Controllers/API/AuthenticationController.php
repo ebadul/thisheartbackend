@@ -31,9 +31,10 @@ class AuthenticationController extends BaseController
                 
                 return response()->json([
                     'message' => 'User logged in successfully!',
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
                     'access_token' => $tokenResult->accessToken,
                     'token_type' => 'Bearer',
-                    'user_name' => $user->name,
                     'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
                 ], 200);
             }else{

@@ -37,7 +37,7 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 Route::post('upload/image', 'API\MemoriesController@storeImage');
 
 //Medical Info
-Route::middleware('auth:api')->group( function () {
+//Route::middleware('auth:api')->group( function () {
 	Route::post('diagnosis/store', 'API\MedicalHistoryController@addDiagnosisName');
 	Route::get('diagnosis/getAll', 'API\MedicalHistoryController@getAllDiagnosisName');
 	Route::get('diagnosis/getBy/{id}', 'API\MedicalHistoryController@getDiagnosisNameById');
@@ -45,8 +45,9 @@ Route::middleware('auth:api')->group( function () {
 	Route::post('diagnosis/deleteBy/{id}', 'API\MedicalHistoryController@deleteDiagnosisById');
 
 	//
-	Route::post('medichist/store', 'API\MedicalHistoryController@addDiagnosisNameForPartner');
-	Route::post('medichist/deleteBy/{id}', 'API\MedicalHistoryController@deleteHistoryById');
-	Route::get('diagnosis/getAllBy/{id}', 'API\MedicalHistoryController@getHistoryByUserId');
-});
+	Route::post('medichistory/store', 'API\MedicalHistoryController@saveMedicalHistory');
+	Route::post('medichistory/deleteBy/{id}', 'API\MedicalHistoryController@deleteHistoryById');
+	Route::get('medichistory/getAllById/{id}', 'API\MedicalHistoryController@getHistoryByUserId');
+	Route::get('medichistory/getAllByType/{type}/{id}', 'API\MedicalHistoryController@getHistoryByMemberType');
+//});
 
