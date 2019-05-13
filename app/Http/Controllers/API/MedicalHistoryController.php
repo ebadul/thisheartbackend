@@ -14,7 +14,7 @@ class MedicalHistoryController extends BaseController
 {
     public function addDiagnosisName(Request $request)
     {
-        Log::info("Request = ".$request->all);
+        //Log::info("Request = ".$request->all);
         $validator = Validator::make($request->all(), [
             'diagnosis_name' => 'required'
         ]);
@@ -84,7 +84,7 @@ class MedicalHistoryController extends BaseController
 
     public function saveMedicalHistory(Request $request)
     {
-        Log::info("user_id = ".$request->user_id ." member_type ".$request->member_type);
+        //Log::info("user_id = ".$request->user_id ." member_type ".$request->member_type);
         //$diagnosisList = json_decode($request->diagnosis_list);
         $diagnosisList = $request->diagnosis_list;
         //Log::info("Request = ".json_encode($diagnosisList));
@@ -145,4 +145,13 @@ class MedicalHistoryController extends BaseController
         return response()->json($historyInfo, 200);
     }
 
+    public function getAllTypeHistoryByUser($id)
+    {
+        //Get the data
+        //Log::info("Id ".$id  ." Type= ".$type);
+        $historyInfo = DB::table('medical_histories')->join('diagnosis_infos','diagnosis_id','=','diagnosis_infos.id')
+        ->where('user_id','=',$id)->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
+
+        return response()->json($historyInfo, 200);
+    }
 }

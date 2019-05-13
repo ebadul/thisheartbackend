@@ -33,8 +33,19 @@ Route::middleware('auth:api')->group( function () {
 Route::post('password/email', 'API\PasswordResetController@getResetToken');
 Route::get('password/find/{token}', 'API\PasswordResetController@findToken');
 Route::post('password/reset', 'API\PasswordResetController@reset');
+
 //Memories
-Route::post('upload/image', 'API\MemoriesController@storeImage');
+//Route::middleware('auth:api')->group( function () {
+	Route::post('image/upload', 'API\MemoriesController@storeImage');
+	Route::get('image/getAll/{user_id}', 'API\MemoriesController@getAllImagesById');
+	Route::get('image/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentImagesByDay');
+	Route::post('image/delete/{id}', 'API\MemoriesController@deleteImageById');
+
+	Route::post('video/upload', 'API\MemoriesController@storeVideo');
+	Route::get('video/getAll/{user_id}', 'API\MemoriesController@getAllVideoById');
+	Route::get('video/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentVideoByDay');
+	Route::post('video/delete/{id}', 'API\MemoriesController@deleteVideoById');
+//});
 
 //Medical Info
 //Route::middleware('auth:api')->group( function () {
@@ -49,5 +60,14 @@ Route::post('upload/image', 'API\MemoriesController@storeImage');
 	Route::post('medichistory/deleteBy/{id}', 'API\MedicalHistoryController@deleteHistoryById');
 	Route::get('medichistory/getAllById/{id}', 'API\MedicalHistoryController@getHistoryByUserId');
 	Route::get('medichistory/getAllByType/{type}/{id}', 'API\MedicalHistoryController@getHistoryByMemberType');
+	Route::get('medichistory/getAllById/{id}', 'API\MedicalHistoryController@getAllTypeHistoryByUser');
 //});
+
+//Letters info
+//Route::middleware('auth:api')->group( function () {
+	Route::post('letter/store', 'API\LettersController@addLetter');
+	Route::get('letter/getById/{user_id}', 'API\LettersController@getLettersById');
+	Route::post('letter/updateBy/{id}', 'API\LettersController@updateLetterById');
+	Route::post('letter/deleteBy/{id}', 'API\LettersController@deleteLetterById');
+	//});
 
