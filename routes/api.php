@@ -34,7 +34,7 @@ Route::post('password/email', 'API\PasswordResetController@getResetToken');
 Route::get('password/find/{token}', 'API\PasswordResetController@findToken');
 Route::post('password/reset', 'API\PasswordResetController@reset');
 
-//Memories
+//Memories,,
 //Route::middleware('auth:api')->group( function () {
 	Route::post('image/upload', 'API\MemoriesController@storeImage');
 	Route::get('image/getAll/{user_id}', 'API\MemoriesController@getAllImagesById');
@@ -45,6 +45,11 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 	Route::get('video/getAll/{user_id}', 'API\MemoriesController@getAllVideoById');
 	Route::get('video/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentVideoByDay');
 	Route::post('video/delete/{id}', 'API\MemoriesController@deleteVideoById');
+
+	Route::post('record/upload', 'API\MemoriesController@storeAudioRecord');
+	Route::get('record/getAll/{user_id}', 'API\MemoriesController@getAllAudioRecordById');
+	Route::get('record/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentAudioRecordByDay');
+	Route::post('record/delete/{id}', 'API\MemoriesController@deleteAudioRecordById');
 //});
 
 //Medical Info
@@ -71,3 +76,10 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 	Route::post('letter/deleteBy/{id}', 'API\LettersController@deleteLetterById');
 	//});
 
+//Beneficiaries info
+//Route::middleware('auth:api')->group( function () {
+	Route::post('beneficiary/store', 'API\BeneficiaryController@addBeneficiary');
+	Route::get('beneficiary/getById/{user_id}', 'API\BeneficiaryController@getBeneficiaryById');
+	Route::post('beneficiary/updateBy/{id}', 'API\BeneficiaryController@updateBeneficiaryById');
+	Route::post('beneficiary/deleteBy/{id}', 'API\BeneficiaryController@deleteBeneficiaryById');
+	//});

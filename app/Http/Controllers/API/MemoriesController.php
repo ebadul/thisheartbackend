@@ -142,8 +142,7 @@ class MemoriesController extends BaseController
     {
         //Log::info("user_id = ".$user_id);
         //Get the data
-        $imagesInfo = DB::table('memories')->whereDate('created_at', Carbon::now()->subDays($day))->where('filetype','=',"video")
-        ->select('memories.*')->get();
+        $imagesInfo = DB::table('memories')->whereDate('created_at', Carbon::now()->subDays($day))->where('filetype','=',"video")->where('user_id','=',$user_id)->select('memories.*')->get();
 
         return response()->json($imagesInfo, 200);
     }
@@ -154,6 +153,82 @@ class MemoriesController extends BaseController
         $memoriesInfo = Memories::findOrfail($id);
         //Delete file from disk.
         $video_path = public_path()."/uploads/video/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        if (File::exists($video_path)) {
+            Log::info("file path = ".$video_path);
+            File::delete($video_path);
+        }
+
+        if($memoriesInfo->delete()) {
+            return response()->json([
+                'message' => 'Data deleted successfully!',
+                'memoriesInfo' => $memoriesInfo
+            ],200);
+        }
+    }
+
+    public function storeAudioRecord(Request $request)
+    {
+        $max_size = (int)ini_get('upload_max_filesize') * 1000;
+        Log::info("max_size = ".$max_size);
+        //Log::info("Image File = ".$request->file('image'));|max:10000040
+        $data=$request->all();
+        $rules=['audio' =>'mimes:mpeg,mpga,mp3,wav,aac|max:'.$max_size.'|required'];
+        $validator = Validator($data,$rules);
+        
+        if ($validator->fails()){
+            return response()->json([
+                'message' => 'Please select valid audio file.',
+            ], 401);
+
+        }else{
+            $video = $request->file('audio');
+            $videoName = str_random(60);
+           
+            $name = $videoName.'.'.$video->getClientOriginalExtension();
+            $destinationPath = public_path('/uploads/audio/'.$request->user_id);
+            $imagePath = $destinationPath. "/".  $name;
+            $video->move($destinationPath, $name);
+
+            $memories = new Memories();
+            $memories->title = $request->title;
+            $memories->filename = $name;
+            $memories->filetype = "record";
+            $memories->user_id = $request->user_id;
+
+            $memories->save();
+
+            return response()->json([
+                'message' => 'Audio uploaded successfully.',
+            ], 200);
+        }
+
+    }
+
+    public function getAllAudioRecordById($user_id)
+    {
+        //Log::info("user_id = ".$user_id);
+        //Get the data
+        $imagesInfo = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"record")
+        ->select('memories.*')->get();
+
+        return response()->json($imagesInfo, 200);
+    }
+
+    public function getRecentAudioRecordByDay($user_id,$day)
+    {
+        //Log::info("user_id = ".$user_id);
+        //Get the data
+        $imagesInfo = DB::table('memories')->whereDate('created_at', Carbon::now()->subDays($day))->where('filetype','=',"record")->where('user_id','=',$user_id)->select('memories.*')->get();
+
+        return response()->json($imagesInfo, 200);
+    }
+
+    public function deleteAudioRecordById($id)
+    {
+        //Get the task
+        $memoriesInfo = Memories::findOrfail($id);
+        //Delete file from disk.
+        $video_path = public_path()."/uploads/audio/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
         if (File::exists($video_path)) {
             Log::info("file path = ".$video_path);
             File::delete($video_path);
