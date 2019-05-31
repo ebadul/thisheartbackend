@@ -16,7 +16,7 @@ class MemoriesController extends BaseController
 
     public function storeImage(Request $request)
     {
-        //Log::info("Title = ".$request->title);
+        Log::info("Title = ".$request->title);
         //Log::info("Image File = ".$request->file('image'));
 
         if ($request->hasFile('image')) {
@@ -24,10 +24,9 @@ class MemoriesController extends BaseController
             $imageName = str_random(60);
            
             $name = $imageName.'.'.$image->getClientOriginalExtension();
-            $destinationPath = public_path('/uploads/'.$request->user_id);
-            $imagePath = $destinationPath. "/".  $name;
-            $image->move($destinationPath, $name);
-
+            $path = $image->storeAs('public/uploads/images/'.$request->user_id,$name);
+            //Log::info("Upload path = ".$path);
+ 
             $memories = new Memories();
             $memories->title = $request->title;
             $memories->filename = $name;
@@ -74,10 +73,10 @@ class MemoriesController extends BaseController
         $memoriesInfo = Memories::findOrfail($id);
 
         //Delete file from disk.
-        $image_path = public_path()."/uploads/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
-        
+        $image_path = storage_path()."/app/public/uploads/images/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        //Log::info("file path = ".$image_path);
         if (File::exists($image_path)) {
-            Log::info("file path = ".$image_path);
+            Log::info("file exist");
             File::delete($image_path);
         }
 
@@ -109,9 +108,7 @@ class MemoriesController extends BaseController
             $videoName = str_random(60);
            
             $name = $videoName.'.'.$video->getClientOriginalExtension();
-            $destinationPath = public_path('/uploads/video/'.$request->user_id);
-            $imagePath = $destinationPath. "/".  $name;
-            $video->move($destinationPath, $name);
+            $path = $video->storeAs('public/uploads/videos/'.$request->user_id,$name);
 
             $memories = new Memories();
             $memories->title = $request->title;
@@ -152,7 +149,7 @@ class MemoriesController extends BaseController
         //Get the task
         $memoriesInfo = Memories::findOrfail($id);
         //Delete file from disk.
-        $video_path = public_path()."/uploads/video/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        $video_path = storage_path()."/app/public/uploads/videos/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
         if (File::exists($video_path)) {
             Log::info("file path = ".$video_path);
             File::delete($video_path);
@@ -169,7 +166,7 @@ class MemoriesController extends BaseController
     public function storeAudioRecord(Request $request)
     {
         $max_size = (int)ini_get('upload_max_filesize') * 1000;
-        Log::info("max_size = ".$max_size);
+        //Log::info("max_size = ".$max_size);
         //Log::info("Image File = ".$request->file('image'));|max:10000040
         $data=$request->all();
         $rules=['audio' =>'mimes:mpeg,mpga,mp3,wav,aac|max:'.$max_size.'|required'];
@@ -181,13 +178,11 @@ class MemoriesController extends BaseController
             ], 401);
 
         }else{
-            $video = $request->file('audio');
-            $videoName = str_random(60);
+            $audio = $request->file('audio');
+            $audioName = str_random(60);
            
-            $name = $videoName.'.'.$video->getClientOriginalExtension();
-            $destinationPath = public_path('/uploads/audio/'.$request->user_id);
-            $imagePath = $destinationPath. "/".  $name;
-            $video->move($destinationPath, $name);
+            $name = $audioName.'.'.$audio->getClientOriginalExtension();
+            $path = $audio->storeAs('public/uploads/audios/'.$request->user_id,$name);
 
             $memories = new Memories();
             $memories->title = $request->title;
@@ -228,7 +223,7 @@ class MemoriesController extends BaseController
         //Get the task
         $memoriesInfo = Memories::findOrfail($id);
         //Delete file from disk.
-        $video_path = public_path()."/uploads/audio/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        $video_path = storage_path()."/app/public/uploads/audios/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
         if (File::exists($video_path)) {
             Log::info("file path = ".$video_path);
             File::delete($video_path);
