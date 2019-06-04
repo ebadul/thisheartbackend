@@ -31,7 +31,7 @@ class BeneficiaryController extends BaseController
         if ($validator->fails()){
             return response()->json([
                 'message' => 'Validation error,please check input field.',
-            ], 401);
+            ], 400);
 
         }else{
             $beneficiaryInfo = new Beneficiary();
@@ -90,7 +90,7 @@ class BeneficiaryController extends BaseController
         }else{
             return response()->json([
                 'message' => 'Update failed! Data not found for this id.'
-            ],401);
+            ],404);
         }
 
     }

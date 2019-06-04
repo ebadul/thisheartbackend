@@ -44,6 +44,7 @@ class MemoriesController extends BaseController
 
         return response()->json([
             'message' => 'Image uploaded successfully.',
+            'data' => $memories
         ], 200);
     }
 
@@ -84,7 +85,7 @@ class MemoriesController extends BaseController
 
             return response()->json([
                 'message' => 'Data deleted successfully!',
-                'memoriesInfo' => $memoriesInfo
+                'data' => $memoriesInfo
             ],200);
         }
     }
@@ -95,13 +96,13 @@ class MemoriesController extends BaseController
         Log::info("max_size = ".$max_size);
         //Log::info("Image File = ".$request->file('image'));|max:10000040
         $data=$request->all();
-        $rules=['video' =>'mimes:mpeg,ogg,mp4,webm,3gp,mov,flv,avi,wmv,ts|max:'.$max_size.'|required'];
+        $rules=['video' =>'mimes:mpeg,ogg,ogv,mp4,webm,3gp,mov,flv,avi,wmv,ts|max:'.$max_size.'|required'];
         $validator = Validator($data,$rules);
         
         if ($validator->fails()){
             return response()->json([
                 'message' => 'Please select valid video file.',
-            ], 401);
+            ], 400);
 
         }else{
             $video = $request->file('video');
@@ -109,6 +110,7 @@ class MemoriesController extends BaseController
            
             $name = $videoName.'.'.$video->getClientOriginalExtension();
             $path = $video->storeAs('public/uploads/videos/'.$request->user_id,$name);
+            Log::info("Stored Path = ".$path);
 
             $memories = new Memories();
             $memories->title = $request->title;
@@ -120,6 +122,7 @@ class MemoriesController extends BaseController
 
             return response()->json([
                 'message' => 'Video uploaded successfully.',
+                'data' => $memories
             ], 200);
         }
 
@@ -158,7 +161,7 @@ class MemoriesController extends BaseController
         if($memoriesInfo->delete()) {
             return response()->json([
                 'message' => 'Data deleted successfully!',
-                'memoriesInfo' => $memoriesInfo
+                'data' => $memoriesInfo
             ],200);
         }
     }
@@ -194,6 +197,7 @@ class MemoriesController extends BaseController
 
             return response()->json([
                 'message' => 'Audio uploaded successfully.',
+                'data' => $memories
             ], 200);
         }
 
@@ -232,7 +236,7 @@ class MemoriesController extends BaseController
         if($memoriesInfo->delete()) {
             return response()->json([
                 'message' => 'Data deleted successfully!',
-                'memoriesInfo' => $memoriesInfo
+                'data' => $memoriesInfo
             ],200);
         }
     }
