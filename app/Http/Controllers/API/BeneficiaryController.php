@@ -6,9 +6,11 @@ use App\Http\Controllers\API\BaseController as BaseController;
 
 use Validator;
 use Illuminate\Http\Request;
+use App\User;
 use App\Beneficiary;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class BeneficiaryController extends BaseController
 {
@@ -46,15 +48,122 @@ class BeneficiaryController extends BaseController
             $beneficiaryInfo->state = $request->state;
             $beneficiaryInfo->zip = $request->zip;
             $beneficiaryInfo->last_4_beneficiary = $request->last_4_beneficiary;
-            $beneficiaryInfo->invite_code = str_random(16);
+            $beneficiaryCode = str_random(16);
+            $beneficiaryInfo->invite_code = $beneficiaryCode;
 
             $beneficiaryInfo->save();
+            $user = User::where('id', '=', $request->user_id)->first();
+
+            //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
+            //Send mail to beneficiary.
+            $to_name = $request->first_name;
+            $to_email = $request->email;
+            $data = array(
+                'b_first_name' => $request->first_name,
+                'user_first_name' => $user->name,
+                'url' => 'http://45.35.50.179:3000/login',
+                'beneficiary_code' => $beneficiaryCode
+            );
+ 
+            //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
+            
+            Mail::send('emails.add-beneficiary', $data, function($message) use ($to_name, $to_email) {
+                $message->to($to_email, $to_name)
+                        ->subject('Beneficiary Email');
+                $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
+            });
 
             return response()->json([
                 'message' => 'Beneficiary added successfully!',
                 'data' => $beneficiaryInfo
             ],200);
         }
+    }
+
+    public function resetBeneficiaryCode($id)
+    {
+        $beneficiaryInfo = Beneficiary::where('id', '=', $id)->first();
+        $beneficiaryCode = str_random(16);
+        
+        if($beneficiaryInfo){
+            $beneficiaryInfo->invite_code = $beneficiaryCode;
+            $beneficiaryInfo->save();
+
+            $user = User::where('id', '=', $beneficiaryInfo->user_id)->first();
+
+            //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
+            //Send mail to beneficiary.
+            $to_name = $beneficiaryInfo->first_name;
+            $to_email = $beneficiaryInfo->email;
+            $data = array(
+                'b_first_name' => $beneficiaryInfo->first_name,
+                'user_first_name' => $user->name,
+                'url' => 'http://45.35.50.179:3000/login',
+                'beneficiary_code' => $beneficiaryCode
+            );
+    
+            //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
+            
+            Mail::send('emails.reset-beneficiary-code', $data, function($message) use ($to_name, $to_email) {
+                $message->to($to_email, $to_name)
+                        ->subject('Reset Beneficiary Code Email');
+                $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
+            });
+
+            return response()->json([
+                'message' => 'Beneficiary code reset successfully!',
+                'data' => $beneficiaryInfo
+            ],200);
+        }else{
+            return response()->json([
+                'message' => 'Beneficiary code reset failed!',
+                'data' => $beneficiaryInfo
+            ],400);
+        }
+
+    }
+
+    public function sendNewBeneficiaryCode($id)
+    {
+        $beneficiaryInfo = Beneficiary::where('id', '=', $id)->first();
+        $beneficiaryCode = str_random(16);
+        
+        if($beneficiaryInfo){
+            $beneficiaryInfo->invite_code = $beneficiaryCode;
+            $beneficiaryInfo->save();
+
+            $user = User::where('id', '=', $beneficiaryInfo->user_id)->first();
+
+            //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
+            //Send mail to beneficiary.
+            $to_name = $beneficiaryInfo->first_name;
+            $to_email = $beneficiaryInfo->email;
+            $data = array(
+                'b_first_name' => $beneficiaryInfo->first_name,
+                'user_first_name' => $user->name,
+                'url' => 'http://45.35.50.179:3000/login',
+                'beneficiary_code' => $beneficiaryCode
+            );
+    
+            //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
+            
+            Mail::send('emails.new-beneficiary-code', $data, function($message) use ($to_name, $to_email) {
+                $message->to($to_email, $to_name)
+                        ->subject('New Beneficiary Code Email');
+                $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
+            });
+
+            return response()->json([
+                'message' => 'New code send successfully!',
+                'data' => $beneficiaryInfo
+            ],200);
+        }else{
+            return response()->json([
+                'message' => 'Beneficiary code send failed!',
+                'data' => $beneficiaryInfo
+            ],400);
+        }
+
     }
 
     public function getBeneficiaryById($user_id)

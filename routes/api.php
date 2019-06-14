@@ -82,4 +82,6 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 	Route::get('beneficiary/getById/{user_id}', 'API\BeneficiaryController@getBeneficiaryById');
 	Route::post('beneficiary/updateBy/{id}', 'API\BeneficiaryController@updateBeneficiaryById');
 	Route::post('beneficiary/deleteBy/{id}', 'API\BeneficiaryController@deleteBeneficiaryById');
+	Route::post('beneficiary/resetCode/{id}', 'API\BeneficiaryController@resetBeneficiaryCode');
+	Route::post('beneficiary/sendNewCode/{id}', 'API\BeneficiaryController@sendNewBeneficiaryCode');
 	//});
