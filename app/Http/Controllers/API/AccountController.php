@@ -7,6 +7,8 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use App\Account;
 use Validator;
 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class AccountController extends BaseController
 {
@@ -15,102 +17,90 @@ class AccountController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function addAccount(Request $request)
     {
-        $accounts = Account::all();
-
-        return $this->sendResponse($accounts->toArray(), 'Accounts retrieved successfully.');
-    }
-
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $input = $request->all();
-
-        $validator = Validator::make($input, [
-            'name' => 'required',
-            'detail' => 'required'
+        //Log::info("Request = ".$request->all());
+        $validator = Validator::make($request->all(), [
+            'acc_type' => 'required',
+            'acc_name' => 'required',
+            'user_id' => 'required',
+            'acc_url' => 'required',
+            'acc_description' => 'required',
+            'acc_user_name' => 'required',
+            'acc_password' => 'required'
         ]);
 
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());       
+        if ($validator->fails()){
+            return response()->json([
+                'message' => 'Validation error,please check reequired input field.',
+            ], 400);
+
+        }else{
+            $accountInfo = new Account();
+
+            $accountInfo->acc_type = $request->acc_type;
+            $accountInfo->acc_name = $request->acc_name;
+            $accountInfo->user_id = $request->user_id;
+            $accountInfo->acc_url = $request->acc_url;
+            $accountInfo->acc_description = $request->acc_description;
+            $accountInfo->acc_user_name = $request->acc_user_name;
+            $accountInfo->acc_password = $request->acc_password;
+
+            $accountInfo->save();
+           
+            return response()->json([
+                'message' => 'Accounts data added successfully!',
+                'data' => $accountInfo
+            ],200);
         }
-
-        $account = Account::create($input);
-
-        return $this->sendResponse($account->toArray(), 'Account created successfully.');
     }
 
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function getAccountByUserId($user_id)
     {
-        $account = Account::find($id);
+        //Log::info("user_id = ".$user_id);
+        //Get the data
+        $accountInfo = DB::table('accounts')->where('user_id','=',$user_id)->select('accounts.*')->get();
 
-
-        if (is_null($account)) {
-            return $this->sendError('Account not found.');
-        }
-
-
-        return $this->sendResponse($account->toArray(), 'Account retrieved successfully.');
+        return response()->json($accountInfo, 200);
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Account $account)
+    public function updateAccountById(Request $request,$id)
     {
-        $input = $request->all();
+        $accountInfo = Account::findOrfail($id);
 
+        if($accountInfo){
+            $accountInfo->acc_type = $request->acc_type;
+            $accountInfo->acc_name = $request->acc_name;
+            $accountInfo->user_id = $request->user_id;
+            $accountInfo->acc_url = $request->acc_url;
+            $accountInfo->acc_description = $request->acc_description;
+            $accountInfo->acc_user_name = $request->acc_user_name;
+            $accountInfo->acc_password = $request->acc_password;
 
-        $validator = Validator::make($input, [
-            'name' => 'required',
-            'detail' => 'required'
-        ]);
+            $accountInfo->save();
 
-
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());       
+            return response()->json([
+                'message' => 'Data updated successfully!',
+                'data' => $accountInfo
+            ],200);
+        }else{
+            return response()->json([
+                'message' => 'Update failed! Data not found for this id.'
+            ],404);
         }
 
-
-        $account->name = $input['name'];
-        $account->detail = $input['detail'];
-        $account->save();
-
-
-        return $this->sendResponse($account->toArray(), 'Account updated successfully.');
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Account $account)
+    public function deleteAccountById($id)
     {
-        $account->delete();
-
-
-        return $this->sendResponse($account->toArray(), 'Account deleted successfully.');
+        //Get the task
+        $accountInfo = Account::findOrfail($id);
+ 
+        if($accountInfo->delete()) {
+            return response()->json([
+                'message' => 'Data deleted successfully!',
+                'data' => $accountInfo
+            ],200);
+        }
     }
 }

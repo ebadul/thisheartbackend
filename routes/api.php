@@ -85,3 +85,11 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 	Route::post('beneficiary/resetCode/{id}', 'API\BeneficiaryController@resetBeneficiaryCode');
 	Route::post('beneficiary/sendNewCode/{id}', 'API\BeneficiaryController@sendNewBeneficiaryCode');
 	//});
+
+	//Accounts info
+//Route::middleware('auth:api')->group( function () {
+	Route::post('account/store', 'API\AccountController@addAccount');
+	Route::get('account/getByUserId/{user_id}', 'API\AccountController@getAccountByUserId');
+	Route::post('account/updateBy/{id}', 'API\AccountController@updateAccountById');
+	Route::post('account/deleteBy/{id}', 'API\AccountController@deleteAccountById');
+	//});
