@@ -93,3 +93,10 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 	Route::post('account/updateBy/{id}', 'API\AccountController@updateAccountById');
 	Route::post('account/deleteBy/{id}', 'API\AccountController@deleteAccountById');
 	//});
+
+//Route::middleware('auth:api')->group( function () {
+	Route::get('/getQRCode/{user_id}','API\PasswordSecurityController@getQRCode');
+	Route::post('/generate2faSecret','API\PasswordSecurityController@generate2faSecret');
+	Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');
+	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');
+	//});

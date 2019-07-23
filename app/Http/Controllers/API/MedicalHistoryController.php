@@ -108,7 +108,8 @@ class MedicalHistoryController extends BaseController
         }
 
         return response()->json([
-            'message' => 'Diagnosis name added successfully!'
+            'message' => 'Diagnosis name added successfully!',
+            'data' => $historyInfo
         ],200);
     }
     

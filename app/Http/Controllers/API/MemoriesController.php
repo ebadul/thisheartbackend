@@ -172,7 +172,7 @@ class MemoriesController extends BaseController
         //Log::info("max_size = ".$max_size);
         //Log::info("Image File = ".$request->file('image'));|max:10000040
         $data=$request->all();
-        $rules=['audio' =>'mimes:mpeg,mpga,mp3,wav,aac|max:'.$max_size.'|required'];
+        $rules=['audio' =>'mimes:mpeg,mpga,mp3,m4a,wma,webM,wav,ogg,aac|max:'.$max_size.'|required'];
         $validator = Validator($data,$rules);
         
         if ($validator->fails()){
