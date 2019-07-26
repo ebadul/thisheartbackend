@@ -19,17 +19,28 @@ class MedicalHistoryController extends BaseController
             'diagnosis_name' => 'required'
         ]);
 
-        $diagnosisInfo = new DiagnosisInfo();
+        $diagnosisCheck = DiagnosisInfo::where("diagnosis_name","=",$request->diagnosis_name)->get();
+        //Log::info("diagnosisCheck = ".$diagnosisCheck);
 
-        $diagnosisInfo->diagnosis_name = $request->diagnosis_name;
-        $diagnosisInfo->description = $request->description;
+        if(count($diagnosisCheck) == 0){
+            $diagnosisInfo = new DiagnosisInfo();
 
-        $diagnosisInfo->save();
+            $diagnosisInfo->diagnosis_name = $request->diagnosis_name;
+            $diagnosisInfo->description = $request->description;
+    
+            $diagnosisInfo->save();
 
-        return response()->json([
-            'message' => 'Diagnosis name added successfully!',
-            'diagnosisInfo' => $diagnosisInfo
-        ],200);
+            return response()->json([
+                'message' => 'Diagnosis name added successfully!',
+                'diagnosisInfo' => $diagnosisInfo
+            ],200);
+        }else{
+            return response()->json([
+                'message' => 'Data already exist!',
+                'diagnosisInfo' => $diagnosisCheck
+            ],400);
+        }
+ 
     }
 
     public function getAllDiagnosisName()
@@ -84,16 +95,20 @@ class MedicalHistoryController extends BaseController
 
     public function saveMedicalHistory(Request $request)
     {
-        //Log::info("user_id = ".$request->user_id ." member_type ".$request->member_type);
+        //Below line need when call from postman
         //$diagnosisList = json_decode($request->diagnosis_list);
+        
+        //Below line need when call from front-end
         $diagnosisList = $request->diagnosis_list;
         //Log::info("Request = ".json_encode($diagnosisList));
         //DB::enableQueryLog();
+        $addedDiagnosisList = [];
+        $diagnosisCSV = "";
         foreach ($diagnosisList as $diagnosisId) {
-            Log::info("diagnosisId = ".$diagnosisId);
+            //Log::info("diagnosisId = ".$diagnosisId);
             $matchThese = ['user_id' => $request->user_id, 'diagnosis_id' => $diagnosisId, 'member_type' => $request->member_type];
             $dataInfo = MedicalHistory::where($matchThese)->get();
-            Log::info($dataInfo);
+           // Log::info("dataInfo ".$dataInfo);
             //$query = DB::getQueryLog();
             //Log::info($query);
 
@@ -103,13 +118,24 @@ class MedicalHistoryController extends BaseController
                 $historyInfo->user_id = $request->user_id;
                 $historyInfo->member_type = $request->member_type;
                 $historyInfo->save();
+
+                array_push($addedDiagnosisList,$diagnosisId);
             }
-            //Log::info("Request = ".$historyId);
+                
         }
 
+        //Log::info("diagnosisCSV = ".$diagnosisCSV);
+        $historyInfoNew = DB::table('medical_histories')->join('diagnosis_infos','diagnosis_id','=','diagnosis_infos.id')
+                ->where('user_id','=',$request->user_id)
+                ->whereIn('diagnosis_id',$addedDiagnosisList)
+                ->where('member_type','=',$request->member_type)
+                ->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
+
+         Log::info("historyInfoNew = ".$historyInfoNew);
+         
         return response()->json([
             'message' => 'Diagnosis name added successfully!',
-            'data' => $historyInfo
+            'data' => $historyInfoNew
         ],200);
     }
     
