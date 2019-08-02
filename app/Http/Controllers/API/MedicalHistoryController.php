@@ -43,6 +43,25 @@ class MedicalHistoryController extends BaseController
  
     }
 
+    public function getPersonTypeDataCountById($user_id)
+    {
+        $meCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Me")
+        ->select('medical_histories.*')->count();
+        $momCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Mom")
+        ->select('medical_histories.*')->count();
+        $dadCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Dad")
+        ->select('medical_histories.*')->count();
+        $partnerCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Partner")
+        ->select('medical_histories.*')->count();
+
+        return response()->json([
+            'meCount' => $meCount,
+            'momCount' => $momCount,
+            'dadCount' => $dadCount,
+            'partnerCount' => $partnerCount,
+        ],200);
+    }
+
     public function getAllDiagnosisName()
     {
         $diagnosisInfo = DiagnosisInfo::all();

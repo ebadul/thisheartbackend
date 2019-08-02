@@ -48,6 +48,24 @@ class MemoriesController extends BaseController
         ], 200);
     }
 
+    public function getContentDataCountById($user_id)
+    {
+        $imageCount = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"image")
+        ->select('memories.*')->count();
+        $videoCount = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"video")
+        ->select('memories.*')->count();
+        $recordCount = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"record")
+        ->select('memories.*')->count();
+        $letterCount = DB::table('letters')->where('user_id','=',$user_id)->select('letters.*')->count();
+
+        return response()->json([
+            'imageCount' => $imageCount,
+            'videoCount' => $videoCount,
+            'recordCount' => $recordCount,
+            'letterCount' => $letterCount,
+        ],200);
+    }
+
     public function getAllImagesById($user_id)
     {
         //Log::info("user_id = ".$user_id);

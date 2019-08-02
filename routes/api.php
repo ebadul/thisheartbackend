@@ -50,6 +50,7 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 	Route::get('record/getAll/{user_id}', 'API\MemoriesController@getAllAudioRecordById');
 	Route::get('record/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentAudioRecordByDay');
 	Route::post('record/delete/{id}', 'API\MemoriesController@deleteAudioRecordById');
+	Route::get('memories/getContentDataCount/{user_id}', 'API\MemoriesController@getContentDataCountById');
 //});
 
 //Medical Info
@@ -66,6 +67,7 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 	Route::get('medichistory/getAllById/{id}', 'API\MedicalHistoryController@getHistoryByUserId');
 	Route::get('medichistory/getAllByType/{type}/{id}', 'API\MedicalHistoryController@getHistoryByMemberType');
 	Route::get('medichistory/getAllById/{id}', 'API\MedicalHistoryController@getAllTypeHistoryByUser');
+	Route::get('medichistory/getPersonTypeDataCount/{user_id}', 'API\MedicalHistoryController@getPersonTypeDataCountById');
 //});
 
 //Letters info
