@@ -64,7 +64,8 @@ class BeneficiaryController extends BaseController
                 'b_first_name' => $request->first_name,
                 'user_first_name' => $user->name,
                 'url' => $beneficiaryInfo->access_url,
-                'beneficiary_code' => $beneficiaryCode
+                'beneficiary_code' => $beneficiaryCode,
+                'last4_social' => $request->last_4_beneficiary
             );
  
             //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
@@ -89,6 +90,7 @@ class BeneficiaryController extends BaseController
         
         if($beneficiaryInfo){
             $beneficiaryInfo->invite_code = $beneficiaryCode;
+            $beneficiaryInfo->validate_code = 0;
             $beneficiaryInfo->save();
 
             $user = User::where('id', '=', $beneficiaryInfo->user_id)->first();
@@ -132,6 +134,7 @@ class BeneficiaryController extends BaseController
        
         if($beneficiaryInfo){
             $beneficiaryInfo->invite_code = $beneficiaryCode;
+            $beneficiaryInfo->validate_code = 0;
             $beneficiaryInfo->save();
 
             $user = User::where('id', '=', $beneficiaryInfo->user_id)->first();
