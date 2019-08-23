@@ -45,6 +45,8 @@ class MedicalHistoryController extends BaseController
 
     public function getPersonTypeDataCountById($user_id)
     {
+        // $partnerCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Me")->select('medical_histories.*')->count();
+        // Log::info("partnerCount = ".$partnerCount);
         $meCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Me")
         ->select('medical_histories.*')->count();
         $momCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Mom")

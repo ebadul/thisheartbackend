@@ -50,6 +50,8 @@ class BeneficiaryController extends BaseController
             $beneficiaryInfo->last_4_beneficiary = $request->last_4_beneficiary;
             $beneficiaryCode = str_random(16);
             $beneficiaryInfo->invite_code = $beneficiaryCode;
+            $accUrlCode = str_random(8);
+            $beneficiaryInfo->access_url = 'http://45.35.50.179:3000/'.$accUrlCode;
 
             $beneficiaryInfo->save();
             $user = User::where('id', '=', $request->user_id)->first();
@@ -61,7 +63,7 @@ class BeneficiaryController extends BaseController
             $data = array(
                 'b_first_name' => $request->first_name,
                 'user_first_name' => $user->name,
-                'url' => 'http://45.35.50.179:3000/login',
+                'url' => $beneficiaryInfo->access_url,
                 'beneficiary_code' => $beneficiaryCode
             );
  
@@ -98,7 +100,7 @@ class BeneficiaryController extends BaseController
             $data = array(
                 'b_first_name' => $beneficiaryInfo->first_name,
                 'user_first_name' => $user->name,
-                'url' => 'http://45.35.50.179:3000/login',
+                'url' => $beneficiaryInfo->access_url,
                 'beneficiary_code' => $beneficiaryCode
             );
     
@@ -127,7 +129,7 @@ class BeneficiaryController extends BaseController
     {
         $beneficiaryInfo = Beneficiary::where('id', '=', $id)->first();
         $beneficiaryCode = str_random(16);
-        
+       
         if($beneficiaryInfo){
             $beneficiaryInfo->invite_code = $beneficiaryCode;
             $beneficiaryInfo->save();
@@ -141,7 +143,7 @@ class BeneficiaryController extends BaseController
             $data = array(
                 'b_first_name' => $beneficiaryInfo->first_name,
                 'user_first_name' => $user->name,
-                'url' => 'http://45.35.50.179:3000/login',
+                'url' => $beneficiaryInfo->access_url,
                 'beneficiary_code' => $beneficiaryCode
             );
     
@@ -161,6 +163,48 @@ class BeneficiaryController extends BaseController
             return response()->json([
                 'message' => 'Beneficiary code send failed!',
                 'data' => $beneficiaryInfo
+            ],400);
+        }
+
+    }
+
+    public function validateCode(Request $request)
+    {
+        $accessCode = $request->access_code;
+        $urlCode = $request->url_code;
+        $beneficiaryInfo = Beneficiary::where('invite_code', '=', $accessCode)->first();
+        //$beneficiaryInfo = DB::table('beneficiaries')->where('invite_code','=',$accessCode)->select('beneficiaries.*')->get();
+
+        if($beneficiaryInfo){
+            if($beneficiaryInfo->validate_code == 0){
+
+                if($beneficiaryInfo->invite_code == $accessCode){
+
+                    $beneficiaryInfo->validate_code = 1;
+                    $beneficiaryInfo->save();
+
+                    return response()->json([
+                        'message' => 'Code validated successfully!',
+                        'validated' => 1,
+                        'data' => $beneficiaryInfo
+                    ],200);
+                }else{
+                    return response()->json([
+                        'message' => 'Invalid code. Please try again.',
+                        'validated' => 0
+                    ],400);
+                }
+                
+            }else{
+                return response()->json([
+                    'message' => 'This code already validated!',
+                    'validated' => 0
+                ],400);
+            }
+        }else{
+            return response()->json([
+                'message' => 'Invalid code. Please try again.',
+                'validated' => 0
             ],400);
         }
 
@@ -215,5 +259,36 @@ class BeneficiaryController extends BaseController
                 'data' => $beneficiaryInfo
             ],200);
         }
+    }
+
+    public function validateLast4Social(Request $request)
+    {
+        $beneficiary_id = $request->beneficiary_id;
+        $last4social_code = $request->last4social_code;
+
+        $beneficiaryInfo = Beneficiary::where('id', '=', $beneficiary_id)->first();
+        
+        if($beneficiaryInfo){
+
+            if($beneficiaryInfo->last_4_beneficiary == $last4social_code){
+
+                return response()->json([
+                    'message' => 'Code validated successfully!',
+                    'validated' => 1,
+                    'data' => $beneficiaryInfo
+                ],200);
+            }else{
+                return response()->json([
+                    'message' => 'Invalid code. Please try again.',
+                    'validated' => 0
+                ],400);
+            }
+           
+        }else{
+            return response()->json([
+                'message' => 'Invalid beneficiary id. Please try again.'
+            ],400);
+        }
+
     }
 }

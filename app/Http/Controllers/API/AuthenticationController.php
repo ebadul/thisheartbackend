@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\User;
+use App\Beneficiary;
+use App\BeneficiaryUser;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Lcobucci\JWT\Parser;
@@ -85,6 +87,83 @@ class AuthenticationController extends BaseController
             'user_name' => $user->name,
             'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
         ], 200);
+    }
+
+    public function registerBeneficiaryUser(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+            'user_id' => 'required',
+            'beneficiary_id' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());       
+        }
+
+        $userData = BeneficiaryUser::where('email', '=', $request->email)->first();
+        if($userData){
+            return response()->json([
+                'message' => 'Email already exist. Please use another.',
+            ], 406);
+        }
+
+        $userData = BeneficiaryUser::where('beneficiary_id', '=', $request->beneficiary_id)->first();
+        if($userData){
+            return response()->json([
+                'message' => 'You have already account with another email id.',
+            ], 406);
+        }
+
+        $input = $request->all();
+        $input['password'] = bcrypt($input['password']);
+
+        $beneficiaryUser = new BeneficiaryUser();
+        $beneficiaryUser->email = $request->email;
+        $beneficiaryUser->user_id = $request->user_id;
+        $beneficiaryUser->beneficiary_id = $request->beneficiary_id;
+        $beneficiaryUser->password = $input['password'];
+        $beneficiaryUser->save();
+
+        return response()->json([
+            'message' => 'User registered successfully!',
+            'data' => $beneficiaryUser
+        ], 200);
+    }
+
+    public function loginBeneficiaryUser(Request $request){
+        $user = BeneficiaryUser::where('email', '=', $request->email)->first();
+        //Log::info("Email = ".$request->email);
+        //Log::info("Password = ".$request->password);
+
+        if($user === null){
+            return response()->json([
+                'message' => 'Email not exist!',
+            ], 401);
+        }else{
+            $passwordOK = Hash::check($request->password, $user->password);
+            if($passwordOK){
+                $tokenResult = $user->createToken('ThisHeartAccessToken');
+
+                $beneficiaryInfo = Beneficiary::findOrfail($user->beneficiary_id);
+                
+                return response()->json([
+                    'message' => 'User logged in successfully!',
+                    'user_id' => $user->id,
+                    'primary_user_id' => $user->user_id,
+                    'user_name' => $beneficiaryInfo->first_name ." ".$beneficiaryInfo->last_name,
+                    'beneficiary_id' => $user->beneficiary_id,
+                    'access_token' => $tokenResult->accessToken,
+                    'token_type' => 'Bearer',
+                    'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
+                ], 200);
+            }else{
+                return response()->json([
+                    'message' => 'Password mismatch!'
+                ], 422);
+            }
+        }
     }
 
     

@@ -13,11 +13,13 @@ use Illuminate\Http\Request;
 |
 */
 
+//Normal User
 Route::post('login', 'API\AuthenticationController@login');
-// Route::middleware('auth:api')->group( function () {
-// 	Route::get('logout', 'API\AuthenticationController@logout');
-// });
 Route::post('register', 'API\AuthenticationController@register');
+
+//Beneficiary User
+Route::post('beneficiary/login', 'API\AuthenticationController@loginBeneficiaryUser');
+Route::post('beneficiary/register', 'API\AuthenticationController@registerBeneficiaryUser');
 
 Route::group([
 	'middleware' => 'auth:api'
@@ -86,6 +88,8 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 	Route::post('beneficiary/deleteBy/{id}', 'API\BeneficiaryController@deleteBeneficiaryById');
 	Route::post('beneficiary/resetCode/{id}', 'API\BeneficiaryController@resetBeneficiaryCode');
 	Route::post('beneficiary/sendNewCode/{id}', 'API\BeneficiaryController@sendNewBeneficiaryCode');
+	Route::post('beneficiary/validateCode', 'API\BeneficiaryController@validateCode');
+	Route::post('beneficiary/validateLast4Social', 'API\BeneficiaryController@validateLast4Social');
 	//});
 
 	//Accounts info
