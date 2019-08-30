@@ -51,11 +51,12 @@ class BeneficiaryController extends BaseController
             $beneficiaryCode = str_random(16);
             $beneficiaryInfo->invite_code = $beneficiaryCode;
             $accUrlCode = str_random(8);
-            $beneficiaryInfo->access_url = 'http://45.35.50.179:3000/'.$accUrlCode;
+            $beneficiaryInfo->access_url = 'http://45.35.50.179:3000/beneficiary/access/'.$accUrlCode;
 
             $beneficiaryInfo->save();
             $user = User::where('id', '=', $request->user_id)->first();
 
+            $beneficiaryLoginUrl = 'http://45.35.50.179:3000/beneficiary/login';
             //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
             //Send mail to beneficiary.
             $to_name = $request->first_name;
@@ -65,7 +66,8 @@ class BeneficiaryController extends BaseController
                 'user_first_name' => $user->name,
                 'url' => $beneficiaryInfo->access_url,
                 'beneficiary_code' => $beneficiaryCode,
-                'last4_social' => $request->last_4_beneficiary
+                'last4_social' => $request->last_4_beneficiary,
+                'login_url' => $beneficiaryLoginUrl
             );
  
             //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
@@ -97,13 +99,15 @@ class BeneficiaryController extends BaseController
 
             //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
             //Send mail to beneficiary.
+            $beneficiaryLoginUrl = 'http://45.35.50.179:3000/beneficiary/login';
             $to_name = $beneficiaryInfo->first_name;
             $to_email = $beneficiaryInfo->email;
             $data = array(
                 'b_first_name' => $beneficiaryInfo->first_name,
                 'user_first_name' => $user->name,
                 'url' => $beneficiaryInfo->access_url,
-                'beneficiary_code' => $beneficiaryCode
+                'beneficiary_code' => $beneficiaryCode,
+                'login_url' => $beneficiaryLoginUrl
             );
     
             //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
@@ -141,13 +145,15 @@ class BeneficiaryController extends BaseController
 
             //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
             //Send mail to beneficiary.
+            $beneficiaryLoginUrl = 'http://45.35.50.179:3000/beneficiary/login';
             $to_name = $beneficiaryInfo->first_name;
             $to_email = $beneficiaryInfo->email;
             $data = array(
                 'b_first_name' => $beneficiaryInfo->first_name,
                 'user_first_name' => $user->name,
                 'url' => $beneficiaryInfo->access_url,
-                'beneficiary_code' => $beneficiaryCode
+                'beneficiary_code' => $beneficiaryCode,
+                'login_url' => $beneficiaryLoginUrl
             );
     
             //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
