@@ -96,10 +96,24 @@ class AuthenticationController extends BaseController
             'password' => 'required',
             'user_id' => 'required',
             'beneficiary_id' => 'required',
+            'last4social_code' => 'required',
         ]);
 
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());       
+        }
+
+        $beneficiaryInfo = Beneficiary::where('id', '=', $request->beneficiary_id)->first();
+        if($beneficiaryInfo){
+
+            if($beneficiaryInfo->last_4_beneficiary == $request->last4social_code){
+            }else{
+                return response()->json([
+                    'message' => 'Invalid social code. Please try again.',
+                    'validated' => 0
+                ],400);
+            }
+           
         }
 
         $userData = BeneficiaryUser::where('email', '=', $request->email)->first();
