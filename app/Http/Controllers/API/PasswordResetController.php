@@ -121,6 +121,13 @@ class PasswordResetController extends BaseController
             'token' => 'required|string'
         ]);
 
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user)
+            return response()->json([
+                'message' => 'Email Id is not valid. Please enter valid email.'
+            ], 406);
+
         $passwordReset = PasswordReset::where([
             ['token', $request->token],
             ['email', $request->email]
@@ -130,12 +137,8 @@ class PasswordResetController extends BaseController
             return response()->json([
                 'message' => 'This password reset token is invalid.'
             ], 404);
-        $user = User::where('email', $request->email)->first();
-        
-        if (!$user)
-            return response()->json([
-                'message' => 'Email address does not exist.'
-            ], 404);
+
+       
 
         $user->password = bcrypt($request->password);
         $user->save();
