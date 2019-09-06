@@ -19,6 +19,17 @@ class LettersController extends BaseController
         // $validator = Validator::make($request->all(), [
         //     'subject' => 'required'
         // ]);
+        if($request->subject == ""){
+            return response()->json([
+                'message' => 'Subject field could not be empty.'
+            ],422);
+        }
+
+        if($request->description == ""){
+            return response()->json([
+                'message' => 'Description field could not be empty.'
+            ],422);
+        }
 
         $lettersInfo = new Letters();
 
@@ -40,16 +51,27 @@ class LettersController extends BaseController
         Log::info("user_id = ".$user_id);
         //Get the data
         $lettersInfo = DB::table('letters')->where('user_id','=',$user_id)->select('letters.*')->get();
-        
-        //$lettersInfo = Letters::where("user_id" , $user_id);
 
         return response()->json($lettersInfo, 200);
     }
 
     public function updateLetterById(Request $request,$id)
     {
+        if($request->subject == ""){
+            return response()->json([
+                'message' => 'Subject field could not be empty.'
+            ],422);
+        }
+
+        if($request->description == ""){
+            return response()->json([
+                'message' => 'Description field could not be empty.'
+            ],422);
+        }
+
         $letersInfo = Letters::findOrfail($id);
         if($letersInfo){
+
             $letersInfo->subject = $request->subject;
             $letersInfo->description = $request->description;
 
