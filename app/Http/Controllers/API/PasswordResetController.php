@@ -40,12 +40,12 @@ class PasswordResetController extends BaseController
             ]
         );
 
-        //Log::info("Token = ".$passwordReset->token);
-
         $to_name = $user->name;
         $to_email = $user->email;
+  
         $data = array(
-            'url' => 'http://localhost:8000/api/password/find/'.$passwordReset->token,
+            'reset_token' => $passwordReset->token,
+            'url' => 'http://45.35.50.179:3000/new/password/',
         );
         //Log::info("Before sending... ");    
         Mail::send('emails.reset-request', $data, function($message) use ($to_name, $to_email) {
@@ -129,7 +129,7 @@ class PasswordResetController extends BaseController
         $passwordReset->delete();
 
         $to_name = $user->name;
-        $to_email = "al.mamun74bd@gmail.com";//$user->email;
+        $to_email = $user->email;
         $data = array(
             'url' => '',
         );
