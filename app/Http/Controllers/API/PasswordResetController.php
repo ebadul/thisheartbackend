@@ -32,13 +32,26 @@ class PasswordResetController extends BaseController
                 'message' => 'This email address not exist.'
             ], 404);
 
-        $passwordReset = PasswordReset::updateOrCreate(
-            ['email' => $user->email],
-            [
-                'email' => $user->email,
-                'token' => str_random(60)
-            ]
-        );
+        $rest_user = PasswordReset::where('email', $request->email)->first();
+        if(!$rest_user){
+            $pass_reset = new PasswordReset();
+            $pass_reset->email = $user->email;
+            $pass_reset->token = str_random(60);
+
+            $pass_reset->save();
+        }else{
+            $rest_user->email = $user->email;
+            $rest_user->token = str_random(60);
+
+            $rest_user->save();
+        }
+        // $passwordReset = PasswordReset::updateOrCreate(
+        //     ['email' => $user->email],
+        //     [
+        //         'email' => $user->email,
+        //         'token' => str_random(60)
+        //     ]
+        // );
 
         $to_name = $user->name;
         $to_email = $user->email;
