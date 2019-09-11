@@ -23,7 +23,6 @@ class BeneficiaryController extends BaseController
             'user_id' => 'required',
             'email' => 'required|email',
             'mail_address' => 'required',
-            'mail_address2' => 'required',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
