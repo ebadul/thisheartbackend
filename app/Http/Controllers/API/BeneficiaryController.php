@@ -35,6 +35,11 @@ class BeneficiaryController extends BaseController
             ], 400);
 
         }else{
+
+            if(is_null($request->mail_address2)){
+                $request->mail_address2 = "";
+            }
+
             $beneficiaryInfo = new Beneficiary();
 
             $beneficiaryInfo->first_name = $request->first_name;
