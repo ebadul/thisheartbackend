@@ -106,12 +106,17 @@ class AuthenticationController extends BaseController
         $beneficiaryInfo = Beneficiary::where('id', '=', $request->beneficiary_id)->first();
         if($beneficiaryInfo){
 
+            if($beneficiaryInfo->validate_code == 0){
+                return response()->json([
+                    'message' => 'Your access code not validate yet. Please validate code then register.'
+                ],400);
+            }
+
             if($beneficiaryInfo->last_4_beneficiary == $request->last4social_code){
             }else{
                 return response()->json([
-                    'message' => 'Invalid social code. Please try again.',
-                    'validated' => 0
-                ],400);
+                    'message' => 'Invalid social code. Please try again.'
+                ],401);
             }
            
         }
