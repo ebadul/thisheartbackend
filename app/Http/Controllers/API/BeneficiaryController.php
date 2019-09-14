@@ -8,6 +8,7 @@ use Validator;
 use Illuminate\Http\Request;
 use App\User;
 use App\Beneficiary;
+use App\BeneficiaryUser;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -114,6 +115,10 @@ class BeneficiaryController extends BaseController
                 'login_url' => $beneficiaryLoginUrl
             );
     
+            $existingBeneficiaryUser = BeneficiaryUser::where('beneficiary_id', '=', $id)->first();
+            if($existingBeneficiaryUser->delete()){
+                Log::info("Existing Beneficiary User deleted.");
+            }
             //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
             
             Mail::send('emails.reset-beneficiary-code', $data, function($message) use ($to_name, $to_email) {
@@ -159,6 +164,11 @@ class BeneficiaryController extends BaseController
                 'beneficiary_code' => $beneficiaryCode,
                 'login_url' => $beneficiaryLoginUrl
             );
+
+            $existingBeneficiaryUser = BeneficiaryUser::where('beneficiary_id', '=', $id)->first();
+            if($existingBeneficiaryUser->delete()){
+                Log::info("Existing Beneficiary User deleted.");
+            }
     
             //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
             
@@ -267,6 +277,11 @@ class BeneficiaryController extends BaseController
         $beneficiaryInfo = Beneficiary::findOrfail($id);
  
         if($beneficiaryInfo->delete()) {
+            $beneficiaryUser = BeneficiaryUser::where('beneficiary_id', '=', $id)->first();
+            if($beneficiaryUser->delete()){
+                Log::info("beneficiaryUser deleted.");
+            }
+
             return response()->json([
                 'message' => 'Data deleted successfully!',
                 'data' => $beneficiaryInfo
