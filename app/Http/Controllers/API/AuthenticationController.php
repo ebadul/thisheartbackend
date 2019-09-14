@@ -103,18 +103,18 @@ class AuthenticationController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());       
         }
 
-        // $beneficiaryInfo = Beneficiary::where('id', '=', $request->beneficiary_id)->first();
-        // if($beneficiaryInfo){
+        $beneficiaryInfo = Beneficiary::where('id', '=', $request->beneficiary_id)->first();
+        if($beneficiaryInfo){
 
-        //     if($beneficiaryInfo->last_4_beneficiary == $request->last4social_code){
-        //     }else{
-        //         return response()->json([
-        //             'message' => 'Invalid social code. Please try again.',
-        //             'validated' => 0
-        //         ],400);
-        //     }
+            if($beneficiaryInfo->last_4_beneficiary == $request->last4social_code){
+            }else{
+                return response()->json([
+                    'message' => 'Invalid social code. Please try again.',
+                    'validated' => 0
+                ],400);
+            }
            
-        // }
+        }
 
         $userData = BeneficiaryUser::where('email', '=', $request->email)->first();
         if($userData){
@@ -127,7 +127,7 @@ class AuthenticationController extends BaseController
         if($userData){
             return response()->json([
                 'message' => 'You have already account with another email id.',
-            ], 406);
+            ], 407);
         }
 
         $input = $request->all();
