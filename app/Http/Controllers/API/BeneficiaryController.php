@@ -221,7 +221,8 @@ class BeneficiaryController extends BaseController
             }else{
                 return response()->json([
                     'message' => 'This code already validated!',
-                    'validated' => 1
+                    'validated' => 1,
+                    'data' => $beneficiaryInfo
                 ],200);
             }
         }else{
