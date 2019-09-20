@@ -131,8 +131,8 @@ class AuthenticationController extends BaseController
         $userData = BeneficiaryUser::where('beneficiary_id', '=', $request->beneficiary_id)->first();
         if($userData){
             return response()->json([
-                'message' => 'You have already account with another email id.',
-            ], 407);
+                'message' => 'You have already account ['.$userData->email.'] for this last 4 social code.',
+            ], 402);
         }
 
         $input = $request->all();
