@@ -194,14 +194,15 @@ class BeneficiaryController extends BaseController
     public function validateCode(Request $request)
     {
         $accessCode = $request->access_code;
-        $urlCode = $request->url_code;
+        $urlWithCode = $request->url_code;
         $beneficiaryInfo = Beneficiary::where('invite_code', '=', $accessCode)->first();
         //$beneficiaryInfo = DB::table('beneficiaries')->where('invite_code','=',$accessCode)->select('beneficiaries.*')->get();
 
         if($beneficiaryInfo){
             if($beneficiaryInfo->validate_code == 0){
 
-                if($beneficiaryInfo->invite_code == $accessCode){
+                if($beneficiaryInfo->invite_code == $accessCode &&
+                  $beneficiaryInfo->access_url == $urlWithCode){
 
                     $beneficiaryInfo->validate_code = 1;
                     $beneficiaryInfo->save();
