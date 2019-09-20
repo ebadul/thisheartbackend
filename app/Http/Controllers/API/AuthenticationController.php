@@ -64,7 +64,7 @@ class AuthenticationController extends BaseController
         $recordCount = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"record")
         ->select('memories.*')->count();
         $letterCount = DB::table('letters')->where('user_id','=',$user_id)->select('letters.*')->count();
-        if($imageCount == 0 || $videoCount == 0 || $recordCount == 0 || $letterCount == 0){
+        if($imageCount == 0 && $videoCount == 0 && $recordCount == 0 && $letterCount == 0){
             $allDataCompleted = false;
             Log::info("Memories data not filled up");
         }
@@ -78,7 +78,7 @@ class AuthenticationController extends BaseController
         ->select('medical_histories.*')->count();
         $partnerCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Partner")
         ->select('medical_histories.*')->count();
-        if($meCount == 0 || $momCount == 0 || $dadCount == 0 || $partnerCount == 0){
+        if($meCount == 0 && $momCount == 0 && $dadCount == 0 && $partnerCount == 0){
             $allDataCompleted = false;
             Log::info("Medical data not filled up");
         }
