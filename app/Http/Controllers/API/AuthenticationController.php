@@ -13,6 +13,7 @@ use Lcobucci\JWT\Parser;
 use Carbon\Carbon;
 use Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 
 class AuthenticationController extends BaseController
@@ -30,12 +31,17 @@ class AuthenticationController extends BaseController
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
                 $tokenResult = $user->createToken('ThisHeartAccessToken');
+
+                $accountProgressStatus = true;
+                //Check all account progress data.
+                $accountProgressStatus = $this->checkAccountProgressData($user->id);
                 
                 return response()->json([
                     'message' => 'User logged in successfully!',
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'access_token' => $tokenResult->accessToken,
+                    'account_progress_status' => $accountProgressStatus,
                     'token_type' => 'Bearer',
                     'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
                 ], 200);
@@ -45,6 +51,53 @@ class AuthenticationController extends BaseController
                 ], 422);
             }
         }
+    }
+
+    function checkAccountProgressData($user_id){
+
+        $allDataCompleted = true;
+        //Check Memories data
+        $imageCount = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"image")
+        ->select('memories.*')->count();
+        $videoCount = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"video")
+        ->select('memories.*')->count();
+        $recordCount = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"record")
+        ->select('memories.*')->count();
+        $letterCount = DB::table('letters')->where('user_id','=',$user_id)->select('letters.*')->count();
+        if($imageCount == 0 || $videoCount == 0 || $recordCount == 0 || $letterCount == 0){
+            $allDataCompleted = false;
+            Log::info("Memories data not filled up");
+        }
+
+        //Medical History data.
+        $meCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Me")
+        ->select('medical_histories.*')->count();
+        $momCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Mom")
+        ->select('medical_histories.*')->count();
+        $dadCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Dad")
+        ->select('medical_histories.*')->count();
+        $partnerCount = DB::table('medical_histories')->where('user_id','=',$user_id)->where('member_type','=',"Partner")
+        ->select('medical_histories.*')->count();
+        if($meCount == 0 || $momCount == 0 || $dadCount == 0 || $partnerCount == 0){
+            $allDataCompleted = false;
+            Log::info("Medical data not filled up");
+        }
+
+        //Account data
+        $accountInfoCount = DB::table('accounts')->where('user_id','=',$user_id)->select('accounts.*')->count();
+        if($accountInfoCount == 0){
+            $allDataCompleted = false;
+            Log::info("Account data not filled up");
+        }
+
+        //Beneficiary data
+        $beneficiaryInfoCount = DB::table('beneficiaries')->where('user_id','=',$user_id)->select('beneficiaries.*')->count();
+        if($beneficiaryInfoCount == 0){
+            $allDataCompleted = false;
+            Log::info("Beneficiary data not filled up");
+        }
+
+        return $allDataCompleted;
     }
      
     public function logout(Request $request)
