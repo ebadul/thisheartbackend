@@ -9,8 +9,8 @@ use App\Http\Controllers\API\BaseController as BaseController;
 
 use App\Support\Google2FAAuthenticator;
 use Illuminate\Support\Facades\Log;
-use Google2FA;
 use Crypt;
+use PragmaRX\Google2FA\Google2FA;
 
 class PasswordSecurityController extends BaseController
 {
@@ -50,8 +50,8 @@ class PasswordSecurityController extends BaseController
 
         $google2fa_url = "";
         //if($user->passwordSecurity()->exists()){
-            $google2fa = app('pragmarx.google2fa');
-            $google2fa_url = $google2fa->getQRCodeGoogleUrl(
+            //$google2fa = app('pragmarx.google2fa');
+            $google2fa_url = Google2FA::getQRCodeGoogleUrl(
                 '5Balloons 2A DEMO',
                 $user->email,
                 $user->passwordSecurity->google2fa_secret
