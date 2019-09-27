@@ -9,41 +9,66 @@ use App\Http\Controllers\API\BaseController as BaseController;
 
 use App\Support\Google2FAAuthenticator;
 use Illuminate\Support\Facades\Log;
+use Google2FA;
+use Crypt;
 
 class PasswordSecurityController extends BaseController
 {
     //
     public function getQRCode($user_id){
+
+        // //generate new secret
+        // $secret = $this->generateSecret();
+
+        // //get user
         $user = User::where('id', '=', $user_id)->first();
-        //$user = Auth::user();
+
+        // $google2fa_url = "";
+        // if($user->passwordSecurity()->exists() == false){
+        //     //encrypt and then save secret
+        //     $user->passwordSecurity->google2fa_secret = Crypt::encrypt($secret);
+        //     $user->save();
+        // }else{
+
+        //     $google2fa = app('pragmarx.google2fa');
+        //     $imageDataUri = Google2FA::getQRCodeInline(
+        //         'thisheart_app',
+        //         $user->email,
+        //         $secret,
+        //         200
+        //     );
+        //     $google2fa_url = $google2fa->getQRCodeGoogleUrl(
+        //         '5Balloons 2A DEMO',
+        //         $user->email,
+        //         $user->passwordSecurity->google2fa_secret
+        //     );
+        // }
+        // $data = array(
+        //     'user' => $user,
+        //     'google2fa_url' => $google2fa_url
+        // );
 
         $google2fa_url = "";
-        if($user->passwordSecurity()->exists()){
+        //if($user->passwordSecurity()->exists()){
             $google2fa = app('pragmarx.google2fa');
             $google2fa_url = $google2fa->getQRCodeGoogleUrl(
                 '5Balloons 2A DEMO',
                 $user->email,
                 $user->passwordSecurity->google2fa_secret
             );
-        }
-        // $data = array(
-        //     'user' => $user,
-        //     'google2fa_url' => $google2fa_url
-        // );
-
+        //}
+       
         return response()->json([
             'message' => 'User varified successfully!',
             'user' => $user,
             'google2fa_url' => $google2fa_url
 
         ],200);
-        //return view('auth.2fa')->with('data', $data);
     }
 
     public function generate2faSecret(Request $request){
         $user = User::where('id', '=', $request->user_id)->first();
-        Log::info("User Info... ". $user );
-        //$user = Auth::user();
+        //Log::info("User Info... ". $user );
         // Initialise the 2FA class
         $google2fa = app('pragmarx.google2fa');
     
@@ -119,6 +144,18 @@ class PasswordSecurityController extends BaseController
 
         ],200);
         //return redirect('/2fa')->with('success',"2FA is now Disabled.");
+    }
+
+    /**
+     * Generate a secret key in Base32 format
+     *
+     * @return string
+     */
+    private function generateSecret()
+    {
+        $randomBytes = random_bytes(10);
+
+        return Base32::encodeUpper($randomBytes);
     }
 
     public function canPassWithoutCheckingOTP($user_id)
