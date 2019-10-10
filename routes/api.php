@@ -102,7 +102,10 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 
 //Route::middleware('auth:api')->group( function () {
 	Route::get('/getQRCode/{user_id}','API\PasswordSecurityController@getQRCode');
-	Route::post('/generate2faSecret','API\PasswordSecurityController@generate2faSecret');
-	Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');
-	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');
+	Route::post('/getQRCode','API\PasswordSecurityController@getQRCodePost');//user_id
+	Route::post('/generate2faSecret','API\PasswordSecurityController@generate2faSecret');//user_id
+	Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');//user_id, verify_code
+	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//user_id, password
 	//});
+
+
