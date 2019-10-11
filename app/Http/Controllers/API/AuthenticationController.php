@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 class AuthenticationController extends BaseController
 {
     public function login(Request $request){
+        
         $user = User::where('email', '=', $request->email)->first();
         //Log::info("Email = ".$request->email);
         //Log::info("Password = ".$request->password);
@@ -28,23 +29,30 @@ class AuthenticationController extends BaseController
                 'message' => 'Email not exist!',
             ], 401);
         }else{
+            
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
-                $tokenResult = $user->createToken('ThisHeartAccessToken');
+                if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+                    $user = Auth::user();
+                    $tokenResult = $user->createToken('ThisHeartAccessToken');
+                    $accountProgressStatus = true;
+                    //Check all account progress data.
+                    $accountProgressStatus = $this->checkAccountProgressData($user->id);
 
-                $accountProgressStatus = true;
-                //Check all account progress data.
-                $accountProgressStatus = $this->checkAccountProgressData($user->id);
+                    return response()->json([
+                        'message' => 'User logged in successfully!',
+                        'user_id' => $user->id,
+                        'user_name' => $user->name,
+                        'access_token' => $tokenResult->accessToken,
+                        'account_progress_status' => $accountProgressStatus,
+                        'token_type' => 'Bearer',
+                        'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
+                    ], 200);
+                }
+                else{
+                    return response()->json(['error'=>'Unauthorised'], 401);
+                }
                 
-                return response()->json([
-                    'message' => 'User logged in successfully!',
-                    'user_id' => $user->id,
-                    'user_name' => $user->name,
-                    'access_token' => $tokenResult->accessToken,
-                    'account_progress_status' => $accountProgressStatus,
-                    'token_type' => 'Bearer',
-                    'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
-                ], 200);
             }else{
                 return response()->json([
                     'message' => 'Password mismatch!'
@@ -100,9 +108,10 @@ class AuthenticationController extends BaseController
         return $allDataCompleted;
     }
      
-    public function logout(Request $request)
+    public function logout()
     {
-        $request->user()->token()->revoke();
+        Auth::user()->token()->revoke();
+        
         return response()->json([
             'message' => 'Successfully logged out'
         ]);
