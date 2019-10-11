@@ -19,19 +19,18 @@ use Illuminate\Support\Facades\DB;
 class AuthenticationController extends BaseController
 {
     public function login(Request $request){
-        
-        $user = User::where('email', '=', $request->email)->first();
-        //Log::info("Email = ".$request->email);
-        //Log::info("Password = ".$request->password);
 
+        $user = User::where('email', '=', $request->email)->first();      
         if($user === null){
             return response()->json([
+                'status'=>'error',
                 'message' => 'Email not exist!',
             ], 401);
         }else{
             
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
+
                 if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
                     $user = Auth::user();
                     $tokenResult = $user->createToken('ThisHeartAccessToken');
@@ -52,9 +51,10 @@ class AuthenticationController extends BaseController
                 else{
                     return response()->json(['error'=>'Unauthorised'], 401);
                 }
-                
+            
             }else{
                 return response()->json([
+                    'status'=>'error',
                     'message' => 'Password mismatch!'
                 ], 422);
             }
@@ -74,7 +74,6 @@ class AuthenticationController extends BaseController
         $letterCount = DB::table('letters')->where('user_id','=',$user_id)->select('letters.*')->count();
         if($imageCount == 0 && $videoCount == 0 && $recordCount == 0 && $letterCount == 0){
             $allDataCompleted = false;
-            Log::info("Memories data not filled up");
         }
 
         //Medical History data.
@@ -88,21 +87,19 @@ class AuthenticationController extends BaseController
         ->select('medical_histories.*')->count();
         if($meCount == 0 && $momCount == 0 && $dadCount == 0 && $partnerCount == 0){
             $allDataCompleted = false;
-            Log::info("Medical data not filled up");
         }
 
         //Account data
         $accountInfoCount = DB::table('accounts')->where('user_id','=',$user_id)->select('accounts.*')->count();
         if($accountInfoCount == 0){
             $allDataCompleted = false;
-            Log::info("Account data not filled up");
         }
 
         //Beneficiary data
-        $beneficiaryInfoCount = DB::table('beneficiaries')->where('user_id','=',$user_id)->select('beneficiaries.*')->count();
+        $beneficiaryInfoCount = DB::table('beneficiaries')->where('user_id','=',$user_id)->
+                                select('beneficiaries.*')->count();
         if($beneficiaryInfoCount == 0){
             $allDataCompleted = false;
-            Log::info("Beneficiary data not filled up");
         }
 
         return $allDataCompleted;

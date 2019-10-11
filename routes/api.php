@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 */
 
 //Normal User
+Route::get('login', 'API\AuthenticationController@login');
 Route::post('login', 'API\AuthenticationController@login');
 Route::post('register', 'API\AuthenticationController@register');
 
@@ -95,12 +96,16 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('account/deleteBy/{id}', 'API\AccountController@deleteAccountById');
 });
 
+
 Route::group(['middleware' => 'auth:api'], function(){
+ 
 	Route::get('/getQRCode/{user_id}','API\PasswordSecurityController@getQRCode');
 	Route::post('/getQRCode','API\PasswordSecurityController@getQRCodePost');//user_id
 	Route::post('/generate2faSecret','API\PasswordSecurityController@generate2faSecret');//user_id
 	Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');//user_id, verify_code
 	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//user_id, password
-});
+
+	});
+
 
 
