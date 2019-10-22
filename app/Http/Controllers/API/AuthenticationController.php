@@ -41,6 +41,7 @@ class AuthenticationController extends BaseController
                     $tokenResult = $user->createToken('ThisHeartAccessToken');
                     $accountProgressStatus = true;
                     //Check all account progress data.
+                    //$user->forceFill(['token'=>$tokenResult->accessToken])->save();
                     $accountProgressStatus = $this->checkAccountProgressData($user->id);
 
                     return response()->json([

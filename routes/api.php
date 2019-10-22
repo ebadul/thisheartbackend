@@ -99,13 +99,38 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 Route::group(['middleware' => 'auth:api'], function(){
  
+	//test api url
 	Route::get('/getQRCode/{user_id}','API\PasswordSecurityController@getQRCode');
 	Route::post('/getQRCode','API\PasswordSecurityController@getQRCodePost');//user_id
 	Route::post('/generate2faSecret','API\PasswordSecurityController@generate2faSecret');//user_id
 	Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');//user_id, verify_code
 	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//user_id, password
 
-	});
+	//implement api url
+	Route::post('/isTwoFaEnable','API\PasswordSecurityController@isTwoFaEnable');
+	Route::post('/showQRCode','API\PasswordSecurityController@showQRCode');
+	Route::post('/verifyCode','API\PasswordSecurityController@verifyCode');//verify code
+	Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');//verify code
+	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//password
+
+	Route::post('/isExistsOTP','API\OTPController@isExistsOTP');
+	Route::post('/generateOTP','API\OTPController@generateOTP');
+	Route::post('/resetGenerateOTP','API\OTPController@resetGenerateOTP');
+	Route::post('/disableOTP','API\OTPController@disableOTP');
+	Route::post('/verifyCode','API\OTPController@verifyCode');
+	Route::post('/generateGoogleQRCode','API\OTPController@generateGoogleQRCode');
+	Route::post('/enableOTP','API\OTPController@enableOTP');
+	Route::post('/checkPasswordOTP','API\OTPController@checkPasswordOTP');
+
+	Route::post('/isOTPEnable','API\TwoFaSmsController@isOTPEnable');
+	Route::post('/sendOTP','API\TwoFaSmsController@sendOTP');
+
+
+	//OTP 
+	Route::post('/sendSMS', 'API\OTPController@sendSMS');
+	Route::post('/sendEmail', 'API\OTPController@sendEmail');
+
+});
 
 
 

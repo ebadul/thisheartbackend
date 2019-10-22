@@ -5,6 +5,10 @@ namespace App\Providers;
 use Laravel\Passport\Passport;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,5 +32,8 @@ class AuthServiceProvider extends ServiceProvider
 
         //
         Passport::routes();
+        Auth::viaRequest('api-token', function ($request) {
+            return User::where('token', $request->token)->first();
+        });
     }
 }
