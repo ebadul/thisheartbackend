@@ -16,7 +16,7 @@ class CreateBeneficiariesTable extends Migration
         Schema::create('beneficiaries', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned()->index();
-            $table->integer('last_4_beneficiary')->unsigned();
+            $table->string('last_4_beneficiary');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('mail_address');

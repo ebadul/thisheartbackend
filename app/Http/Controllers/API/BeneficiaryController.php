@@ -12,6 +12,7 @@ use App\BeneficiaryUser;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Crypt;
 
 class BeneficiaryController extends BaseController
 {
@@ -43,16 +44,16 @@ class BeneficiaryController extends BaseController
 
             $beneficiaryInfo = new Beneficiary();
 
-            $beneficiaryInfo->first_name = $request->first_name;
-            $beneficiaryInfo->last_name = $request->last_name;
+            $beneficiaryInfo->first_name = Crypt::encryptString($request->first_name);
+            $beneficiaryInfo->last_name = Crypt::encryptString($request->last_name);
             $beneficiaryInfo->user_id = $request->user_id;
-            $beneficiaryInfo->email = $request->email;
-            $beneficiaryInfo->mail_address = $request->mail_address;
-            $beneficiaryInfo->mail_address2 = $request->mail_address2;
-            $beneficiaryInfo->city = $request->city;
-            $beneficiaryInfo->state = $request->state;
-            $beneficiaryInfo->zip = $request->zip;
-            $beneficiaryInfo->last_4_beneficiary = $request->last_4_beneficiary;
+            $beneficiaryInfo->email = Crypt::encryptString($request->email);
+            $beneficiaryInfo->mail_address = Crypt::encryptString($request->mail_address);
+            $beneficiaryInfo->mail_address2 = Crypt::encryptString($request->mail_address2);
+            $beneficiaryInfo->city = Crypt::encryptString($request->city);
+            $beneficiaryInfo->state = Crypt::encryptString($request->state);
+            $beneficiaryInfo->zip = Crypt::encryptString($request->zip);
+            $beneficiaryInfo->last_4_beneficiary = Crypt::encryptString($request->last_4_beneficiary);
             $beneficiaryCode = str_random(16);
             $beneficiaryInfo->invite_code = $beneficiaryCode;
             $accUrlCode = str_random(8);
@@ -105,11 +106,11 @@ class BeneficiaryController extends BaseController
             //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
             //Send mail to beneficiary.
             $beneficiaryLoginUrl = 'http://45.35.50.179:3000/beneficiary/login';
-            $to_name = $beneficiaryInfo->first_name;
-            $to_email = $beneficiaryInfo->email;
+            $to_name = Crypt::decryptString($beneficiaryInfo->first_name);
+            $to_email = Crypt::decryptString($beneficiaryInfo->email);
             $data = array(
-                'b_first_name' => $beneficiaryInfo->first_name,
-                'user_first_name' => $user->name,
+                'b_first_name' => Crypt::decryptString($beneficiaryInfo->first_name),
+                'user_first_name' => Crypt::decryptString($user->name),
                 'url' => $beneficiaryInfo->access_url,
                 'beneficiary_code' => $beneficiaryCode,
                 'login_url' => $beneficiaryLoginUrl
@@ -155,11 +156,11 @@ class BeneficiaryController extends BaseController
             //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
             //Send mail to beneficiary.
             $beneficiaryLoginUrl = 'http://45.35.50.179:3000/beneficiary/login';
-            $to_name = $beneficiaryInfo->first_name;
-            $to_email = $beneficiaryInfo->email;
+            $to_name = Crypt::decryptString($beneficiaryInfo->first_name);
+            $to_email = Crypt::decryptString($beneficiaryInfo->email);
             $data = array(
-                'b_first_name' => $beneficiaryInfo->first_name,
-                'user_first_name' => $user->name,
+                'b_first_name' => Crypt::decryptString($beneficiaryInfo->first_name),
+                'user_first_name' => Crypt::decryptString($user->name),
                 'url' => $beneficiaryInfo->access_url,
                 'beneficiary_code' => $beneficiaryCode,
                 'login_url' => $beneficiaryLoginUrl
@@ -241,6 +242,18 @@ class BeneficiaryController extends BaseController
         //Get the data
         $beneficiaryInfo = DB::table('beneficiaries')->where('user_id','=',$user_id)->select('beneficiaries.*')->get();
 
+        foreach($beneficiaryInfo as $value){
+            $value->first_name = Crypt::decryptString($value->first_name);
+            $value->last_name = Crypt::decryptString($value->last_name);
+            $value->email = Crypt::decryptString($value->email);
+            $value->mail_address = Crypt::decryptString($value->mail_address);
+            $value->mail_address2 = Crypt::decryptString($value->mail_address2);
+            $value->city = Crypt::decryptString($value->city);
+            $value->state = Crypt::decryptString($value->state);
+            $value->zip = Crypt::decryptString($value->zip);
+            $value->last_4_beneficiary = Crypt::decryptString($value->last_4_beneficiary);
+        }
+
         return response()->json($beneficiaryInfo, 200);
     }
 
@@ -248,16 +261,16 @@ class BeneficiaryController extends BaseController
     {
         $beneficiaryInfo = Beneficiary::findOrfail($id);
         if($beneficiaryInfo){
-            $beneficiaryInfo->first_name = $request->first_name;
-            $beneficiaryInfo->last_name = $request->last_name;
+            $beneficiaryInfo->first_name = Crypt::encryptString($request->first_name);
+            $beneficiaryInfo->last_name = Crypt::encryptString($request->last_name);
             $beneficiaryInfo->user_id = $request->user_id;
-            $beneficiaryInfo->email = $request->email;
-            $beneficiaryInfo->mail_address = $request->mail_address;
-            $beneficiaryInfo->mail_address2 = $request->mail_address2;
-            $beneficiaryInfo->city = $request->city;
-            $beneficiaryInfo->state = $request->state;
-            $beneficiaryInfo->zip = $request->zip;
-            $beneficiaryInfo->last_4_beneficiary = $request->last_4_beneficiary;
+            $beneficiaryInfo->email = Crypt::encryptString($request->email);
+            $beneficiaryInfo->mail_address = Crypt::encryptString($request->mail_address);
+            $beneficiaryInfo->mail_address2 = Crypt::encryptString($request->mail_address2);
+            $beneficiaryInfo->city = Crypt::encryptString($request->city);
+            $beneficiaryInfo->state = Crypt::encryptString($request->state);
+            $beneficiaryInfo->zip = Crypt::encryptString($request->zip);
+            $beneficiaryInfo->last_4_beneficiary = Crypt::encryptString($request->last_4_beneficiary);
 
             $beneficiaryInfo->save();
 
@@ -294,7 +307,7 @@ class BeneficiaryController extends BaseController
     public function validateLast4Social(Request $request)
     {
         $beneficiary_id = $request->beneficiary_id;
-        $last4social_code = $request->last4social_code;
+        $last4social_code = Crypt::decryptString($request->last4social_code);
 
         $beneficiaryInfo = Beneficiary::where('id', '=', $beneficiary_id)->first();
         

@@ -9,6 +9,7 @@ use Validator;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 
 class AccountController extends BaseController
 {
@@ -38,13 +39,14 @@ class AccountController extends BaseController
         }else{
             $accountInfo = new Account();
 
-            $accountInfo->acc_type = $request->acc_type;
-            $accountInfo->acc_name = $request->acc_name;
+            $accountInfo->acc_type = Crypt::encryptString($request->acc_type);
+            $accountInfo->acc_name = Crypt::encryptString($request->acc_name);
             $accountInfo->user_id = $request->user_id;
-            $accountInfo->acc_url = $request->acc_url;
-            $accountInfo->acc_description = $request->acc_description;
-            $accountInfo->acc_user_name = $request->acc_user_name;
-            $accountInfo->acc_password = $request->acc_password;
+            $accountInfo->acc_url = Crypt::encryptString($request->acc_url);
+            $accountInfo->acc_description = Crypt::encryptString($request->acc_description);
+
+            $accountInfo->acc_user_name = Crypt::encryptString($request->acc_user_name);
+            $accountInfo->acc_password = Crypt::encryptString($request->acc_password);
 
             $accountInfo->save();
            
@@ -61,6 +63,15 @@ class AccountController extends BaseController
         //Get the data
         $accountInfo = DB::table('accounts')->where('user_id','=',$user_id)->select('accounts.*')->get();
 
+        foreach($accountInfo as $value){
+            $value->acc_type = Crypt::decryptString($value->acc_type);
+            $value->acc_name = Crypt::decryptString($value->acc_name);
+            $value->acc_url = Crypt::decryptString($value->acc_url);
+            $value->acc_description = Crypt::decryptString($value->acc_description);
+            $value->acc_user_name = Crypt::decryptString($value->acc_user_name);
+            $value->acc_password = Crypt::decryptString($value->acc_password);
+        }
+
         return response()->json($accountInfo, 200);
     }
 
@@ -69,13 +80,13 @@ class AccountController extends BaseController
         $accountInfo = Account::findOrfail($id);
 
         if($accountInfo){
-            $accountInfo->acc_type = $request->acc_type;
-            $accountInfo->acc_name = $request->acc_name;
+            $accountInfo->acc_type = Crypt::encryptString($request->acc_type);
+            $accountInfo->acc_name = Crypt::encryptString($request->acc_name);
             $accountInfo->user_id = $request->user_id;
-            $accountInfo->acc_url = $request->acc_url;
-            $accountInfo->acc_description = $request->acc_description;
-            $accountInfo->acc_user_name = $request->acc_user_name;
-            $accountInfo->acc_password = $request->acc_password;
+            $accountInfo->acc_url = Crypt::encryptString($request->acc_url);
+            $accountInfo->acc_description = Crypt::encryptString($request->acc_description);
+            $accountInfo->acc_user_name = Crypt::encryptString($request->acc_user_name);
+            $accountInfo->acc_password = Crypt::encryptString($request->acc_password);
 
             $accountInfo->save();
 
@@ -103,4 +114,5 @@ class AccountController extends BaseController
             ],200);
         }
     }
+
 }
