@@ -14,3 +14,31 @@
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+
+Route::get('/admin', function () {
+    return view('admin.login');
+});
+Route::post('/dashboard', function () {
+    return view('admin.dashboard');
+})->name('dashboard');
+
+
+Route::get('/primary_user', function () {
+    return view('admin.primary_user');
+});
+
+Route::get('/beneficiary_user', function () {
+    return view('admin.beneficiary_user');
+});
+
+
+Route::get('/datatable', function () {
+    return view('admin.datatable');
+});
+
+
+Route::get('/modified-template', function () {
+    return view('admin.modified-template');
+});
+
+
