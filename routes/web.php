@@ -23,13 +23,10 @@ Route::post('/dashboard', function () {
 })->name('dashboard');
 
 
-Route::get('/primary_user', function () {
-    return view('admin.primary_user');
-});
-
-Route::get('/beneficiary_user', function () {
-    return view('admin.beneficiary_user');
-});
+Route::get('/primary_user', "API\PrimaryUserController@primary_user");
+Route::get('/beneficiary_user', "API\BeneficiaryUserController@beneficiary_user");
+Route::get ("/primary_user_delete/{id}", "API\PrimaryUserController@deleteUserById")->name("primary_user_delete");
+Route::get('/primary_user_edit', "API\PrimaryUserController@updateUserById")->name("primary_user_edit");
 
 
 Route::get('/datatable', function () {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>AdminLTE </title>
+  <title>Admin This Heart </title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
@@ -41,13 +41,15 @@
 
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <script src="AdminLTE/bower_components/jquery/dist/jquery-3.4.1.min.js"></script>
 </head>
 <body class="hold-transition login-page">
 @yield('content')
 <!-- /.login-box -->
 
 <!-- jQuery 3 -->
-<script src="AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
+<!-- <script src="AdminLTE/bower_components/jquery/dist/jquery.min.js"></script> -->
+
 <!-- jQuery UI 1.11.4 -->
 <script src="AdminLTE/bower_components/jquery-ui/jquery-ui.min.js"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
@@ -58,7 +60,7 @@
 <script src="AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <!-- Morris.js charts -->
 <script src="AdminLTE/bower_components/raphael/raphael.min.js"></script>
-<script src="AdminLTE/bower_components/morris.js/morris.min.js"></script>
+<!-- <script src="AdminLTE/bower_components/morris.js/morris.min.js"></script> -->
 <!-- Sparkline -->
 <script src="AdminLTE/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
 <!-- iCheck -->
@@ -85,7 +87,7 @@
 <!-- AdminLTE App -->
 <script src="AdminLTE/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="AdminLTE/dist/js/pages/dashboard.js"></script>
+<!-- <script src="AdminLTE/dist/js/pages/dashboard.js"></script> -->
 <!-- AdminLTE for demo purposes -->
 <script src="AdminLTE/dist/js/demo.js"></script>
 <script>
