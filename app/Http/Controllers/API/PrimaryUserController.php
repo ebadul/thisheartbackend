@@ -36,17 +36,22 @@ class PrimaryUserController extends BaseController
     }
 
 
-    public function updateUserById(Request $request, $id)
+    public function updateUserById(Request $request)
     {
 
-        $data = User::findOrfail($id);
+        $data = User::find($request->user_id);
 
-            $data->name = $request->name;
+            $data->name = $request->user_name;
             $data->email = $request->email;
             $data ->mobile = $request->mobile;
 
             $data->save();
-        return redirect("/primary_user");
+        
+        return response()->json([
+            'status'=>'success',
+            'message' => 'Data Updated successfully!',
+            'data' => $request->all()
+        ],200);
     }
 
 

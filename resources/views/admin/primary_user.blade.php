@@ -167,7 +167,7 @@
                    <td>{{ $row['email']}}</td>
                    <td>{{ $row['mobile']}}</td>
                    <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-id="{{$row['id']}} " data-toggle="modal" data-target="#modal-edit">Edit</button>
+                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} " >Edit</button>
                   </td>
                   <td>
                     <!-- <a href="{{route('primary_user_delete', $row['id'])}}" onclick="return confirm('Are you sure want ot delete it?');" class="btn btn-danger" >Delete</a> -->
@@ -225,21 +225,21 @@
                 <h4 class="modal-title">Info Modal</h4>
               </div>
               <div class="modal-body">
-              <form role="form" action="/primary_user_edit" id="editForm" name="edit" method="post">
+              <form role="form" id="editForm" name="edit">
               {{csrf_field()}}
               <input type="hidden" name="editBtn" id="editUserId" value="" />
 
               <div class="form-group">
                   <label for="uname">User Name</label>
-                  <input type="text" class="form-control" id="username" value="{{ $row['name']}}" placeholder="User Name">
+                  <input type="text" class="form-control" id="username" value="" placeholder="User Name">
                 </div>
                 <div class="form-group">
                   <label for="email">Email Address</label>
-                  <input type="email" class="form-control" id="email" value="{{ $row['email']}}" placeholder="Enter email">
+                  <input type="email" class="form-control" id="email" value="" placeholder="Enter email">
                 </div>
                 <div class="form-group">
                   <label for="mobile">Mobile</label>
-                  <input type="number" class="form-control" id="mobile" value="{{ $row['mobile']}}" placeholder="Mobile">
+                  <input type="text" class="form-control" id="mobile" value="" placeholder="Mobile">
                 </div>
             </form>
               </div>
@@ -515,7 +515,7 @@
      $.ajax({
        url:"http://127.0.0.1:8000/primary_user_delete/" + user_id,
        beforeSend:function(){
-         $('#delete_btn').text('Deleting....');  
+         $('#delete_btn').text('Deleting User Item....');  
        },
        success:function(data){
          //console.log("Event success fired", data);
@@ -523,7 +523,6 @@
          setTimeout(function(){
           console.log(user_id);
           $('#modalDelete').modal('hide');
-          $('#example1').dataTable();
          }, 2000)
        },
       error:function(error){
@@ -533,46 +532,64 @@
      });
    });
 
+   </script>
+
 //  <!--Delete Item Ajax Request End-->
 
 
 //  <!-- Edit Item Ajax Request  Start -->
-
+<script>
  
  $(document).ready( function(){
      //console.log("Event triggered");
    });
 
    $(document).on('click', '.editBtn', function(){
-     var userid = $(this).attr('user-id') ;
-     console.log("Edit item on Id :::", userid);
-     $('#editUserId').val(userid);
+     var userdata = $(this).attr('user-data') ;
+     console.log("Edit item on Id :::", userdata);
+     var user_edit= userdata.split('=');
+     $('#editUserId').val(user_edit[0]);
+     $('#username').val(user_edit[1]);
+     $('#email').val(user_edit[2]);
+     $('#mobile').val(user_edit[3]);
+     $('#modal-edit').modal('show');
+     
    });
 
-   $('#edit_btn').click(function(){
+   $('#edit_btn').click(function(data){
      var user_id = $('#editUserId').val();
-     //console.log("user id", user_id);
-     $.ajax({
-       url:"http://127.0.0.1:8000/primary_user_edit/" + user_id,
-       beforeSend:function(){
-         $('#edit_btn').text('Edit Items....');  
-       },
-       success:function(html){
-         //console.log("Event success fired", data);
- 
+     console.log("user id edit:>>>>", user_id);
+     var data = {
+       user_id:$('#editUserId').val(),
+       user_name:$('#username').val(),
+       email:$('#email').val(),
+       mobile:$('#mobile').val()
+     }
+        
+         console.log("Item edit data on:::", data);
 
-         location.reload();
+     $.ajax({
+       url:"http://127.0.0.1:8000/primary_user_edit", 
+       dataType: "json",
+       data:data,
+       method:"post",
+       beforeSend: function(xhr, type) {
+        if (!type.crossDomain) {
+            xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+            $('#edit_btn').text('Updating User Item....');  
+        }
+    },
+       success:function(){
          setTimeout(function(){
           console.log(user_id);
-          
           $('#modal-edit').modal('hide');
-          $('#example1').dataTable();
+          location.reload();
          }, 2000)
        },
       error:function(error){
         console.log("error :", error);
-      }
-       
+        $('#modal-edit').modal('hide');
+      }  
      });
    });
  </script>

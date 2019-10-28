@@ -24,9 +24,11 @@ Route::post('/dashboard', function () {
 
 
 Route::get('/primary_user', "API\PrimaryUserController@primary_user");
-Route::get('/beneficiary_user', "API\BeneficiaryUserController@beneficiary_user");
 Route::get ("/primary_user_delete/{id}", "API\PrimaryUserController@deleteUserById")->name("primary_user_delete");
-Route::get('/primary_user_edit', "API\PrimaryUserController@updateUserById")->name("primary_user_edit");
+Route::post('/primary_user_edit', "API\PrimaryUserController@updateUserById")->name("primary_user_edit");
+
+
+Route::get('/beneficiary_user', "API\BeneficiaryUserController@beneficiary_user");
 
 
 Route::get('/datatable', function () {
