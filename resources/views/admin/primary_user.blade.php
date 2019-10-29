@@ -28,13 +28,13 @@
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="AdminLTE/dist/img/user2-160x160.jpg" class="user-image" alt="User Image">
+              <img src="AdminLTE/dist/img/userphoto.jpg" class="user-image" alt="User Image">
               <span class="hidden-xs">Admin This Heart</span>
             </a>
             <ul class="dropdown-menu">
               <!-- User image -->
               <li class="user-header">
-                <img src="AdminLTE/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+                <img src="AdminLTE/dist/img/userphoto.jpg" class="img-circle" alt="User Image">
 
                 <p>
                   Admin This Heart - Web Developer
@@ -65,7 +65,7 @@
       <!-- Sidebar user panel -->
       <div class="user-panel">
         <div class="pull-left image">
-          <img src="AdminLTE/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+          <img src="AdminLTE/dist/img/userphoto.jpg" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
           <p>Admin This Heart</p>
@@ -153,9 +153,8 @@
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User Name</th>
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Email</th>
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Mobile</th>
-                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="2" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Action</th>
-                <!-- <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 156px;">Edit</th>
-                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 156px;">Delete</th> -->
+                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Action</th>
+                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Status</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -167,54 +166,30 @@
                    <td>{{ $row['email']}}</td>
                    <td>{{ $row['mobile']}}</td>
                    <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} " >Edit</button>
+                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
                   </td>
-                  <td>
-                    <!-- <a href="{{route('primary_user_delete', $row['id'])}}" onclick="return confirm('Are you sure want ot delete it?');" class="btn btn-danger" >Delete</a> -->
-                    <button type="button" class="btn btn-block btn-danger deleteBtn" user-id="{{ $row['id']}}" data-toggle="modal" data-target="#modalDelete">Delete</button>
-
-                  </td>
+                  <td class="text-center"  ><input class="activeSts" user-id="{{$row['id']}}"  type="checkbox" {{$row["active"] ? "checked" : ""}} data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="InActive"/> 
+                </td>
                 </tr>
                 @endforeach
               <?php endif;?>
                 </tbody>
                 <tfoot>
-                <tr><th rowspan="1" colspan="1">User Id</th><th rowspan="1" colspan="1">User Name</th><th rowspan="1" colspan="1">Email</th><th rowspan="1" colspan="1">Mobile</th></tr>
+                <tr><th rowspan="1" colspan="1">User Id</th><th rowspan="1" colspan="1">User Name</th><th rowspan="1" colspan="1">Email</th><th rowspan="1" colspan="1">Mobile</th> <th>Action</th> <th>Status</th></tr>
                 </tfoot>
               </table>
               </div>
               </div>
               <div class="row"><div class="col-sm-5">
-              <div class="dataTables_info" id="example1_info" role="status" aria-live="polite">Showing 1 to 10 of 57 entries
-              </div>
               </div>
               <div class="col-sm-7">
               <div class="dataTables_paginate paging_simple_numbers" id="example1_paginate">
-              <ul class="pagination">
-              <li class="paginate_button previous disabled" id="example1_previous">
-              <a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0">Previous</a>
-              </li>
-              <li class="paginate_button active"><a href="#" aria-controls="example1" data-dt-idx="1" tabindex="0">1</a>
-              </li>
-              <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0">2</a>
-              </li>
-              
-              <li class="paginate_button ">
-              <a href="#" aria-controls="example1" data-dt-idx="3" tabindex="0">3</a></li>
-              <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="4" tabindex="0">4</a></li>
-              <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="5" tabindex="0">5</a></li>
-              <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="6" tabindex="0">6</a></li>
-              <li class="paginate_button next" id="example1_next"><a href="#" aria-controls="example1" data-dt-idx="7" tabindex="0">Next</a>
-              </li>
-              </ul>
               </div>
               </div>
               </div>
               </div>
             </div>
-
-
-<!----  Edit Modal start ----->
+<!-----------------------------------------  Edit Modal start ---------------------------------------------->
 
 <div class="modal modal-info fade" id="modal-edit">
           <div class="modal-dialog">
@@ -253,239 +228,19 @@
           <!-- /.modal-dialog -->
         </div>
 
-    <!----  Edit Modal End ----->    
-
-
-
-<!--------     Modal For Delete  Item Start     ---------->
-<div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Confirm Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <input type="hidden" name="deletebtn" id="deleteUserId" value="" />
-       <h4 class="text-center"> Are you sure want to delete this data? </h4>
-      </div>
-      <div class="modal-footer">
-      <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
-        <button type="submit" id="delete_btn" name="ok_btn" class="btn btn-danger" >Delete</button>   
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!--------     Modal For Delete  Item End     ---------->
-
-
-
+    <!--------------------------------  Edit Modal End --------------------------------------------->    
 
 
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.18
-    </div>
-    <strong>Copyright &copy; 2014-2019 <a href="https://adminlte.io">AdminLTE</a>.</strong> All rights
+    <strong>Copyright &copy; 2014-2019 <a href="https://thisheart.com"> This Heart Admin</a>.</strong> All rights
     reserved.
   </footer>
 
   <!-- Control Sidebar -->
-  <aside class="control-sidebar control-sidebar-dark" style="display: none;">
-    <!-- Create the tabs -->
-    <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
-      <li><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
-      <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
-    </ul>
-    <!-- Tab panes -->
-    <div class="tab-content">
-      <!-- Home tab content -->
-      <div class="tab-pane" id="control-sidebar-home-tab">
-        <h3 class="control-sidebar-heading">Recent Activity</h3>
-        <ul class="control-sidebar-menu">
-          <li>
-            <a href="javascript:void(0)">
-              <i class="menu-icon fa fa-birthday-cake bg-red"></i>
-
-              <div class="menu-info">
-                <h4 class="control-sidebar-subheading">Langdon's Birthday</h4>
-
-                <p>Will be 23 on April 24th</p>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)">
-              <i class="menu-icon fa fa-user bg-yellow"></i>
-
-              <div class="menu-info">
-                <h4 class="control-sidebar-subheading">Frodo Updated His Profile</h4>
-
-                <p>New phone +1(800)555-1234</p>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)">
-              <i class="menu-icon fa fa-envelope-o bg-light-blue"></i>
-
-              <div class="menu-info">
-                <h4 class="control-sidebar-subheading">Nora Joined Mailing List</h4>
-
-                <p>nora@example.com</p>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)">
-              <i class="menu-icon fa fa-file-code-o bg-green"></i>
-
-              <div class="menu-info">
-                <h4 class="control-sidebar-subheading">Cron Job 254 Executed</h4>
-
-                <p>Execution time 5 seconds</p>
-              </div>
-            </a>
-          </li>
-        </ul>
-        <!-- /.control-sidebar-menu -->
-
-        <h3 class="control-sidebar-heading">Tasks Progress</h3>
-        <ul class="control-sidebar-menu">
-          <li>
-            <a href="javascript:void(0)">
-              <h4 class="control-sidebar-subheading">
-                Custom Template Design
-                <span class="label label-danger pull-right">70%</span>
-              </h4>
-
-              <div class="progress progress-xxs">
-                <div class="progress-bar progress-bar-danger" style="width: 70%"></div>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)">
-              <h4 class="control-sidebar-subheading">
-                Update Resume
-                <span class="label label-success pull-right">95%</span>
-              </h4>
-
-              <div class="progress progress-xxs">
-                <div class="progress-bar progress-bar-success" style="width: 95%"></div>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)">
-              <h4 class="control-sidebar-subheading">
-                Laravel Integration
-                <span class="label label-warning pull-right">50%</span>
-              </h4>
-
-              <div class="progress progress-xxs">
-                <div class="progress-bar progress-bar-warning" style="width: 50%"></div>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)">
-              <h4 class="control-sidebar-subheading">
-                Back End Framework
-                <span class="label label-primary pull-right">68%</span>
-              </h4>
-
-              <div class="progress progress-xxs">
-                <div class="progress-bar progress-bar-primary" style="width: 68%"></div>
-              </div>
-            </a>
-          </li>
-        </ul>
-        <!-- /.control-sidebar-menu -->
-
-      </div>
-      <!-- /.tab-pane -->
-      <!-- Stats tab content -->
-      <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>
-      <!-- /.tab-pane -->
-      <!-- Settings tab content -->
-      <div class="tab-pane" id="control-sidebar-settings-tab">
-        <form method="post">
-          <h3 class="control-sidebar-heading">General Settings</h3>
-
-          <div class="form-group">
-            <label class="control-sidebar-subheading">
-              Report panel usage
-              <input type="checkbox" class="pull-right" checked>
-            </label>
-
-            <p>
-              Some information about this general settings option
-            </p>
-          </div>
-          <!-- /.form-group -->
-
-          <div class="form-group">
-            <label class="control-sidebar-subheading">
-              Allow mail redirect
-              <input type="checkbox" class="pull-right" checked>
-            </label>
-
-            <p>
-              Other sets of options are available
-            </p>
-          </div>
-          <!-- /.form-group -->
-
-          <div class="form-group">
-            <label class="control-sidebar-subheading">
-              Expose author name in posts
-              <input type="checkbox" class="pull-right" checked>
-            </label>
-
-            <p>
-              Allow the user to show his name in blog posts
-            </p>
-          </div>
-          <!-- /.form-group -->
-
-          <h3 class="control-sidebar-heading">Chat Settings</h3>
-
-          <div class="form-group">
-            <label class="control-sidebar-subheading">
-              Show me as online
-              <input type="checkbox" class="pull-right" checked>
-            </label>
-          </div>
-          <!-- /.form-group -->
-
-          <div class="form-group">
-            <label class="control-sidebar-subheading">
-              Turn off notifications
-              <input type="checkbox" class="pull-right">
-            </label>
-          </div>
-          <!-- /.form-group -->
-
-          <div class="form-group">
-            <label class="control-sidebar-subheading">
-              Delete chat history
-              <a href="javascript:void(0)" class="text-red pull-right"><i class="fa fa-trash-o"></i></a>
-            </label>
-          </div>
-          <!-- /.form-group -->
-        </form>
-      </div>
-      <!-- /.tab-pane -->
-    </div>
-  </aside>
+  
   <!-- /.control-sidebar -->
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
@@ -493,51 +248,39 @@
 </div>
 
 
- <!-- Delete Item Ajax Request Start ---->
+ <!-- -----------------------------  Active/Deactive Item Ajax Request Start ------------------------------- ---->
+ <script>
+  $(document).ready(function() {
+    $('.activeSts').change(function() {
+      var userid = $(this).attr('user-id') ;
+     //console.log("Active item on Id :::", userid);
+      var status = $(this).prop('checked') == true ? 1 : 0; 
+      //console.log("Active Status :::", status); 
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: "http://127.0.0.1:8000/user_status", 
+            data: {'active': status, 'user_id': userid},
+            beforeSend: function(xhr, type) {
+        if (!type.crossDomain) {
+            xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+        }
+        },
+            success: function(data){
+              console.log(data.success)
+            },
+            error:function(error){
+            console.log("error :", error);
+      }  
+        });
+    });
+  });
+</script>
+
+  <!------------------------------- Active/Deactive Item Ajax Request End  ------------------------------------>
 
 
-<script>
-  
-   $(document).ready( function(){
-     //console.log("Event triggered");
-   });
-
-   $(document).on('click', '.deleteBtn', function(){
-     var userid = $(this).attr('user-id') ;
-    // console.log("Event triggered", userid);
-     $('#deleteUserId').val(userid);
-
-   });
-
-   $('#delete_btn').click(function(){
-     var user_id = $('#deleteUserId').val();
-     //console.log("user id", user_id);
-     $.ajax({
-       url:"http://127.0.0.1:8000/primary_user_delete/" + user_id,
-       beforeSend:function(){
-         $('#delete_btn').text('Deleting User Item....');  
-       },
-       success:function(data){
-         //console.log("Event success fired", data);
-         location.reload();
-         setTimeout(function(){
-          console.log(user_id);
-          $('#modalDelete').modal('hide');
-         }, 2000)
-       },
-      error:function(error){
-        console.log("error :", error);
-      }
-       
-     });
-   });
-
-   </script>
-
-//  <!--Delete Item Ajax Request End-->
-
-
-//  <!-- Edit Item Ajax Request  Start -->
+ <!---------------------------------- Edit Item Ajax Request  Start  ------------------------------------------->
 <script>
  
  $(document).ready( function(){
@@ -583,6 +326,8 @@
          setTimeout(function(){
           console.log(user_id);
           $('#modal-edit').modal('hide');
+          $('#example1').dataTable();
+
           location.reload();
          }, 2000)
        },
@@ -593,6 +338,19 @@
      });
    });
  </script>
-  <!-- Edit Item Ajax Request End ---->
+  <!-- page script -->
+  <script>
+  $(function () {
+    $('#example1').dataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : false,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false
+    });
+  });
+</script>
+  <!------------------------------------------ Edit Item Ajax Request End --------------------------------------->
 
 @endsection

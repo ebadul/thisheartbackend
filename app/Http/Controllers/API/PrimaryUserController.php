@@ -25,17 +25,6 @@ class PrimaryUserController extends BaseController
         return view ('admin.primary_user', ['primary_accounts'=>$primary_accounts]);
     }
 
-
-    public function deleteUserById ($id){
-      
-        $data = User :: findOrfail ($id);
-        if($data -> delete()){
-            $user_Id = User :: where ('id', '=', $id)-> first();
-        }
-        return redirect("/primary_user");
-    }
-
-
     public function updateUserById(Request $request)
     {
 
@@ -53,6 +42,12 @@ class PrimaryUserController extends BaseController
             'data' => $request->all()
         ],200);
     }
-
-
+    public function changeStatus(Request $request)
+    {
+        $data = User::find($request->user_id);
+        $data->active = $request->active;
+        $data->save();
+  
+        return response()->json(['success'=>'Status change successfully.']);
+    }
 }

@@ -24,4 +24,30 @@ class BeneficiaryUserController extends BaseController
         return view ('admin.beneficiary_user', ['beneficiary_accounts'=>$beneficiary_accounts]);
     }
 
+    public function updateBnUserById(Request $request)
+    {
+
+        $data = BeneficiaryUser::find($request->user_id); // data field fillup ! 
+
+            $data->user_id = $request->userId;
+            $data->beneficiary_id = $request->beneficiary_id;
+            $data ->email = $request->email;
+
+            $data->save();
+        
+        return response()->json([
+            'status'=>'success',
+            'message' => 'Data Updated successfully!',
+            'data' => $request->all()
+        ],200);
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $data = BeneficiaryUser::find($request->user_id);
+        $data->active = $request->active;
+        $data->save();
+  
+        return response()->json(['success'=>'Status change successfully.']);
+    }
 }

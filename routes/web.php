@@ -24,11 +24,15 @@ Route::post('/dashboard', function () {
 
 
 Route::get('/primary_user', "API\PrimaryUserController@primary_user");
-Route::get ("/primary_user_delete/{id}", "API\PrimaryUserController@deleteUserById")->name("primary_user_delete");
 Route::post('/primary_user_edit', "API\PrimaryUserController@updateUserById")->name("primary_user_edit");
+Route::post('/user_status', "API\PrimaryUserController@changeStatus")->name("user_status");
 
 
 Route::get('/beneficiary_user', "API\BeneficiaryUserController@beneficiary_user");
+Route::post('/beneficiary_user_edit', "API\BeneficiaryUserController@updateBnUserById")->name("beneficiary_user_edit");
+Route::post('/bnuser_status', "API\BeneficiaryUserController@changeStatus")->name("bnuser_status");
+
+
 
 
 Route::get('/datatable', function () {
