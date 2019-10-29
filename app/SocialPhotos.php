@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Auth;
 
 class SocialPhotos extends Model
 {
@@ -13,7 +14,7 @@ class SocialPhotos extends Model
     public function storePhotos($request)
     {
         try{
-            $user_id = $request->user_id;
+            $user_id = Auth::user()->id;
             $social_type = $request->social_type;
             $file_type = $request->file_type;
             $title = $request->title;
@@ -25,7 +26,7 @@ class SocialPhotos extends Model
                     if(empty($newPhoto->id))
                     {
                         $newPhoto->title        =   $request->tile;
-                        $newPhoto->user_id      =   $request->user_id;
+                        $newPhoto->user_id      =   $user_id;
                         $newPhoto->social_type  =   $request->social_type;
                         $newPhoto->filetype     =   $request->file_type;
                         $newPhoto->image_url    =   $photo;

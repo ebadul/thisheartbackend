@@ -11,6 +11,7 @@ use App\OtpSetting;
 use App\OtpCode;
 use App\Mail\OTPMail;
 use Hash;
+use Carbon\Carbon;
 
 class OTPService{
 
@@ -56,6 +57,7 @@ class OTPService{
                 $otp_data->otp_code =  $otp_code;
                 $otp_data->verified =  false;
                 $otp_data->expired =  false;
+                $otp_data->expired_time =  Carbon::now()->addSeconds(60);//30 seconds add
                 $otp_data->save();
             }else{
                 $user->OtpCode()->create([
@@ -78,6 +80,7 @@ class OTPService{
             $otp_data->otp_code =  $otp_code;
             $otp_data->verified =  false;
             $otp_data->expired =  false;
+            $otp_data->expired_time =  Carbon::now()->addSeconds(60);//30 seconds add
             $otp_data->save();
         }else{
             $user->OtpCode()->create([
@@ -132,11 +135,11 @@ class OTPService{
                     'data'=>null
                     ];
             }
-            $this->createOtpSMS($user);
+            $sms=$this->createOtpSMS($user);
             return [
                 'status'=>'success',
                 'method'=>'sms',
-                'data'=>null
+                'data'=>$sms
                 ];
 
         }elseif($request->otp_method==="email"){
@@ -344,6 +347,7 @@ class OTPService{
                     $otp_data->otp_code =  $otp_code;
                     $otp_data->verified =  false;
                     $otp_data->expired =  false;
+                    $otp_data->expired_time =  Carbon::now()->addSeconds(60);//30 seconds add
                     $otp_data->save();
                 }else{
                     $user->OtpCode()->create([
@@ -362,6 +366,7 @@ class OTPService{
                     $otp_data->otp_code =  $otp_code;
                     $otp_data->verified =  false;
                     $otp_data->expired =  false;
+                    $otp_data->expired_time =  Carbon::now()->addSeconds(60);//30 seconds add
                     $otp_data->save();
                 }else{
                     $user->OtpCode()->create([
@@ -466,6 +471,15 @@ class OTPService{
                        where('otp_code',$request->otp_code)->
                        where('verified',false)->
                        where('expired',false)->first();
+            $expired_time = $otpData->expired_time;
+            $now_time = Carbon::now();
+            if($now_time>$expired_time){
+                return [
+                    'status'=>'error',
+                    'message'=>'Sorry, OTP is verified failed',
+                    'data'=>null
+                ];
+            }
             if($otpData){
                 $otpData->verified = true; 
                 $otpData ->expired = true; 
@@ -531,7 +545,7 @@ class OTPService{
                 ]
             );    
         } catch (TwilioException $e) {
-            return false;
+            return new \Exception($e->getMessage().'- This Hearts');
         }
         return true;
     }

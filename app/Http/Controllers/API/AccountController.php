@@ -10,6 +10,7 @@ use Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
+use Auth;
 
 class AccountController extends BaseController
 {
@@ -49,7 +50,15 @@ class AccountController extends BaseController
             $accountInfo->acc_password = Crypt::encryptString($request->acc_password);
 
             $accountInfo->save();
-           
+          
+            
+                $accountInfo->acc_type = Crypt::decryptString($accountInfo->acc_type);
+                $accountInfo->acc_name = Crypt::decryptString($accountInfo->acc_name);
+                $accountInfo->acc_url = Crypt::decryptString($accountInfo->acc_url);
+                $accountInfo->acc_description = Crypt::decryptString($accountInfo->acc_description);
+                $accountInfo->acc_user_name = Crypt::decryptString($accountInfo->acc_user_name);
+                $accountInfo->acc_password = Crypt::decryptString($accountInfo->acc_password);
+            
             return response()->json([
                 'message' => 'Accounts data added successfully!',
                 'data' => $accountInfo
@@ -61,6 +70,8 @@ class AccountController extends BaseController
     {
         //Log::info("user_id = ".$user_id);
         //Get the data
+        $user = Auth::user();
+        $user_id=$user->id;
         $accountInfo = DB::table('accounts')->where('user_id','=',$user_id)->select('accounts.*')->get();
 
         foreach($accountInfo as $value){
