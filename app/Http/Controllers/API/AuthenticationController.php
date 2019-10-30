@@ -25,19 +25,23 @@ class AuthenticationController extends BaseController
         Log::info("Email = ".$request->email);
         //Log::info("Password = ".$request->password);
 
+        $user = User::where('email', '=', $request->email)->first();      
         if($user === null){
             return response()->json([
+                'status'=>'error',
                 'message' => 'Email not exist!',
             ], 401);
         }else{
             
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
+
                 if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
                     $user = Auth::user();
                     $tokenResult = $user->createToken('ThisHeartAccessToken');
                     $accountProgressStatus = true;
                     //Check all account progress data.
+                    //$user->forceFill(['token'=>$tokenResult->accessToken])->save();
                     $accountProgressStatus = $this->checkAccountProgressData($user->id);
 
                     return response()->json([
@@ -53,9 +57,10 @@ class AuthenticationController extends BaseController
                 else{
                     return response()->json(['error'=>'Unauthorised'], 401);
                 }
-                
+            
             }else{
                 return response()->json([
+                    'status'=>'error',
                     'message' => 'Password mismatch!'
                 ], 422);
             }
