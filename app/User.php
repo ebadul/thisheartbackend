@@ -43,12 +43,12 @@ class User extends Authenticatable
 
     public function OTPSetting()
     {
-        return $this->hasOne('App\OTPSetting');
+        return $this->hasOne('App\OtpSetting');
     }
 
     public function OTPCode()
     {
-        return $this->hasOne('App\OTPCode');
+        return $this->hasOne('App\OtpCode');
     }
 
     public function TwoFaOtp()
