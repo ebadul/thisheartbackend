@@ -23,6 +23,7 @@ class CreateUsersTable extends Migration
             $table->integer('beneficiary_id')->unsigned()->index();
             $table->integer('validate_last4')->default(0);
             $table->integer('user_type')->default(0);
+            $table->integer('active')->default(1);
             $table->rememberToken();
             $table->timestamps();
         });

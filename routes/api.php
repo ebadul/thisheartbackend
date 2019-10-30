@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 //Normal User
 Route::get('login', 'API\AuthenticationController@login');
 Route::post('login', 'API\AuthenticationController@login');
+
 Route::post('register', 'API\AuthenticationController@register');
 
 //Beneficiary User
