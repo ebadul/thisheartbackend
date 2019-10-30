@@ -19,11 +19,12 @@ class MemoriesController extends BaseController
         Log::info("Title = ".$request->title);
         //Log::info("Image File = ".$request->file('image'));
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
+        if ($request->hasFile('images')) {
+            $image = $request->file('images');
             $imageName = str_random(60);
            
-            $name = $imageName.'.'.$image->getClientOriginalExtension();
+            $name = $imageName.'.'.$image->extension();
+            throw new \Exception($image->getClientOriginalExtension());
             $path = $image->storeAs('public/uploads/images/'.$request->user_id,$name);
             //Log::info("Upload path = ".$path);
  

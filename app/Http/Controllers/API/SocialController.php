@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use App\SocialPhotos;
+use Auth;
 
 class SocialController extends Controller
 {
@@ -13,18 +14,17 @@ class SocialController extends Controller
 
     public function storePhotos(Request $request)
     {
-         
         $socialPhotos = new SocialPhotos;
         $photoList = $socialPhotos->storePhotos($request);
         return response()->json( $photoList, 200);
         
     }
 
-    public function viewPhotos($user_id)
+    public function viewPhotos()
     {
         $socialPhotos = new SocialPhotos;
-        $photoList = $socialPhotos->viewPhotos($user_id);
-            
+        $photoList = $socialPhotos->viewPhotos(Auth::user()->id);
+         
         if($photoList['status']=="success")
         {
             return response()->json(

@@ -131,6 +131,10 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/sendSMS', 'API\OTPController@sendSMS');
 	Route::post('/sendEmail', 'API\OTPController@sendEmail');
 
+	//social
+	Route::post('/socialStorePhotos', 'API\SocialController@storePhotos');
+	Route::post('/socialViewPhotos', 'API\SocialController@viewPhotos');
+		
 });
 
 

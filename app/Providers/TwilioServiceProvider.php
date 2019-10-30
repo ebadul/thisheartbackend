@@ -13,9 +13,15 @@ class TwilioServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    protected $accountSid;
+    protected $authToken;
+    protected $twilioNumber;
+
     public function boot()
     {
-        //
+        $this->accountSid = env('TWILIO_SID');
+        $this->authToken = env('TWILIO_TOKEN');
+        $this->twilioNumber = env('TWILIO_NUMBER');
     }
 
     /**
@@ -25,8 +31,15 @@ class TwilioServiceProvider extends ServiceProvider
      */
     public function register()
     {
+       
+       
+        
         $this->app->bind('twilio', function() {
-            return new Client(env('TWILIO_SID'), env('TWILIO_TOKEN'));
+            // return response()->json([
+            //     'acc id'=>$this->accountSid,
+            //     'token'=>$this->authToken
+            // ]);
+            return new Client($this->accountSid, $this->authToken);
         });
     }
 }

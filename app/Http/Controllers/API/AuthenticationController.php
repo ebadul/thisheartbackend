@@ -43,15 +43,17 @@ class AuthenticationController extends BaseController
                     //Check all account progress data.
                     //$user->forceFill(['token'=>$tokenResult->accessToken])->save();
                     $accountProgressStatus = $this->checkAccountProgressData($user->id);
-
+                   
                     return response()->json([
+                        'status' => 'success',
                         'message' => 'User logged in successfully!',
                         'user_id' => $user->id,
                         'user_name' => Crypt::decryptString($user->name),
                         'access_token' => $tokenResult->accessToken,
                         'account_progress_status' => $accountProgressStatus,
                         'token_type' => 'Bearer',
-                        'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
+                        'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
+                        'data'=>$user
                     ], 200);
                 }
                 else{
@@ -80,19 +82,26 @@ class AuthenticationController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users',
+            'mobile' => 'required|unique:users',
             'password' => 'required',
         ]);
 
         if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());       
+            return response()->json([
+                'status'=>'fail',
+                'message' => 'Sorry, user registration is failed!',
+                'data'=>$validator->errors()
+            ], 200);
+            //return $this->sendError('Validation Error.', $validator->errors());       
         }
 
         $userData = User::where('email', '=', $request->email)->first();
         if($userData){
             return response()->json([
+                'status'=>'fail',
                 'message' => 'Email already exist. Please use another.',
-            ], 406);
+            ], 200);
         }
 
         $input = $request->all();
@@ -102,12 +111,14 @@ class AuthenticationController extends BaseController
         $tokenResult = $user->createToken('ThisHeartAccessToken');
 
         return response()->json([
+            'status' => 'success',
             'message' => 'User registered successfully!',
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'user_name' => Crypt::decryptString($user->name),
             'user_id' => $user->id,
-            'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
+            'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
+            'data'=>$user
         ], 200);
     }
 
