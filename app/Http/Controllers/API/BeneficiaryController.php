@@ -116,8 +116,9 @@ class BeneficiaryController extends BaseController
                 'login_url' => $beneficiaryLoginUrl
             );
     
-            $existingBeneficiaryUser = BeneficiaryUser::where('beneficiary_id', '=', $id)->first();
-            if($existingBeneficiaryUser->delete()){
+            $existingBeneficiaryUser = BeneficiaryUser::where('beneficiary_id', $id)->first();
+            if(!empty($existingBeneficiaryUser)){
+                $existingBeneficiaryUser->delete();
                 Log::info("Existing Beneficiary User deleted.");
             }
             //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    

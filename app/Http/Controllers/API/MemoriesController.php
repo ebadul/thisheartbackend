@@ -24,13 +24,13 @@ class MemoriesController extends BaseController
             $imageName = str_random(60);
            
             $name = $imageName.'.'.$image->extension();
-            throw new \Exception($image->getClientOriginalExtension());
-            $path = $image->storeAs('public/uploads/images/'.$request->user_id,$name);
-            //Log::info("Upload path = ".$path);
+            $path_str = 'uploads/images/'.$request->user_id;
+            
+            $path = $image->storeAs($path_str,$name);
  
             $memories = new Memories();
             $memories->title = $request->title;
-            $memories->filename = $name;
+            $memories->filename = $path;
             $memories->filetype = "image";
             $memories->user_id = $request->user_id;
 
@@ -126,14 +126,13 @@ class MemoriesController extends BaseController
         }else{
             $video = $request->file('video');
             $videoName = str_random(60);
-           
             $name = $videoName.'.'.$video->getClientOriginalExtension();
-            $path = $video->storeAs('public/uploads/videos/'.$request->user_id,$name);
-            Log::info("Stored Path = ".$path);
+            $path_str = 'uploads/videos/'.$request->user_id;
+            $path = $video->storeAs($path_str,$name);
 
             $memories = new Memories();
             $memories->title = $request->title;
-            $memories->filename = $name;
+            $memories->filename = $path;
             $memories->filetype = "video";
             $memories->user_id = $request->user_id;
 
@@ -204,11 +203,12 @@ class MemoriesController extends BaseController
             $audioName = str_random(60);
            
             $name = $audioName.'.'.$audio->getClientOriginalExtension();
-            $path = $audio->storeAs('public/uploads/audios/'.$request->user_id,$name);
+            $path_str = 'uploads/audios/'.$request->user_id;
+            $path = $audio->storeAs($path_str,$name);
 
             $memories = new Memories();
             $memories->title = $request->title;
-            $memories->filename = $name;
+            $memories->filename = $path;
             $memories->filetype = "record";
             $memories->user_id = $request->user_id;
 
