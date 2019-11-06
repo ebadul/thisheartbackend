@@ -104,7 +104,7 @@ class LettersController extends BaseController
 
     public function changeStatus(Request $request)
     {
-       $letterInfo = Letter::find($request->letter_id);
+       $letterInfo = Letters::find($request->letter_id);
        $letterInfo->active = 1;
        $letterInfo->save();
   
