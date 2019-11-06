@@ -14,7 +14,7 @@ class LetterChange extends Migration
     public function up()
     {
         Schema::table('letters', function (Blueprint $table) {
-            $table->integer('active')->after('leter_from');
+            $table->integer('active')->default(0)->after('leter_from');
         });
     }
 
