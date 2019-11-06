@@ -75,6 +75,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('letter/getById/{user_id}', 'API\LettersController@getLettersById');
 	Route::post('letter/updateBy/{id}', 'API\LettersController@updateLetterById');
 	Route::post('letter/deleteBy/{id}', 'API\LettersController@deleteLetterById');
+	Route::post('letter/changeStatus', 'API\LettersController@changeStatus');
 });
 
 //Beneficiaries info
@@ -85,14 +86,14 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('beneficiary/deleteBy/{id}', 'API\BeneficiaryController@deleteBeneficiaryById');
 	Route::post('beneficiary/resetCode/{id}', 'API\BeneficiaryController@resetBeneficiaryCode');
 	Route::post('beneficiary/sendNewCode/{id}', 'API\BeneficiaryController@sendNewBeneficiaryCode');
-	Route::post('beneficiary/validateCode', 'API\BeneficiaryController@validateCode');
+	
 	Route::post('beneficiary/validateLast4Social', 'API\BeneficiaryController@validateLast4Social');
 });
-
+Route::post('beneficiary/validateCode', 'API\BeneficiaryController@validateCode');
 	//Accounts info
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('account/store', 'API\AccountController@addAccount');
-	Route::get('account/getByUserId/{user_id}', 'API\AccountController@getAccountByUserId');
+	Route::post('account/getByUserId', 'API\AccountController@getAccountByUserId');
 	Route::post('account/updateBy/{id}', 'API\AccountController@updateAccountById');
 	Route::post('account/deleteBy/{id}', 'API\AccountController@deleteAccountById');
 });

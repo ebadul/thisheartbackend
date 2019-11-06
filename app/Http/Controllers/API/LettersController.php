@@ -101,4 +101,16 @@ class LettersController extends BaseController
             ],200);
         }
     }
+
+    public function changeStatus(Request $request)
+    {
+       $letterInfo = Letter::find($request->letter_id);
+       $letterInfo->active = 1;
+       $letterInfo->save();
+  
+        return response()->json([
+            'message'=>'Status change successfully.',
+            'data' =>$letterInfo
+        ],200);
+    }
 }
