@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Crypt;
 
 class BeneficiaryController extends BaseController
 {
+    protected $access_url = "http://45.35.50.179/";
+
     public function addBeneficiary(Request $request)
     {
         //Log::info("Request = ".$request->all());
@@ -57,12 +59,12 @@ class BeneficiaryController extends BaseController
             $beneficiaryCode = str_random(16);
             $beneficiaryInfo->invite_code = $beneficiaryCode;
             $accUrlCode = str_random(8);
-            $beneficiaryInfo->access_url = 'http://45.35.50.179:3000/beneficiary/access/'.$accUrlCode;
+            $beneficiaryInfo->access_url = $this->access_url.'beneficiary/access/'.$accUrlCode;
 
             $beneficiaryInfo->save();
             $user = User::where('id', '=', $request->user_id)->first();
 
-            $beneficiaryLoginUrl = 'http://45.35.50.179:3000/beneficiary/login';
+            $beneficiaryLoginUrl = $this->access_url.'login';
             //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
             //Send mail to beneficiary.
             $to_name = $request->first_name;
@@ -105,7 +107,7 @@ class BeneficiaryController extends BaseController
 
             //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
             //Send mail to beneficiary.
-            $beneficiaryLoginUrl = 'http://45.35.50.179:3000/beneficiary/login';
+            $beneficiaryLoginUrl = $this->access_url.'login';
             $to_name = Crypt::decryptString($beneficiaryInfo->first_name);
             $to_email = Crypt::decryptString($beneficiaryInfo->email);
             $data = array(
@@ -156,7 +158,7 @@ class BeneficiaryController extends BaseController
 
             //Log::info($request->user_id." user first_name ".$user->name." ben first_name ".$request->first_name);    
             //Send mail to beneficiary.
-            $beneficiaryLoginUrl = 'http://45.35.50.179:3000/beneficiary/login';
+            $beneficiaryLoginUrl = $this->access_url.'login';
             $to_name = Crypt::decryptString($beneficiaryInfo->first_name);
             $to_email = Crypt::decryptString($beneficiaryInfo->email);
             $data = array(
@@ -199,7 +201,7 @@ class BeneficiaryController extends BaseController
         $urlWithCode = $request->url_code;
         $beneficiaryInfo = Beneficiary::where('invite_code', '=', $accessCode)->first();
         //$beneficiaryInfo = DB::table('beneficiaries')->where('invite_code','=',$accessCode)->select('beneficiaries.*')->get();
-
+      
         if($beneficiaryInfo){
             if($beneficiaryInfo->validate_code == 0){
 
@@ -208,8 +210,11 @@ class BeneficiaryController extends BaseController
 
                     $beneficiaryInfo->validate_code = 1;
                     $beneficiaryInfo->save();
-
-                    return response()->json([
+                    $beneficiaryInfo->email = Crypt::decryptString($beneficiaryInfo->email);
+                    $beneficiaryInfo->first_name = Crypt::decryptString($beneficiaryInfo->first_name);
+                    $beneficiaryInfo->last_name = Crypt::decryptString($beneficiaryInfo->last_name);
+                    $beneficiaryInfo->last_4_beneficiary = Crypt::decryptString($beneficiaryInfo->last_4_beneficiary);
+               return response()->json([
                         'message' => 'Code validated successfully!',
                         'validated' => 1,
                         'data' => $beneficiaryInfo
@@ -222,6 +227,11 @@ class BeneficiaryController extends BaseController
                 }
                 
             }else{
+                $beneficiaryInfo->email = Crypt::decryptString($beneficiaryInfo->email);
+                $beneficiaryInfo->first_name = Crypt::decryptString($beneficiaryInfo->first_name);
+                $beneficiaryInfo->last_name = Crypt::decryptString($beneficiaryInfo->last_name);
+                $beneficiaryInfo->last_4_beneficiary = Crypt::decryptString($beneficiaryInfo->last_4_beneficiary);
+               
                 return response()->json([
                     'message' => 'This code already validated!',
                     'validated' => 1,
