@@ -8,6 +8,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Hash;
 use Auth;
+use App\UserType;
+use App\ImageList;
 
 class User extends Authenticatable
 {
@@ -19,7 +21,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','mobile','beneficiary_id'
+        'name', 'email', 'password','mobile','beneficiary_id','user_type'
     ];
 
     /**
@@ -60,5 +62,18 @@ class User extends Authenticatable
         $password = $request->pass_word;
         $isCorrectPassword = Hash::check($password,$this->password);
         return $isCorrectPassword;
+    }
+
+    public function user_types(){
+        return $this->belongsTo(UserType::class,'user_type','id');
+    }
+
+    public function getUserTypeID($user_type){
+        $types = UserType::where('user_type',$user_type)->first();
+        return $types->id;
+    }
+
+    public function image_list(){
+        return $this->hasMany(ImageList::class);
     }
 }

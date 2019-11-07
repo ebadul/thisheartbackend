@@ -5,11 +5,13 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Memories;
+use App\ImageList;
 use Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use File;
+use Auth;
 
 class MemoriesController extends BaseController
 {
@@ -46,6 +48,40 @@ class MemoriesController extends BaseController
         return response()->json([
             'message' => 'Image uploaded successfully.',
             'data' => $memories
+        ], 200);
+    }
+
+    public function storeProfileImage(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            $imageName = str_random(60);
+           
+            $name = $imageName.'.'.$image->extension();
+            $path_str = 'uploads/profile-images/'.$user_id;
+            
+            $path = $image->storeAs($path_str,$name);
+ 
+            $imageList = ImageList::firstOrNew(['user_id'=>$user_id]);
+            $imageList->user_id = $user_id;
+            $imageList->image_type = "profile";
+            $imageList->image_url = $path;
+            $imageList->status = 1;
+            $imageList->save();
+
+          }
+          else{
+            return response()->json([
+                'message' => 'Please select image file.',
+            ], 401);
+          }
+    
+
+        return response()->json([
+            'status'=>'success',
+            'message' => 'Image uploaded successfully.',
+            'data' => $imageList
         ], 200);
     }
 

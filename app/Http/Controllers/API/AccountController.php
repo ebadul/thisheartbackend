@@ -66,7 +66,7 @@ class AccountController extends BaseController
         }
     }
 
-    public function getAccountByUserId($user_id)
+    public function getAccountByUserId()
     {
         //Log::info("user_id = ".$user_id);
         //Get the data

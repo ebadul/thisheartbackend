@@ -61,7 +61,8 @@ class OTPService{
                 $otp_data->save();
             }else{
                 $user->OtpCode()->create([
-                    'user_code'=> $user->id,
+                    'user_id'=> $user->id,
+                    'user_type'=>!empty($user->user_types->id)?$user->user_types->id:0,
                     'otp_code'=>$otp_code,
                     'verified'=>false,
                     'expired'=>false
@@ -84,7 +85,8 @@ class OTPService{
             $otp_data->save();
         }else{
             $user->OtpCode()->create([
-                'user_code'=> $user->id,
+                'user_id'=> $user->id,
+                'user_type'=>!empty($user->user_types->id)?$user->user_types->id:0,
                 'otp_code'=>$otp_code,
                 'verified'=>false,
                 'expired'=>false
@@ -126,6 +128,7 @@ class OTPService{
                 $user->OTPSetting->save();
             }
         }
+        
         if($request->otp_method==="sms"){
             if(empty($user->mobile)){
                 return [
@@ -333,7 +336,7 @@ class OTPService{
     }
 
 
-    public function enableOTP($user, $request){
+    public function enableOTP($user,$user_type, $request){
         $user_id = $user->id;
         if(empty($user_id)){
             throw new Exception("User not found!");
@@ -351,7 +354,8 @@ class OTPService{
                     $otp_data->save();
                 }else{
                     $user->OtpCode()->create([
-                        'user_code'=> $user->id,
+                        'user_id'=> $user->id,
+                        'user_type'=>!empty($user->user_types->id)?$user->user_types->id:0,
                         'otp_code'=>$otp_code,
                         'verified'=>false,
                         'expired'=>false
@@ -370,7 +374,7 @@ class OTPService{
                     $otp_data->save();
                 }else{
                     $user->OtpCode()->create([
-                        'user_code'=> $user->id,
+                        'user_id'=> $user->id,
                         'otp_code'=>$otp_code,
                         'verified'=>false,
                         'expired'=>false
@@ -393,7 +397,7 @@ class OTPService{
                 'step'=>1
             ];
         }elseif($request->step==2){
-            $verify = $this->verifyCode($user, $request);
+            $verify = $this->verifyCode($user,$user_type, $request);
             if($verify['status']=='success'){
                 $otp_setting = $user->OTPSetting;
                 if(empty($otp_setting)){
@@ -467,20 +471,23 @@ class OTPService{
                 ];
             }
         }elseif($request->otp_method==="sms_email"){
+            $user_type_id = $user->user_types->id; 
             $otpData = OtpCode::where('user_id', $user->id)->
+                       where('user_type',$user_type_id)->
                        where('otp_code',$request->otp_code)->
                        where('verified',false)->
                        where('expired',false)->first();
-            $expired_time = $otpData->expired_time;
-            $now_time = Carbon::now();
-            if($now_time>$expired_time){
-                return [
-                    'status'=>'error',
-                    'message'=>'Sorry, OTP is verified failed',
-                    'data'=>null
-                ];
-            }
+            
             if($otpData){
+                //$expired_time = $otpData->expired_time;
+                //$now_time = Carbon::now();
+                // if($now_time>$expired_time){
+                //     return [
+                //         'status'=>'error',
+                //         'message'=>'Sorry, OTP is verified failed',
+                //         'data'=>null
+                //     ];
+                // }
                 $otpData->verified = true; 
                 $otpData ->expired = true; 
                 $otpData ->save(); 

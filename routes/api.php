@@ -36,6 +36,7 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 //Memories,,
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('image/upload', 'API\MemoriesController@storeImage');
+	Route::post('image/profileUpload', 'API\MemoriesController@storeProfileImage');
 	Route::get('image/getAll/{user_id}', 'API\MemoriesController@getAllImagesById');
 	Route::get('image/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentImagesByDay');
 	Route::post('image/delete/{id}', 'API\MemoriesController@deleteImageById');

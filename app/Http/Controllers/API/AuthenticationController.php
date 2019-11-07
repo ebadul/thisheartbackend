@@ -53,7 +53,10 @@ class AuthenticationController extends BaseController
                         'account_progress_status' => $accountProgressStatus,
                         'token_type' => 'Bearer',
                         'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
-                        'data'=>$user
+                        'data'=>$user,
+                        'primary_user_id'=>$user->beneficiary_id,
+                        'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
+                        'profile_image'=>!empty($user->image_list[0]->image_url)?$user->image_list[0]->image_url:''
                     ], 200);
                 }
                 else{
@@ -63,7 +66,7 @@ class AuthenticationController extends BaseController
             }else{
                 return response()->json([
                     'status'=>'error',
-                    'message' => 'Password mismatch!'
+                    'message' => 'You entered wrong password!'
                 ], 422);
             }
         }
@@ -118,14 +121,18 @@ class AuthenticationController extends BaseController
             'user_name' => Crypt::decryptString($user->name),
             'user_id' => $user->id,
             'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
-            'data'=>$user
+            'data'=>$user,
+            'primary_user_id'=>$user->beneficiary_id,
+            'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:''
         ], 200);
     }
 
     public function registerBeneficiaryUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'mobile' => 'required|unique:users',
             'password' => 'required',
             'user_id' => 'required',
             'beneficiary_id' => 'required'
@@ -176,6 +183,34 @@ class AuthenticationController extends BaseController
         $beneficiaryUser->beneficiary_id = $request->beneficiary_id;
         $beneficiaryUser->password = $input['password'];
         $beneficiaryUser->save();
+        $userTmp = new User();
+        $user_type_id = $userTmp->getUserTypeID('beneficiary');
+        $regUser = [
+                'name' => Crypt::encryptString($request->name),
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+                'password' => bcrypt($request->password),
+                'beneficiary_id' => $request->user_id,
+                'user_type' => $user_type_id,
+            ];
+
+        
+        $user = User::create($regUser);
+        $tokenResult = $user->createToken('ThisHeartAccessToken');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User registered successfully!',
+            'access_token' => $tokenResult->accessToken,
+            'token_type' => 'Bearer',
+            'user_name' => Crypt::decryptString($user->name),
+            'user_id' => $user->id,
+            'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
+            'data'=>$user,
+            'primary_user_id'=>$user->beneficiary_id,
+            'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:''
+        ], 200);
+
 
         return response()->json([
             'message' => 'User registered successfully!',
@@ -196,10 +231,11 @@ class AuthenticationController extends BaseController
         }else{
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
-                $tokenResult = $user->createToken('ThisHeartAccessToken');
-
                 $beneficiaryInfo = Beneficiary::findOrfail($user->beneficiary_id);
-                
+                if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+                    $user = Auth::user();
+                    $tokenResult = $user->createToken('ThisHeartAccessToken');
+                }
                 return response()->json([
                     'message' => 'User logged in successfully!',
                     'user_id' => $user->id,
@@ -212,7 +248,7 @@ class AuthenticationController extends BaseController
                 ], 200);
             }else{
                 return response()->json([
-                    'message' => 'Password mismatch!'
+                    'message' => 'You enter wrong password!'
                 ], 422);
             }
         }
