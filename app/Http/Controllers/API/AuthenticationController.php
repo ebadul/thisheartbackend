@@ -107,9 +107,11 @@ class AuthenticationController extends BaseController
             ], 200);
         }
 
+        $userTmp = new User; 
         $input = $request->all();
         $input['name'] = Crypt::encryptString($request->name);
         $input['password'] = bcrypt($input['password']);
+        $input['user_type'] = $userTmp->getUserTypeID('primary');
         $user = User::create($input);
         $tokenResult = $user->createToken('ThisHeartAccessToken');
 
