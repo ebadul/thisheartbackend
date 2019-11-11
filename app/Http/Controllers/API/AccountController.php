@@ -71,7 +71,12 @@ class AccountController extends BaseController
         //Log::info("user_id = ".$user_id);
         //Get the data
         $user = Auth::user();
-        $user_id=$user->id;
+        $user_type_id = $user->user_types->id;
+        if($user_type_id===3){
+            $user_id = $user->beneficiary_id;
+        }else{
+            $user_id=$user->id;
+        }
         $accountInfo = DB::table('accounts')->where('user_id','=',$user_id)->select('accounts.*')->get();
 
         foreach($accountInfo as $value){
