@@ -15,7 +15,8 @@ class UpdateResetPasswordTable extends Migration
     {
         //
         Schema::table('password_resets', function($table) {
-            $table->increments('id');
+            $table->increments('id')->first();
+            $table->timestamp('updated_at')->nullable()->after('created_at');
         });
     }
 
