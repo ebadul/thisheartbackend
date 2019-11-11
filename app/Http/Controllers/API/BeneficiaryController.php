@@ -71,7 +71,7 @@ class BeneficiaryController extends BaseController
             $to_email = $request->email;
             $data = array(
                 'b_first_name' => $request->first_name,
-                'user_first_name' => $user->name,
+                'user_first_name' => Crypt::decryptString($user->name),
                 'url' => $beneficiaryInfo->access_url,
                 'beneficiary_code' => $beneficiaryCode,
                 'last4_social' => $request->last_4_beneficiary,

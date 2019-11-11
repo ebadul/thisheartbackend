@@ -22,14 +22,23 @@ class AuthenticationController extends BaseController
     public function login(Request $request){
         
         $user = User::where('email', '=', $request->email)->first();
-        Log::info("Email = ".$request->email);
-        //Log::info("Password = ".$request->password);
-
-        $user = User::where('email', '=', $request->email)->first();      
+        if(!empty($user)){
+            $user_type = $user->user_types->user_type;
+            if($user_type==="primary" || $user_type==="beneficiary"){
+            }else{
+                return response()->json([
+                    'status'=>'error',
+                    'message' => 'This user type has no permission!',
+                    'code'=>'user_type'
+                ], 400);
+            }
+        }
+        
         if($user === null){
             return response()->json([
                 'status'=>'error',
                 'message' => 'Email not exist!',
+                'code'=>'email'
             ], 401);
         }else{
             
@@ -141,7 +150,12 @@ class AuthenticationController extends BaseController
         ]);
 
         if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());       
+            return response()->json([
+                'status'=>'fail',
+                'message' => 'Sorry, user registration is failed!',
+                'data'=>$validator->errors(),
+                'code'=>'invalid'
+            ], 400);     
         }
 
         $beneficiaryInfo = Beneficiary::where('id', '=', $request->beneficiary_id)->first();
@@ -149,15 +163,19 @@ class AuthenticationController extends BaseController
 
             if($beneficiaryInfo->validate_code == 0){
                 return response()->json([
-                    'message' => 'Your access code not validate yet. Please validate code then register.'
+                    'status'=>'fail',
+                    'message' => 'Your access code not validate yet. Please validate code then register.',
+                    'code'=>'social'
                 ],400);
             }
 
             if(Crypt::decryptString($beneficiaryInfo->last_4_beneficiary) == $request->last4social_code){
             }else{
                 return response()->json([
-                    'message' => 'Invalid social code. Please try again.'
-                ],401);
+                    'status'=>'fail',
+                    'message' => 'Invalid social code. Please try again.',
+                    'code'=>'social'
+                ],400);
             }
            
         }
@@ -165,15 +183,19 @@ class AuthenticationController extends BaseController
         $userData = BeneficiaryUser::where('email', '=', $request->email)->first();
         if($userData){
             return response()->json([
+                'status'=>'fail',
                 'message' => 'Email already exist. Please use another.',
-            ], 406);
+                'code'=>'email'
+            ], 400);
         }
 
         $userData = BeneficiaryUser::where('beneficiary_id', '=', $request->beneficiary_id)->first();
         if($userData){
             return response()->json([
+                'status'=>'fail',
                 'message' => 'You have already account ['.$userData->email.'] for this last 4 social code.',
-            ], 402);
+                'code'=>'social'
+            ], 400);
         }
 
         $input = $request->all();
@@ -211,12 +233,6 @@ class AuthenticationController extends BaseController
             'data'=>$user,
             'primary_user_id'=>$user->beneficiary_id,
             'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:''
-        ], 200);
-
-
-        return response()->json([
-            'message' => 'User registered successfully!',
-            'data' => $beneficiaryUser
         ], 200);
     }
 
