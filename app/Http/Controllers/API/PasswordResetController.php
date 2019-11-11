@@ -19,6 +19,8 @@ class PasswordResetController extends BaseController
      * @param  [string] email
      * @return [string] message
      */
+    protected $access_url = "http://45.35.50.179/";
+
     public function getResetToken(Request $request)
     {
         $request->validate([
@@ -32,19 +34,6 @@ class PasswordResetController extends BaseController
                 'message' => 'This email address not exist.'
             ], 404);
 
-        // $rest_user = PasswordReset::where('email', $request->email)->first();
-        // if(!$rest_user){
-        //     $pass_reset = new PasswordReset();
-        //     $pass_reset->email = $user->email;
-        //     $pass_reset->token = str_random(60);
-
-        //     $pass_reset->save();
-        // }else{
-        //     $rest_user->email = $user->email;
-        //     $rest_user->token = str_random(60);
-
-        //     $rest_user->save();
-        // }
         $passwordReset = PasswordReset::updateOrCreate(
             ['email' => $user->email],
             [
@@ -58,7 +47,7 @@ class PasswordResetController extends BaseController
   
         $data = array(
             'reset_token' => $passwordReset->token,
-            'url' => 'http://45.35.50.179:3000/new/password/',
+            'url' => $this->access_url.'new/password/',
         );
         //Log::info("Before sending... ");    
         Mail::send('emails.reset-request', $data, function($message) use ($to_name, $to_email) {
@@ -66,10 +55,7 @@ class PasswordResetController extends BaseController
                     ->subject('Reset Password Request Mail');
             $message->from('thisheartmailer@gmail.com','This-Heart Mailer');
         });
-        //Log::info("After send mail");
-        //if ($user && $passwordReset)
-            //$user->notify(new PasswordResetRequest($passwordReset->token));
-
+      
         return response()->json([
             'message' => 'We have e-mailed your password reset link! Please check your email.'
         ], 200);
