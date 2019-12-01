@@ -103,7 +103,7 @@ class MemoriesController extends BaseController
         ],200);
     }
 
-    public function getAllImagesById($user_id)
+    public function getAllImagesById(Request $rs, $user_id)
     {
         //Log::info("user_id = ".$user_id);
         //Get the data

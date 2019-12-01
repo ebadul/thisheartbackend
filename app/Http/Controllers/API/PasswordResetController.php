@@ -19,8 +19,13 @@ class PasswordResetController extends BaseController
      * @param  [string] email
      * @return [string] message
      */
-    protected $access_url = "http://45.35.50.179/";
+    // protected $access_url = "http://45.35.50.179/";
+    protected $access_url = "";
 
+    public function __construct()
+    {
+        $this->access_url = Request()->headers->get('origin').'/';
+    }
     public function getResetToken(Request $request)
     {
         $request->validate([
@@ -31,7 +36,7 @@ class PasswordResetController extends BaseController
 
         if (!$user)
             return response()->json([
-                'message' => 'This email address not exist.'
+                'message' => 'This email address is not registered.'
             ], 404);
 
         $passwordReset = PasswordReset::updateOrCreate(
@@ -57,7 +62,7 @@ class PasswordResetController extends BaseController
         });
       
         return response()->json([
-            'message' => 'We have e-mailed your password reset link! Please check your email.'
+            'message' => 'Please check your email for password reset instructions.'
         ], 200);
 
     }

@@ -10,6 +10,8 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\BeneficiaryUser;
+use App\User;
+use Auth;
 
 class BeneficiaryUserController extends BaseController
 {
@@ -19,9 +21,9 @@ class BeneficiaryUserController extends BaseController
      * @return \Illuminate\Http\Response
      */
     public function beneficiary_user (){
-        $beneficiary_accounts =  BeneficiaryUser:: all ()->toArray();
-     
-        return view ('admin.beneficiary_user', ['beneficiary_accounts'=>$beneficiary_accounts]);
+        $beneficiary_accounts =  User::where('user_type','3')-> get ()->toArray();
+        $user = Auth::user();
+        return view ('admin.beneficiary_user', ['beneficiary_accounts'=>$beneficiary_accounts,'user'=>$user]);
     }
 
     public function updateBnUserById(Request $request)

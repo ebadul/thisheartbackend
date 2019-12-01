@@ -18,6 +18,7 @@ Route::get('login', 'API\AuthenticationController@login');
 Route::post('login', 'API\AuthenticationController@login');
 
 Route::post('register', 'API\AuthenticationController@register');
+Route::get('email_verification/{url_token}/{email}', 'API\AuthenticationController@email_verification');
 
 //Beneficiary User
 Route::post('beneficiary/login', 'API\AuthenticationController@loginBeneficiaryUser');
@@ -95,6 +96,7 @@ Route::post('beneficiary/validateCode', 'API\BeneficiaryController@validateCode'
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('account/store', 'API\AccountController@addAccount');
 	Route::post('account/getByUserId', 'API\AccountController@getAccountByUserId');
+	Route::post('account_info', 'API\AccountController@getAccountInfo');
 	Route::post('account/updateBy/{id}', 'API\AccountController@updateAccountById');
 	Route::post('account/deleteBy/{id}', 'API\AccountController@deleteAccountById');
 });
@@ -110,11 +112,11 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//user_id, password
 
 	//implement api url
-	Route::post('/isTwoFaEnable','API\PasswordSecurityController@isTwoFaEnable');
-	Route::post('/showQRCode','API\PasswordSecurityController@showQRCode');
-	Route::post('/verifyCode','API\PasswordSecurityController@verifyCode');//verify code
-	Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');//verify code
-	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//password
+	//Route::post('/isTwoFaEnable','API\PasswordSecurityController@isTwoFaEnable');
+	//Route::post('/showQRCode','API\PasswordSecurityController@showQRCode');
+	//Route::post('/verifyCode','API\PasswordSecurityController@verifyCode');//verify code
+	//Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');//verify code
+	//Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//password
 
 	Route::post('/isExistsOTP','API\OTPController@isExistsOTP');
 	Route::post('/generateOTP','API\OTPController@generateOTP');

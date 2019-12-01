@@ -46,7 +46,7 @@ class OTPController extends Controller
         $otpService = new OTPService;
         $otp_setting = $otpService->isExistsOTP($user, $request);
         
-
+  
         if($otp_setting==="enable"){
             $otp_generate = $otpService->generateSecondTimeOTP($user, $request);
         }elseif($otp_setting==="not found"){
@@ -74,7 +74,7 @@ class OTPController extends Controller
         }else{
             return response()->json([
                 'status'=>'error',
-                'message'=>'OTP is not generated!',
+                'message'=>'OTP settings is not generated!',
             ]);
         }
     }
@@ -214,6 +214,7 @@ class OTPController extends Controller
             'message'=> $otp_setting['message'],
             'otp_method'=>$request->otp_method,
             'data'=> $otp_setting['data'],
+            'user'=> $user,
         ]);
     }
 

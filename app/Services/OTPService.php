@@ -106,6 +106,7 @@ class OTPService{
 
     public function generateFirstTimeOTP(User $user, $request){
         $user_id = $user->id;
+        
         if(empty($user_id)){
             throw new Exception("User not found!");
         }
@@ -164,6 +165,7 @@ class OTPService{
 
     public function generateSecondTimeOTP(User $user, $request){
         $user_id = $user->id;
+
         if(empty($user_id)){
             throw new Exception("User not found!");
         }
@@ -180,14 +182,17 @@ class OTPService{
         }
         if(!empty($otp_setting)){
             $otp_enable = $this->isEnableOTP($otp_setting);
-            if(!$otp_enable){
+            // if(!$otp_enable){
+                // empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
                 empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
                 $user->OTPSetting->otp_enable=true;
                 $user->OTPSetting->save();
-            }
+            // }
         }
         
         if($otp_setting->otp_method==="sms"){
+            $user->mobile = $request->mobile;
+            $user->save();
             if(empty($user->mobile)){
                 return [
                     'status'=>'error',
@@ -296,13 +301,16 @@ class OTPService{
         if(!empty($otp_setting)){
             // $otp_enable = $this->isEnableOTP($otp_setting);
             // if(!$otp_enable){
+                //empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
                 empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
                 $user->OTPSetting->otp_enable=true;
                 $user->OTPSetting->save();
             // }
         }
-        
+         
         if($otp_setting->otp_method==="sms"){
+            $user->mobile = $request->mobile;
+            $user->save();
             if(empty($user->mobile)){
                 return [
                     'status'=>'error',

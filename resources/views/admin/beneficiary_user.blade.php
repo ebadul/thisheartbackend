@@ -29,7 +29,7 @@
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <img src="AdminLTE/dist/img/userphoto.jpg" class="user-image" alt="User Image">
-              <span class="hidden-xs">Admin This heart</span>
+              <span class="hidden-xs">{{$user->email}}</span>
             </a>
             <ul class="dropdown-menu">
               <!-- User image -->
@@ -48,7 +48,7 @@
                   <a href="#" class="btn btn-default btn-flat">Profile</a>
                 </div>
                 <div class="pull-right">
-                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                <a href="{{route('logout')}}" class="btn btn-default btn-flat">Sign out</a>
                 </div>
               </li>
             </ul>
@@ -68,7 +68,7 @@
           <img src="AdminLTE/dist/img/userphoto.jpg" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p>Admin This heart</p>
+          <p>{{$user->email}}</p>
           <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
       </div>
@@ -100,8 +100,8 @@
           </ul>
         </li>
 
-        <li class="header">LABELS</li>
-        <li><a href="#"><i class="fa fa-circle-o text-red"></i> <span>Log Out</span></a></li>
+        <li class="header">Settings</li>
+        <li><a href="{{route('logout')}}"><i class="fa fa-circle-o text-red"></i> <span>Log Out</span></a></li>
         <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Forgot Password</span></a></li>
       </ul>
     </section>
@@ -151,7 +151,7 @@
                 <thead>
                 <tr role="row">
                 <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 182px;">Id</th>
-                <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User Id</th>
+                <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User's Full Name</th>
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Beneficiary Id</th>
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Email</th>
                 <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Action</th>
@@ -163,11 +163,11 @@
                 @foreach ( $beneficiary_accounts as $row )
                 <tr role="row" class="odd">
                    <td>{{ $row['id']}}</td>
-                   <td>{{ $row['user_id']}}</td>
+                   <td>{{ Crypt::decryptString($row['name'])}}</td>
                    <td>{{ $row['beneficiary_id']}}</td>
                    <td>{{ $row['email']}}</td>
                    <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['user_id'] .'='. $row['beneficiary_id'] .'='. $row['email']}} "><span><i class="fa fa-edit"></i>Edit</button>
+                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['id'] .'='. $row['beneficiary_id'] .'='. $row['email']}} "><span><i class="fa fa-edit"></i>Edit</button>
                   </td>
                   <td class="text-center"><input class="activeSts" user-id="{{$row['id']}}" type="checkbox" {{$row["active"] ? "checked" : ""}} data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="InActive"/> 
                 </td>              

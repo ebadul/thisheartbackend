@@ -16,7 +16,12 @@ use Illuminate\Support\Facades\Crypt;
 
 class BeneficiaryController extends BaseController
 {
-    protected $access_url = "http://45.35.50.179/";
+    // protected $access_url = "http://45.35.50.179/";
+     protected $access_url = "";
+    public function __construct()
+    {
+        $this->access_url = Request()->headers->get('origin').'/';
+    }
 
     public function addBeneficiary(Request $request)
     {

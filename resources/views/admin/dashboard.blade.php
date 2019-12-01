@@ -30,7 +30,7 @@
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <img src="AdminLTE/dist/img/userphoto.jpg" class="user-image" alt="User Image">
-              <span class="hidden-xs">Alexander Pierce</span>
+              <span class="hidden-xs">{{$user->email}}</span>
             </a>
             <ul class="dropdown-menu">
               <!-- User image -->
@@ -38,7 +38,7 @@
                 <img src="AdminLTE/dist/img/userphoto.jpg" class="img-circle" alt="User Image">
 
                 <p>
-                  Alexander Pierce - Web Developer
+                  {{$user->email}}
                   <small>Member since Nov. 2012</small>
                 </p>
               </li>
@@ -49,7 +49,7 @@
                   <a href="#" class="btn btn-default btn-flat">Profile</a>
                 </div>
                 <div class="pull-right">
-                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                <a href="{{route('logout')}}" class="btn btn-default btn-flat">Sign out</a>
                 </div>
               </li>
             </ul>
@@ -69,7 +69,7 @@
           <img src="AdminLTE/dist/img/userphoto.jpg" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p>Alexander Pierce</p>
+          <p>{{Crypt::decryptString($user->name)}}</p>
           <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
       </div>
@@ -101,8 +101,8 @@
           </ul>
         </li>
 
-        <li class="header">LABELS</li>
-        <li><a href="#"><i class="fa fa-circle-o text-red"></i> <span>Log Out</span></a></li>
+        <li class="header">Settings</li>
+        <li><a href="{{route('logout')}}"><i class="fa fa-circle-o text-red"></i> <span>Log Out</span></a></li>
         <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Forgot Password</span></a></li>
       </ul>
     </section>
@@ -131,9 +131,9 @@
           <!-- small box -->
           <div class="small-box bg-aqua">
             <div class="inner">
-              <h3>10</h3>
+              <h3>{{ $primary_users }}</h3>
 
-              <p>New Data</p>
+              <p>Primary Users</p>
             </div>
             <div class="icon">
               <i class="ion ion-bag"></i>
@@ -146,9 +146,9 @@
           <!-- small box -->
           <div class="small-box bg-green">
             <div class="inner">
-              <h3>53<sup style="font-size: 20px">%</sup></h3>
+              <h3>{{$beneficiary_count}}<sup style="font-size: 20px"></sup></h3>
 
-              <p>Bounce Rate</p>
+              <p>Beneficiary Users</p>
             </div>
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
@@ -192,59 +192,10 @@
       <!-- Main row -->
       <div class="row">
         <!-- Left col -->
-        <section class="col-lg-7 connectedSortable">
-                <h2 class="box-title"> Left Side Content Body Column </h2>
-        </section>
+        
         <!-- /.Left col -->
         <!-- right col (We are only adding the ID to make the widgets sortable)-->
-        <section class="col-lg-5 connectedSortable">
-          <!-- Calendar -->
-          <div class="box box-solid bg-green-gradient">
-            <div class="box-header">
-              <i class="fa fa-calendar"></i>
-
-              <h3 class="box-title">Calendar</h3>
-              <!-- tools box -->
-              <div class="pull-right box-tools">
-                <!-- button with a dropdown -->
-                <div class="btn-group">
-                  <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-bars"></i></button>
-                  <ul class="dropdown-menu pull-right" role="menu">
-                    <li><a href="#">Add new event</a></li>
-                    <li><a href="#">Clear events</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">View calendar</a></li>
-                  </ul>
-                </div>
-                <button type="button" class="btn btn-success btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-success btn-sm" data-widget="remove"><i class="fa fa-times"></i>
-                </button>
-              </div>
-              <!-- /. tools -->
-            </div>
-            <!-- /.box-header -->
-            <div class="box-body no-padding">
-              <!--The calendar -->
-              <div id="calendar" style="width: 100%"></div>
-            </div>
-            <!-- /.box-body -->
-            <div class="box-footer text-black">
-              <div class="row">
-                <div class="col-sm-6">
-                </div>
-                <!-- /.col -->
-                <div class="col-sm-6">
-                </div>
-                <!-- /.col -->
-              </div>
-              <!-- /.row -->
-            </div>
-          </div>
-          <!-- /.box -->
-
-        </section>
+         
         <!-- right col -->
       </div>
       <!-- /.row (main row) -->

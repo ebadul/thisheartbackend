@@ -10,6 +10,7 @@ use Hash;
 use Auth;
 use App\UserType;
 use App\ImageList;
+use App\EmailVerification;
 
 class User extends Authenticatable
 {
@@ -75,5 +76,9 @@ class User extends Authenticatable
 
     public function image_list(){
         return $this->hasMany(ImageList::class);
+    }
+
+    public function emailVerified(){
+        return $this->hasOne(EmailVerification::class);
     }
 }

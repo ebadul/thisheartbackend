@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use App\User;
 use App\Beneficiary;
 use App\BeneficiaryUser;
+use App\EmailVerification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Lcobucci\JWT\Parser;
@@ -15,10 +16,18 @@ use Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
+use Mail;
 
 
 class AuthenticationController extends BaseController
 {
+    // protected $access_url = "http://45.35.50.179/";
+    protected $access_url = "";
+    public function __construct()
+    {
+        $this->access_url = Request()->headers->get('origin').'/';
+    }
+
     public function login(Request $request){
         
         $user = User::where('email', '=', $request->email)->first();
@@ -95,7 +104,6 @@ class AuthenticationController extends BaseController
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
-            'mobile' => 'required|unique:users',
             'password' => 'required',
         ]);
 
@@ -113,8 +121,9 @@ class AuthenticationController extends BaseController
             return response()->json([
                 'status'=>'fail',
                 'message' => 'Email already exist. Please use another.',
-            ], 200);
+            ], 400);
         }
+
 
         $userTmp = new User; 
         $input = $request->all();
@@ -123,6 +132,26 @@ class AuthenticationController extends BaseController
         $input['user_type'] = $userTmp->getUserTypeID('primary');
         $user = User::create($input);
         $tokenResult = $user->createToken('ThisHeartAccessToken');
+        $data = $user;
+        $url_token= str_random(16);
+        $email_str = Crypt::encryptString($user->email);
+        $data['login_url'] = $this->access_url.'email_verification/'.$url_token.'/'.$email_str;
+        $data['email_str'] = $email_str;
+        // 'user_id','verified_token','email_verified'
+        $emailVerifiedData = [
+            'user_id'=>$user->id,
+            'verified_token'=> $url_token,
+            'email_verified'=> 0
+        ];
+        EmailVerification::create($emailVerifiedData);
+        $to_name = $request->name;
+        $to_email = $user->email;
+        $userEmail = array_merge($data->toArray(),$emailVerifiedData);
+        Mail::send('emails.register-primary-user', $userEmail, function($message) use ($to_name, $to_email) {
+            $message->to($to_email, $to_name)
+                    ->subject('[thisheart.co] Activate your account');
+            $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
+        });
 
         return response()->json([
             'status' => 'success',
@@ -136,6 +165,41 @@ class AuthenticationController extends BaseController
             'primary_user_id'=>$user->beneficiary_id,
             'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:''
         ], 200);
+    }
+
+    public function email_verification($url_token, $email){
+        if(empty($url_token) || empty($email)){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Email verification informations are not valid'
+            ],500);
+        }
+        $emailInfo = Crypt::decryptString($email);
+        $userInfo = User::where('email',$emailInfo)->first();
+        $tokenInfo = EmailVerification::where('verified_token',$url_token)->first();
+        if(empty($userInfo) || empty($tokenInfo)){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Email verification information is not valid'
+            ],500);
+        }elseif($userInfo->emailVerified->email_verified === 1){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'This email is activated already'
+            ],500);
+        }
+        $userInfo->email_verified = 1;
+        $userInfo->active = 1;
+        $userInfo->save();
+
+        $userInfo->emailVerified->email_verified = 1;
+        $userInfo->emailVerified->save();
+
+        return response()->json([
+            'status'=>'success',
+            'data'=>$userInfo
+        ],200);
+
     }
 
     public function registerBeneficiaryUser(Request $request)
@@ -222,6 +286,27 @@ class AuthenticationController extends BaseController
         $user = User::create($regUser);
         $tokenResult = $user->createToken('ThisHeartAccessToken');
 
+        $data = $user;
+        $url_token= str_random(16);
+        $email_str = Crypt::encryptString($user->email);
+        $data['login_url'] = $this->access_url.'email_verification/'.$url_token.'/'.$email_str;
+        $data['email_str'] = $email_str;
+        // 'user_id','verified_token','email_verified'
+        $emailVerifiedData = [
+            'user_id'=>$user->id,
+            'verified_token'=> $url_token,
+            'email_verified'=> 0
+        ];
+        EmailVerification::create($emailVerifiedData);
+        $to_name = $request->name;
+        $to_email = $user->email;
+        $userEmail = array_merge($data->toArray(),$emailVerifiedData);
+        Mail::send('emails.register-primary-user', $userEmail, function($message) use ($to_name, $to_email) {
+            $message->to($to_email, $to_name)
+                    ->subject('[thisheart.co] Activate your account');
+            $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
+        });
+        
         return response()->json([
             'status' => 'success',
             'message' => 'User registered successfully!',

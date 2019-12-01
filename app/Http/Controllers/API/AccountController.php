@@ -68,9 +68,43 @@ class AccountController extends BaseController
 
     public function getAccountByUserId()
     {
-        //Log::info("user_id = ".$user_id);
-        //Get the data
         $user = Auth::user();
+        if(empty($user)){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'User not found!',
+            ]);
+        }
+        $user_type_id = $user->user_types->id;
+        if($user_type_id===3){
+            $user_id = $user->beneficiary_id;
+        }else{
+            $user_id=$user->id;
+        }
+        $accountInfo = DB::table('accounts')->where('user_id','=',$user_id)->select('accounts.*')->get();
+
+        foreach($accountInfo as $value){
+            $value->acc_type = Crypt::decryptString($value->acc_type);
+            $value->acc_name = Crypt::decryptString($value->acc_name);
+            $value->acc_url = Crypt::decryptString($value->acc_url);
+            $value->acc_description = Crypt::decryptString($value->acc_description);
+            $value->acc_user_name = Crypt::decryptString($value->acc_user_name);
+            $value->acc_password = Crypt::decryptString($value->acc_password);
+        }
+
+        return response()->json($accountInfo, 200);
+    }
+
+    public function getAccountInfo(Request $rs)
+    {
+         
+        $user = Auth::user();
+        if(empty($user)){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'User not found!',
+            ]);
+        }
         $user_type_id = $user->user_types->id;
         if($user_type_id===3){
             $user_id = $user->beneficiary_id;
