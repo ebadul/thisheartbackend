@@ -138,6 +138,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	//social
 	Route::post('/socialStorePhotos', 'API\SocialController@storePhotos');
 	Route::post('/socialViewPhotos', 'API\SocialController@viewPhotos');
+	Route::post('/fetchInstagram', 'API\SocialController@fetchInstagram');
 		
 });
 

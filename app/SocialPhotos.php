@@ -55,7 +55,7 @@ class SocialPhotos extends Model
     {
         if(!empty($user_id))
         {
-            $photoList = $this->where('user_id',$user_id)->get();
+            $photoList = $this->where('user_id',$user_id)->orderBy('id','desc')->get();
            
             if(count($photoList)>0)
             {
