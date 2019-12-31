@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Memories;
 use App\ImageList;
+use App\SocialPhotos;
 use Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -144,10 +145,31 @@ class MemoriesController extends BaseController
             ],200);
         }
     }
+    public function deleteSocialImageById($id)
+    {
+        //Get the task
+        $socialPhoto = SocialPhotos::where('id', $id)->delete();
+
+        if($socialPhoto) {
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data deleted successfully!',
+                'data'=>$id
+            ],200);
+        }else{
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data delete fail!',
+                'data'=>$id
+            ],200);
+        }
+
+    }
 
     public function storeVideo(Request $request)
     {
-        $max_size = (int)ini_get('upload_max_filesize') * 1000;
+        $max_size = (int)ini_get('upload_max_filesize') * 100000;
         Log::info("max_size = ".$max_size);
         //Log::info("Image File = ".$request->file('image'));|max:10000040
         $data=$request->all();
@@ -222,7 +244,7 @@ class MemoriesController extends BaseController
 
     public function storeAudioRecord(Request $request)
     {
-        $max_size = (int)ini_get('upload_max_filesize') * 1000;
+        $max_size = (int)ini_get('upload_max_filesize') * 100000;
         //Log::info("max_size = ".$max_size);
         //Log::info("Image File = ".$request->file('image'));|max:10000040
         $data=$request->all();

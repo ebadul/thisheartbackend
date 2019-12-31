@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use Auth;
+use Hash;
 
 class AccountController extends BaseController
 {
@@ -123,6 +124,47 @@ class AccountController extends BaseController
         }
 
         return response()->json($accountInfo, 200);
+    }
+
+
+    public function updateAccountInfo(Request $rs)
+    {
+         
+        $user = Auth::user();
+        if(empty($user)){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'User not found!',
+            ]);
+        }
+
+        $current_pass = $rs->currentPass;
+        $new_pass = $rs->newPass;
+        $sub_plan = $rs->sub_plan;
+        $checkPass = Hash::check($current_pass,$user->password);
+        if($checkPass){
+            !empty($new_pass)?$user->password = bcrypt($new_pass):'';
+        }else{
+            return response()->json([
+                'status'=>'error',
+                'message'=>"Current password doesn't matched!",
+            ]);
+        }
+        $user->name = Crypt::encryptString($rs->user_name);
+        !empty($rs->mobile)?$user->mobile = $rs->mobile:'';
+        if($user->save()){
+            return response()->json([
+                'status'=>'success',
+                'user_name'=>Crypt::decryptString($user->name),
+                'data'=>$user,
+            ], 200);
+        }else{
+            return response()->json([
+                'status'=>'error',
+                'message'=>"Update didn't finish successfully!",
+            ]);
+        }
+        
     }
 
     public function updateAccountById(Request $request,$id)

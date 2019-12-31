@@ -52,6 +52,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('record/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentAudioRecordByDay');
 	Route::post('record/delete/{id}', 'API\MemoriesController@deleteAudioRecordById');
 	Route::get('memories/getContentDataCount/{user_id}', 'API\MemoriesController@getContentDataCountById');
+
+	Route::post('social_image/delete/{id}', 'API\MemoriesController@deleteSocialImageById');
 });
 
 //Medical Info
@@ -97,6 +99,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('account/store', 'API\AccountController@addAccount');
 	Route::post('account/getByUserId', 'API\AccountController@getAccountByUserId');
 	Route::post('account_info', 'API\AccountController@getAccountInfo');
+	Route::post('account/update_info', 'API\AccountController@updateAccountInfo');
 	Route::post('account/updateBy/{id}', 'API\AccountController@updateAccountById');
 	Route::post('account/deleteBy/{id}', 'API\AccountController@deleteAccountById');
 });
