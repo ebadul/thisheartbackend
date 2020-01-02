@@ -46,7 +46,7 @@ class AuthenticationController extends BaseController
         if($user === null){
             return response()->json([
                 'status'=>'error',
-                'message' => 'Email not exist!',
+                'message' => 'Sorry, that didn’t work. Try again',
                 'code'=>'email'
             ], 401);
         }else{
@@ -84,7 +84,7 @@ class AuthenticationController extends BaseController
             }else{
                 return response()->json([
                     'status'=>'error',
-                    'message' => 'You entered wrong password!'
+                    'message' => 'Sorry, that didn’t work. Try again'
                 ], 422);
             }
         }
@@ -207,7 +207,7 @@ class AuthenticationController extends BaseController
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
-            'mobile' => 'required|unique:users',
+            //'mobile' => 'unique:users',
             'password' => 'required',
             'user_id' => 'required',
             'beneficiary_id' => 'required'
@@ -329,7 +329,7 @@ class AuthenticationController extends BaseController
 
         if($user === null){
             return response()->json([
-                'message' => 'Email not exist!',
+                'message' => 'Sorry, that didn’t work. Try again',
             ], 401);
         }else{
             $passwordOK = Hash::check($request->password, $user->password);
@@ -351,7 +351,7 @@ class AuthenticationController extends BaseController
                 ], 200);
             }else{
                 return response()->json([
-                    'message' => 'You enter wrong password!'
+                    'message' => 'Sorry, that didn’t work. Try again'
                 ], 422);
             }
         }

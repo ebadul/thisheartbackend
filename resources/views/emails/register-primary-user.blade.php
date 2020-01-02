@@ -13,10 +13,9 @@
         
          <div class="m_-1826355200228678289body_style" style="color:#4d4d4d;background-color:#f0f0f0;font-family:Helvetica,sans-serif;font-size:14px;font-weight:normal">
         
-        
-             
              <table class="m_-1826355200228678289emailContainer" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" align="center" style="margin-top:0;margin-bottom:0;margin-right:auto;margin-left:auto;max-width:600px;table-layout:fixed">
-                 <tbody><tr>
+                 <tbody>
+                     <tr>
                      <td align="center">
                          <div>
                              <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
@@ -27,8 +26,9 @@
                                                  <td align="left" class="m_-1826355200228678289contentContainer m_-1826355200228678289lg-font-size m_-1826355200228678289lg-pad-top" style="color:#4d4d4d;font-family:Helvetica,sans-serif;line-height:1.42857;padding-top:40px;font-size:24px">
                                                      <div id="m_-1826355200228678289header" style="background-color:#ffffff;padding-top:0;padding-right:0;padding-bottom:20px;padding-left:0">
                                                          <div>
-                                                             <a style="color:#009ac7;text-decoration:none" href="https://thisheart.co/" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://thisheart.co/&amp;source=gmail&amp;ust=1574234592721000&amp;usg=AFQjCNGbDvUOEatVrSO6qQkJcyRCjSSDsw">
-                                                                 <img src="http://thisheart.co/static/media/logo.c1ece2f9.png" style="vertical-align:middle;width:45%;height:auto;max-width:100%;border-width:0" alt="This Heart" data-image-whitelisted="" class="CToWUd">
+                                                             {{--  <a style="color:#009ac7;text-decoration:none" href="https://thisheart.co/" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://thisheart.co/&amp;source=gmail&amp;ust=1574234592721000&amp;usg=AFQjCNGbDvUOEatVrSO6qQkJcyRCjSSDsw">  --}}
+                                                             <a style="color:#009ac7;text-decoration:none" href="https://thisheart.co/" target="_blank">
+                                                                 <img src="https://thisheart.co/static/media/logo.c1ece2f9.png" style="vertical-align:middle;width:45%;height:auto;max-width:100%;border-width:0" alt="This Heart" data-image-whitelisted="" class="CToWUd">
                                                              </a>
                                                          </div>
                                                      </div>

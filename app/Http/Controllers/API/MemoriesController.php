@@ -169,11 +169,11 @@ class MemoriesController extends BaseController
 
     public function storeVideo(Request $request)
     {
-        $max_size = (int)ini_get('upload_max_filesize') * 100000;
+        $max_size = (int)ini_get('upload_max_filesize') * 1000000;
         Log::info("max_size = ".$max_size);
         //Log::info("Image File = ".$request->file('image'));|max:10000040
         $data=$request->all();
-        $rules=['video' =>'mimes:mpeg,ogg,ogv,mp4,webm,3gp,mov,flv,avi,wmv,ts|max:'.$max_size.'|required'];
+        $rules=['video' =>'mimetypes:video/x-ms-asf,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/avi|max:'.$max_size.'|required'];
         $validator = Validator($data,$rules);
         
         if ($validator->fails()){
@@ -248,12 +248,16 @@ class MemoriesController extends BaseController
         //Log::info("max_size = ".$max_size);
         //Log::info("Image File = ".$request->file('image'));|max:10000040
         $data=$request->all();
-        $rules=['audio' =>'mimes:mpeg,mpga,mp3,m4a,wma,webM,wav,ogg,aac|max:'.$max_size.'|required'];
+        $rules=['audio' =>'mimetypes:audio/mpeg,audio/mpga,audio/mp3,m4a,audio/wma,webM,audio/ogg,aac|max:'.$max_size.'|required' ];
         $validator = Validator($data,$rules);
-        
+        if ($validator->fails()){
+            $rules=['audio' =>'mimes: mpeg, mpga, mp3,m4a, wma,webM,wav, ogg,aac |max:'.$max_size.'|required'];
+            $validator = Validator($data,$rules);
+        }
         if ($validator->fails()){
             return response()->json([
                 'message' => 'Please select valid audio file.',
+                'error'=>$validator 
             ], 401);
 
         }else{
