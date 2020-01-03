@@ -65,7 +65,10 @@ class PrimaryUserController extends BaseController
         $user_type_id = $userTmp->getUserTypeID('admin');
         try{
                
-             if(Auth::attempt(['email'=>$request->email, 'password'=>$request->password,'user_type'=>$user_type_id]) ){
+             if(Auth::attempt([
+                    'email'=>$request->email, 
+                    'password'=>$request->password,
+                    'user_type'=>$user_type_id]) ){
                 $user = Auth::user();
                 return redirect('/dashboard');
              }else{
