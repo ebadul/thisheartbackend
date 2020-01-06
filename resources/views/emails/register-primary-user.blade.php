@@ -28,7 +28,7 @@
                                                          <div>
                                                              {{--  <a style="color:#009ac7;text-decoration:none" href="https://thisheart.co/" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://thisheart.co/&amp;source=gmail&amp;ust=1574234592721000&amp;usg=AFQjCNGbDvUOEatVrSO6qQkJcyRCjSSDsw">  --}}
                                                              <a style="color:#009ac7;text-decoration:none" href="https://thisheart.co/" target="_blank">
-                                                                 <img src="https://thisheart.co/static/media/logo.c1ece2f9.png" style="vertical-align:middle;width:45%;height:auto;max-width:100%;border-width:0" alt="This Heart" data-image-whitelisted="" class="CToWUd">
+                                                                 <img src="https://thisheart.co/static/media/logo.8cc0788f.png" style="vertical-align:middle;width:45%;height:auto;max-width:100%;border-width:0" alt="This Heart" data-image-whitelisted="" class="CToWUd">
                                                              </a>
                                                          </div>
                                                      </div>
