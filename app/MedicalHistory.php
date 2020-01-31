@@ -11,4 +11,9 @@ class MedicalHistory extends Model
         'diagnosis_id', 'member_type', 'user_id'
     ];
 
+    public function getMedicalHistory(){
+        $medical_history = $this->all();
+        return $medical_history;
+    }
+
 }

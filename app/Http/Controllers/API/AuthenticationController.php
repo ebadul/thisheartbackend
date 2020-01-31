@@ -8,6 +8,7 @@ use App\User;
 use App\Beneficiary;
 use App\BeneficiaryUser;
 use App\EmailVerification;
+use App\UserActivity;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Lcobucci\JWT\Parser;
@@ -46,7 +47,7 @@ class AuthenticationController extends BaseController
         if($user === null){
             return response()->json([
                 'status'=>'error',
-                'message' => 'Sorry, that didn’t work. Try again',
+                'message' => 'Sorry, that didn’t work. Please try again',
                 'code'=>'email'
             ], 401);
         }else{
@@ -61,7 +62,17 @@ class AuthenticationController extends BaseController
                     //Check all account progress data.
                     //$user->forceFill(['token'=>$tokenResult->accessToken])->save();
                     $accountProgressStatus = $this->checkAccountProgressData($user->id);
+                    $checkAccountWizard = $this->checkAccountWizard($user->id);
                    
+                    $user_id = $user->id;
+                    $ip = $_SERVER['REMOTE_ADDR'];
+                    $platform = $_SERVER['HTTP_USER_AGENT'];
+                    $user_activity = new UserActivity;
+                    $user_activity->user_id = $user_id;
+                    $user_activity->ip = $ip;
+                    $user_activity->platform = json_encode($platform);
+                    $user_activity->save();
+
                     return response()->json([
                         'status' => 'success',
                         'message' => 'User logged in successfully!',
@@ -69,6 +80,7 @@ class AuthenticationController extends BaseController
                         'user_name' => Crypt::decryptString($user->name),
                         'access_token' => $tokenResult->accessToken,
                         'account_progress_status' => $accountProgressStatus,
+                        'account_wizard' => $checkAccountWizard,
                         'token_type' => 'Bearer',
                         'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
                         'data'=>$user,
@@ -84,7 +96,8 @@ class AuthenticationController extends BaseController
             }else{
                 return response()->json([
                     'status'=>'error',
-                    'message' => 'Sorry, that didn’t work. Try again'
+                    'message' => 'Sorry, that didn’t work. Try again2',
+                    'password'=>$passwordOK
                 ], 422);
             }
         }
@@ -101,7 +114,14 @@ class AuthenticationController extends BaseController
 
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $requests = [
+            'email'=>base64_decode($request->email),
+            'name'=>base64_decode($request->name),
+            'password'=>base64_decode($request->password),
+            'beneficiary_id'=>base64_decode($request->beneficiary_id),
+        ];
+
+        $validator = Validator::make($requests, [
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required',
@@ -116,7 +136,9 @@ class AuthenticationController extends BaseController
             //return $this->sendError('Validation Error.', $validator->errors());       
         }
 
-        $userData = User::where('email', '=', $request->email)->first();
+        
+        $requests = (object)$requests;
+        $userData = User::where('email', '=', $requests->email)->first();
         if($userData){
             return response()->json([
                 'status'=>'fail',
@@ -124,10 +146,10 @@ class AuthenticationController extends BaseController
             ], 400);
         }
 
-
         $userTmp = new User; 
-        $input = $request->all();
-        $input['name'] = Crypt::encryptString($request->name);
+        $input = (array)$requests;
+
+        $input['name'] = Crypt::encryptString($requests->name);
         $input['password'] = bcrypt($input['password']);
         $input['user_type'] = $userTmp->getUserTypeID('primary');
         $user = User::create($input);
@@ -144,8 +166,8 @@ class AuthenticationController extends BaseController
             'email_verified'=> 0
         ];
         EmailVerification::create($emailVerifiedData);
-        $to_name = $request->name;
-        $to_email = $user->email;
+        $to_name = $requests->name;
+        $to_email = $requests->email;
         $userEmail = array_merge($data->toArray(),$emailVerifiedData);
         Mail::send('emails.register-primary-user', $userEmail, function($message) use ($to_name, $to_email) {
             $message->to($to_email, $to_name)
@@ -329,7 +351,7 @@ class AuthenticationController extends BaseController
 
         if($user === null){
             return response()->json([
-                'message' => 'Sorry, that didn’t work. Try again',
+                'message' => 'Sorry, that didn’t work. Try again3',
             ], 401);
         }else{
             $passwordOK = Hash::check($request->password, $user->password);
@@ -351,13 +373,19 @@ class AuthenticationController extends BaseController
                 ], 200);
             }else{
                 return response()->json([
-                    'message' => 'Sorry, that didn’t work. Try again'
+                    'message' => 'Sorry, that didn’t work. Try again1'
                 ], 422);
             }
         }
     }
 
-    
+    function checkAccountWizard($user_id){
+        $accountWizard = DB::table('wizard_steps')->where('user_id','=',$user_id)->
+        orderBy('steps')->
+        get();
+        return $accountWizard;
+    }
+
     function checkAccountProgressData($user_id){
 
         $allDataCompleted = true;

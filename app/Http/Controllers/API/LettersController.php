@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Letters;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Auth;
 
 class LettersController extends BaseController
 {
@@ -46,10 +47,10 @@ class LettersController extends BaseController
         ],200);
     }
 
-    public function getLettersById($user_id)
+    public function getLettersById()
     {
-        Log::info("user_id = ".$user_id);
         //Get the data
+        $user_id = Auth::user()->id;
         $lettersInfo = DB::table('letters')->where('user_id','=',$user_id)->select('letters.*')->get();
 
         return response()->json($lettersInfo, 200);

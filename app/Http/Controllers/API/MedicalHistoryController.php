@@ -7,8 +7,10 @@ use Validator;
 use Illuminate\Http\Request;
 use App\DiagnosisInfo;
 use App\MedicalHistory;
+use App\WizardStep;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Auth;
 
 class MedicalHistoryController extends BaseController
 {
@@ -201,5 +203,37 @@ class MedicalHistoryController extends BaseController
         ->where('user_id','=',$id)->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
 
         return response()->json($historyInfo, 200);
+    }
+
+    public function saveHealthOnBoard(Request $rs)
+    {
+        $user = Auth::user();
+        $user_id = $user->id;
+        $diagnosis_id = $rs->selectedHealth;
+        
+        $medical_history = new MedicalHistory;
+        $medical_history->user_id = $user_id;
+        $medical_history->diagnosis_id = $diagnosis_id;
+        $medical_history->member_type = '';
+        $medical_history->save();
+
+        $rsStep = (Object) [
+            'step' => 'step-06',
+            'info' => 'onboardhealth'
+        ];
+        $wizStep = new WizardStep;
+        $wizStep->setSteps($rsStep);
+
+        return response()->json([
+            'status'=>'success',
+            'data'=>$medical_history], 200);
+    }
+
+    public function getDiagnosisInfoAll(){
+        $diagnosis_info = new DiagnosisInfo;
+        $diagnosis_infos = $diagnosis_info->getDiagnosisInfos();
+        return response()->json([
+            'status'=>'success',
+            'data'=>$diagnosis_infos], 200);
     }
 }

@@ -38,17 +38,17 @@ Route::post('password/reset', 'API\PasswordResetController@reset');
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('image/upload', 'API\MemoriesController@storeImage');
 	Route::post('image/profileUpload', 'API\MemoriesController@storeProfileImage');
-	Route::get('image/getAll/{user_id}', 'API\MemoriesController@getAllImagesById');
+	Route::get('image/getAll', 'API\MemoriesController@getAllImagesById');
 	Route::get('image/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentImagesByDay');
 	Route::post('image/delete/{id}', 'API\MemoriesController@deleteImageById');
 
 	Route::post('video/upload', 'API\MemoriesController@storeVideo');
-	Route::get('video/getAll/{user_id}', 'API\MemoriesController@getAllVideoById');
+	Route::get('video/getAll', 'API\MemoriesController@getAllVideoById');
 	Route::get('video/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentVideoByDay');
 	Route::post('video/delete/{id}', 'API\MemoriesController@deleteVideoById');
 
 	Route::post('record/upload', 'API\MemoriesController@storeAudioRecord');
-	Route::get('record/getAll/{user_id}', 'API\MemoriesController@getAllAudioRecordById');
+	Route::get('record/getAll', 'API\MemoriesController@getAllAudioRecordById');
 	Route::get('record/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentAudioRecordByDay');
 	Route::post('record/delete/{id}', 'API\MemoriesController@deleteAudioRecordById');
 	Route::get('memories/getContentDataCount/{user_id}', 'API\MemoriesController@getContentDataCountById');
@@ -71,12 +71,14 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('medichistory/getAllByType/{type}/{id}', 'API\MedicalHistoryController@getHistoryByMemberType');
 	Route::get('medichistory/getAllTypeHistoryById/{id}', 'API\MedicalHistoryController@getAllTypeHistoryByUser');
 	Route::get('medichistory/getPersonTypeDataCount/{user_id}', 'API\MedicalHistoryController@getPersonTypeDataCountById');
+	Route::post('medicalhistory/saveHealthOnBoard', 'API\MedicalHistoryController@saveHealthOnBoard');
+	Route::post('medicalhistory/getDiagnosisInfoAll', 'API\MedicalHistoryController@getDiagnosisInfoAll');
 });
 
 //Letters info
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('letter/store', 'API\LettersController@addLetter');
-	Route::get('letter/getById/{user_id}', 'API\LettersController@getLettersById');
+	Route::get('letter/getById', 'API\LettersController@getLettersById');
 	Route::post('letter/updateBy/{id}', 'API\LettersController@updateLetterById');
 	Route::post('letter/deleteBy/{id}', 'API\LettersController@deleteLetterById');
 	Route::post('letter/changeStatus', 'API\LettersController@changeStatus');
@@ -90,8 +92,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('beneficiary/deleteBy/{id}', 'API\BeneficiaryController@deleteBeneficiaryById');
 	Route::post('beneficiary/resetCode/{id}', 'API\BeneficiaryController@resetBeneficiaryCode');
 	Route::post('beneficiary/sendNewCode/{id}', 'API\BeneficiaryController@sendNewBeneficiaryCode');
-	
 	Route::post('beneficiary/validateLast4Social', 'API\BeneficiaryController@validateLast4Social');
+	Route::post('beneficiary/saveBeneficiaryOnBoard', 'API\BeneficiaryController@saveBeneficiaryOnBoard');
 });
 Route::post('beneficiary/validateCode', 'API\BeneficiaryController@validateCode');
 	//Accounts info
@@ -142,6 +144,13 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/socialStorePhotos', 'API\SocialController@storePhotos');
 	Route::post('/socialViewPhotos', 'API\SocialController@viewPhotos');
 	Route::post('/fetchInstagram', 'API\SocialController@fetchInstagram');
+
+	//steps
+	Route::post('/getSteps', 'API\StepsController@getSteps');
+	Route::post('/setSteps', 'API\StepsController@setSteps');
+	Route::post('/getLifeStyle', 'API\LifeStyleController@getLifeStyle');
+	Route::post('/setLifeStyle', 'API\LifeStyleController@setLifeStyle');
+ 
 		
 });
 

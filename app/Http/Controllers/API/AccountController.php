@@ -23,6 +23,14 @@ class AccountController extends BaseController
     public function addAccount(Request $request)
     {
         //Log::info("Request = ".$request->all());
+        $request->user_id = base64_decode($request->user_id);
+        $request->acc_type = base64_decode($request->acc_type);
+        $request->acc_name = base64_decode($request->acc_name);
+        $request->acc_url = base64_decode($request->acc_url);
+        $request->acc_description = base64_decode($request->acc_description);
+        $request->acc_user_name = base64_decode($request->acc_user_name);
+        $request->acc_password = base64_decode($request->acc_password);
+
         $validator = Validator::make($request->all(), [
             'acc_type' => 'required',
             'acc_name' => 'required',

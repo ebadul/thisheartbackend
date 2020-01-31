@@ -37,7 +37,7 @@ class SocialController extends Controller
                 [
                     'data'=>$photoList
                 ] 
-             , 500);
+             , 400);
         }
         
         

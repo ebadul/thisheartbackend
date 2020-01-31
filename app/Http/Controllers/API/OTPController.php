@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
 use App\Services\OTPService;
+use App\WizardStep;
 use Illuminate\Support\Facades\Validator;
 
 class OTPController extends Controller
@@ -207,6 +208,20 @@ class OTPController extends Controller
                 'data'=>$validData->errors()
                 ]);
         }
+
+        $wizStep = WizardStep::where('user_id','=',$user->id)
+                   ->where('steps','step-01')
+                   ->first();
+        if(empty($wizStep)){
+            $wizStep = new WizardStep;
+        }
+        $wizStep->user_id = $user->id;
+        $wizStep->steps = "step-01";
+        $wizStep->status = 1;
+        $wizStep->info = 'onboard2fa';
+        $wizStep->save();
+       
+
         $otpService = new OTPService;
         $otp_setting = $otpService->verifyCode($user, $request);
         return response()->json([

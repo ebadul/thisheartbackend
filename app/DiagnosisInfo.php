@@ -8,6 +8,11 @@ class DiagnosisInfo extends Model
 {
     //
     protected $fillable = [
-        'diagnosis_name', 'description'
+        'id','diagnosis_name', 'description'
     ];
+
+    public function getDiagnosisInfos(){
+        $medical_history = $this->all();
+        return $medical_history;
+    }
 }
