@@ -264,12 +264,12 @@ class BeneficiaryController extends BaseController
             $value->first_name = Crypt::decryptString($value->first_name);
             $value->last_name = Crypt::decryptString($value->last_name);
             $value->email = Crypt::decryptString($value->email);
-            $value->mail_address = Crypt::decryptString($value->mail_address);
-            $value->mail_address2 = Crypt::decryptString($value->mail_address2);
-            $value->city = Crypt::decryptString($value->city);
-            $value->state = Crypt::decryptString($value->state);
-            $value->zip = Crypt::decryptString($value->zip);
-            $value->last_4_beneficiary = Crypt::decryptString($value->last_4_beneficiary);
+            $value->mail_address = !empty($value->mail_address)?Crypt::decryptString($value->mail_address):'';
+            $value->mail_address2 = !empty($value->mail_address2)?Crypt::decryptString($value->mail_address2):''; 
+            $value->city = !empty($value->city)?Crypt::decryptString($value->city):'';
+            $value->state = !empty($value->state)?Crypt::decryptString($value->state):'';
+            $value->zip = !empty($value->zip)?Crypt::decryptString($value->zip):'';
+            $value->last_4_beneficiary = !empty($value->last_4_beneficiary)?Crypt::decryptString($value->last_4_beneficiary):'';
         }
 
         return response()->json($beneficiaryInfo, 200);
