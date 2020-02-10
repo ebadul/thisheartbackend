@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Account;
 use Validator;
-
+use App\PackageInfo;
+use App\UserPackage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
@@ -148,7 +149,7 @@ class AccountController extends BaseController
 
         $current_pass = $rs->currentPass;
         $new_pass = $rs->newPass;
-        $sub_plan = $rs->sub_plan;
+        $sub_plan = $rs->subPlan;
         $checkPass = Hash::check($current_pass,$user->password);
         if($checkPass){
             !empty($new_pass)?$user->password = bcrypt($new_pass):'';
@@ -161,11 +162,38 @@ class AccountController extends BaseController
         $user->name = Crypt::encryptString($rs->user_name);
         !empty($rs->mobile)?$user->mobile = $rs->mobile:'';
         if($user->save()){
-            return response()->json([
-                'status'=>'success',
-                'user_name'=>Crypt::decryptString($user->name),
-                'data'=>$user,
-            ], 200);
+
+            // if(!empty($sub_plan)){
+            //     $user_id = $user->id;
+            //     $pkgData = [
+            //         'user_id'=>$user_id,
+            //         'package_id'=>$sub_plan
+            //     ];
+            //     $user_package = new UserPackage;
+            //     $user_pkg = $user_package->saveUserPackage($pkgData);
+            //     $user_pkg->push('package_info',$user_pkg->package_info);
+            //     return response()->json([
+            //         'status'=>'success',
+            //         'package_info'=>$user_pkg->package_info,
+            //         'sub_plan'=>$user_pkg,
+            //         'user_name'=>Crypt::decryptString($user->name),
+            //         'data'=>$user,
+            //     ], 200);
+            // }else{
+                // $user_pkg = UserPackage::where('user_id','=',$user->id)->first();
+                $user_pkg = $user->user_package->first();
+                if(!empty( $user_pkg)){
+                    $user_pkg->push('package_info',$user_pkg->package_info);
+                }
+
+                return response()->json([
+                    'status'=>'success',
+                    'sub_plan'=>$user_pkg,
+                    'user_name'=>Crypt::decryptString($user->name),
+                    'data'=>$user,
+                ], 200);
+            // }
+           
         }else{
             return response()->json([
                 'status'=>'error',

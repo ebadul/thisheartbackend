@@ -73,6 +73,11 @@ class AuthenticationController extends BaseController
                     $user_activity->platform = json_encode($platform);
                     $user_activity->save();
 
+                    $user_pkg = $user->user_package->last();
+                    if(!empty( $user_pkg)){
+                        $user_pkg->push('package_info',$user_pkg->package_info);
+                    }
+
                     return response()->json([
                         'status' => 'success',
                         'message' => 'User logged in successfully!',
@@ -84,6 +89,7 @@ class AuthenticationController extends BaseController
                         'token_type' => 'Bearer',
                         'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
                         'data'=>$user,
+                        'sub_plan'=>$user_pkg,
                         'primary_user_id'=>$user->beneficiary_id,
                         'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
                         'profile_image'=>!empty($user->image_list[0]->image_url)?$user->image_list[0]->image_url:''

@@ -150,6 +150,11 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/setSteps', 'API\StepsController@setSteps');
 	Route::post('/getLifeStyle', 'API\LifeStyleController@getLifeStyle');
 	Route::post('/setLifeStyle', 'API\LifeStyleController@setLifeStyle');
+
+	//packages info
+	Route::post('/getPackages', 'API\PackagesController@getPackages');
+	Route::post('/savePackageInfo', 'API\PackagesController@savePackageInfo');
+	Route::post('/savePaymentInfo', 'API\PackagesController@savePaymentInfo');
  
 		
 });

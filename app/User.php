@@ -11,6 +11,7 @@ use Auth;
 use App\UserType;
 use App\ImageList;
 use App\EmailVerification;
+use App\UserPackage;
 
 class User extends Authenticatable
 {
@@ -80,5 +81,9 @@ class User extends Authenticatable
 
     public function emailVerified(){
         return $this->hasOne(EmailVerification::class);
+    }
+
+    public function user_package(){
+        return $this->hasMany(UserPackage::class);
     }
 }

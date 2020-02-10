@@ -41,6 +41,10 @@ Route::get('/beneficiary_user', "API\BeneficiaryUserController@beneficiary_user"
 Route::post('/beneficiary_user_edit', "API\BeneficiaryUserController@updateBnUserById")->name("beneficiary_user_edit");
 Route::post('/bnuser_status', "API\BeneficiaryUserController@changeStatus")->name("bnuser_status");
 
+//package list
+Route::get('/package_info', "API\PackagesController@package_info");
+Route::get('/package_entity/{package_id}', "API\PackagesController@package_entities");
+Route::get('/user_package', "API\PackagesController@user_package");
 
 
 
