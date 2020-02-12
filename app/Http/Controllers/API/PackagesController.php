@@ -10,6 +10,7 @@ use App\WizardStep;
 use App\PackageInfo;
 use App\PackageEntity;
 use App\UserPackage;
+use App\PaymentDetails;
 use Illuminate\Support\Facades\Validator;
  
 
@@ -45,11 +46,20 @@ class PackagesController extends Controller
     }
 
     public function savePaymentInfo(Request $rs){
-        
-            return response()->json([
-                'status'=>'success',
-                'package_info'=>$rs->all(),
-            ], 200);
+            $payment_detials = new PaymentDetails;
+            $res = $payment_detials->savePaymentDetails($rs);
+            if($res){
+                return response()->json([
+                    'status'=>'success',
+                    'package_info'=>$res,
+                ], 200);
+            }else{
+                return response()->json([
+                    'status'=>'error',
+                    'package_info'=>$rs->all(),
+                ], 400);
+            }
+           
       
     }
 
