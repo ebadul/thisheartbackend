@@ -196,7 +196,7 @@ class MemoriesController extends BaseController
             $memories->user_id = $request->user_id;
             $memories->save();
 
-            exec("/exe/ffmpeg.exe");
+            exec("exe/ffmpeg.exe");
             exec("ffmpeg -i ".$video." -b:v 250k ./".$path_str.'/'.$name);
 
             return response()->json([
