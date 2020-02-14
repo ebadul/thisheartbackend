@@ -187,17 +187,15 @@ class MemoriesController extends BaseController
             $videoName = str_random(60);
             $name = $videoName.'.'.$video->getClientOriginalExtension();
             $path_str = 'uploads/videos/'.$request->user_id;
-            //$path = $video->storeAs($path_str,$name);
+            $path = $video->storeAs($path_str,$name);
 
             $memories = new Memories();
             $memories->title = $request->title;
-            $memories->filename = $path_str.'/'.$name;
+            //$memories->filename = $path_str.'/'.$name; //filename and full path
+            $memories->filename = $path;
             $memories->filetype = "video";
             $memories->user_id = $request->user_id;
             $memories->save();
-
-            exec("exe/ffmpeg.exe");
-            exec("ffmpeg -i ".$video." -b:v 250k ./".$path_str.'/'.$name);
 
             return response()->json([
                 'message' => 'Video uploaded successfully.',
@@ -278,9 +276,6 @@ class MemoriesController extends BaseController
             $memories->filetype = "record";
             $memories->user_id = $request->user_id;
             $memories->save();
-
-            // exec("/exe/ffmpeg.exe");
-            // exec("ffmpeg -i ".$audio." -vn -ar 44100 -ac 2 -b:a 192k ./".$path_str.'/'.$name);
 
             return response()->json([
                 'message' => 'Audio uploaded successfully.',
