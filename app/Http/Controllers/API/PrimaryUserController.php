@@ -10,6 +10,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\User;
+use App\UserActivity;
 use Validator;
 use Auth;
 
@@ -88,6 +89,13 @@ class PrimaryUserController extends BaseController
         $primary_accounts = User:: where('user_type','2')-> get ()->toArray();
         $user = Auth::user();
         return view ('admin.primary_user', ['primary_accounts'=>$primary_accounts,'user'=>$user]);
+    }
+
+
+    public function user_activities () {
+        $user_activities = UserActivity:: all();
+        $user = Auth::user();
+        return view ('admin.user_activities', ['user_activities'=>$user_activities,'user'=>$user]);
     }
 
     public function updateUserById(Request $request)

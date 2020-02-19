@@ -40,12 +40,13 @@
             <li><a href="beneficiary_user"><i class="fa fa-circle-o"></i> Benefiicary User's</a></li>
             <li><a href="/package_info"><i class="fa fa-circle-o"></i> Package Info</a></li>
             <li><a href="/user_package"><i class="fa fa-circle-o"></i> User Package</a></li>
+            <li><a href="/user_activities"><i class="fa fa-circle-o"></i> User Activities</a></li>
           </ul>
         </li>
 
         <li class="header">Settings</li>
+        {{-- <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Forgot Password</span></a></li> --}}
         <li><a href="{{route('logout')}}"><i class="fa fa-circle-o text-red"></i> <span>Log Out</span></a></li>
-        <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Forgot Password</span></a></li>
       </ul>
     </section>
     <!-- /.sidebar -->

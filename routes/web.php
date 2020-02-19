@@ -45,6 +45,7 @@ Route::post('/bnuser_status', "API\BeneficiaryUserController@changeStatus")->nam
 Route::get('/package_info', "API\PackagesController@package_info");
 Route::get('/package_entity/{package_id}', "API\PackagesController@package_entities");
 Route::get('/user_package', "API\PackagesController@user_package");
+Route::get('/user_activities', "API\PrimaryUserController@user_activities");
 
 
 
