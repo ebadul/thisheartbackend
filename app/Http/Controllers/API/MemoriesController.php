@@ -106,9 +106,14 @@ class MemoriesController extends BaseController
 
     public function getAllImagesById(Request $rs)
     {
-        //Log::info("user_id = ".$user_id);
-        //Get the data
-        $user_id = Auth::user()->id;
+         //Get the data
+         $user = Auth::user();
+         $user_type = $user->user_types->user_type;
+         if(!empty($user_type) && $user_type==="beneficiary"){
+             $user_id = $user->beneficiary_id;
+         }else{
+             $user_id = $user->id;
+         }
         $imagesInfo = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"image")
         ->select('memories.*')->get();
 
@@ -207,9 +212,14 @@ class MemoriesController extends BaseController
 
     public function getAllVideoById()
     {
-        //Log::info("user_id = ".$user_id);
-        //Get the data
-        $user_id = Auth::user()->id;
+         //Get the data
+         $user = Auth::user();
+         $user_type = $user->user_types->user_type;
+         if(!empty($user_type) && $user_type==="beneficiary"){
+             $user_id = $user->beneficiary_id;
+         }else{
+             $user_id = $user->id;
+         }
         $imagesInfo = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"video")
         ->select('memories.*')->get();
 
@@ -287,9 +297,15 @@ class MemoriesController extends BaseController
 
     public function getAllAudioRecordById()
     {
-        //Log::info("user_id = ".$user_id);
         //Get the data
-        $user_id = Auth::user()->id;
+        $user = Auth::user();
+        $user_type = $user->user_types->user_type;
+        if(!empty($user_type) && $user_type==="beneficiary"){
+            $user_id = $user->beneficiary_id;
+        }else{
+            $user_id = $user->id;
+        }
+       
         $imagesInfo = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"record")
         ->select('memories.*')->get();
 
@@ -298,7 +314,6 @@ class MemoriesController extends BaseController
 
     public function getRecentAudioRecordByDay($user_id,$day)
     {
-        //Log::info("user_id = ".$user_id);
         //Get the data
         $imagesInfo = DB::table('memories')->whereDate('created_at', Carbon::now()->subDays($day))->where('filetype','=',"record")->where('user_id','=',$user_id)->select('memories.*')->get();
 
