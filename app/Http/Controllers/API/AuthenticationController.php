@@ -102,7 +102,7 @@ class AuthenticationController extends BaseController
             }else{
                 return response()->json([
                     'status'=>'error',
-                    'message' => 'Sorry, that didn’t work. Try again2',
+                    'message' => 'Sorry, that didn’t work. Try again',
                     'password'=>$passwordOK
                 ], 422);
             }

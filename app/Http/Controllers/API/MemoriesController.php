@@ -106,9 +106,14 @@ class MemoriesController extends BaseController
 
     public function getAllImagesById(Request $rs)
     {
-        //Log::info("user_id = ".$user_id);
-        //Get the data
-        $user_id = Auth::user()->id;
+         //Get the data
+         $user = Auth::user();
+         $user_type = $user->user_types->user_type;
+         if(!empty($user_type) && $user_type==="beneficiary"){
+             $user_id = $user->beneficiary_id;
+         }else{
+             $user_id = $user->id;
+         }
         $imagesInfo = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"image")
         ->select('memories.*')->get();
 
@@ -187,17 +192,15 @@ class MemoriesController extends BaseController
             $videoName = str_random(60);
             $name = $videoName.'.'.$video->getClientOriginalExtension();
             $path_str = 'uploads/videos/'.$request->user_id;
-            //$path = $video->storeAs($path_str,$name);
+            $path = $video->storeAs($path_str,$name);
 
             $memories = new Memories();
             $memories->title = $request->title;
-            $memories->filename = $path_str.'/'.$name;
+            //$memories->filename = $path_str.'/'.$name; //filename and full path
+            $memories->filename = $path;
             $memories->filetype = "video";
             $memories->user_id = $request->user_id;
             $memories->save();
-
-            exec("exe/ffmpeg.exe");
-            exec("ffmpeg -i ".$video." -b:v 250k ./".$path_str.'/'.$name);
 
             return response()->json([
                 'message' => 'Video uploaded successfully.',
@@ -209,9 +212,14 @@ class MemoriesController extends BaseController
 
     public function getAllVideoById()
     {
-        //Log::info("user_id = ".$user_id);
-        //Get the data
-        $user_id = Auth::user()->id;
+         //Get the data
+         $user = Auth::user();
+         $user_type = $user->user_types->user_type;
+         if(!empty($user_type) && $user_type==="beneficiary"){
+             $user_id = $user->beneficiary_id;
+         }else{
+             $user_id = $user->id;
+         }
         $imagesInfo = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"video")
         ->select('memories.*')->get();
 
@@ -279,9 +287,6 @@ class MemoriesController extends BaseController
             $memories->user_id = $request->user_id;
             $memories->save();
 
-            // exec("/exe/ffmpeg.exe");
-            // exec("ffmpeg -i ".$audio." -vn -ar 44100 -ac 2 -b:a 192k ./".$path_str.'/'.$name);
-
             return response()->json([
                 'message' => 'Audio uploaded successfully.',
                 'data' => $memories
@@ -292,9 +297,15 @@ class MemoriesController extends BaseController
 
     public function getAllAudioRecordById()
     {
-        //Log::info("user_id = ".$user_id);
         //Get the data
-        $user_id = Auth::user()->id;
+        $user = Auth::user();
+        $user_type = $user->user_types->user_type;
+        if(!empty($user_type) && $user_type==="beneficiary"){
+            $user_id = $user->beneficiary_id;
+        }else{
+            $user_id = $user->id;
+        }
+       
         $imagesInfo = DB::table('memories')->where('user_id','=',$user_id)->where('filetype','=',"record")
         ->select('memories.*')->get();
 
@@ -303,7 +314,6 @@ class MemoriesController extends BaseController
 
     public function getRecentAudioRecordByDay($user_id,$day)
     {
-        //Log::info("user_id = ".$user_id);
         //Get the data
         $imagesInfo = DB::table('memories')->whereDate('created_at', Carbon::now()->subDays($day))->where('filetype','=',"record")->where('user_id','=',$user_id)->select('memories.*')->get();
 

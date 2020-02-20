@@ -50,7 +50,13 @@ class LettersController extends BaseController
     public function getLettersById()
     {
         //Get the data
-        $user_id = Auth::user()->id;
+        $user = Auth::user();
+        $user_type = $user->user_types->user_type;
+        if(!empty($user_type) && $user_type==="beneficiary"){
+            $user_id = $user->beneficiary_id;
+        }else{
+            $user_id = $user->id;
+        }
         $lettersInfo = DB::table('letters')->where('user_id','=',$user_id)->select('letters.*')->get();
 
         return response()->json($lettersInfo, 200);
