@@ -210,6 +210,22 @@ class MemoriesController extends BaseController
 
     }
 
+    public function getAllMemoriesData()
+    {
+         //Get all the data
+         $user = Auth::user();
+         $user_type = $user->user_types->user_type;
+         if(!empty($user_type) && $user_type==="beneficiary"){
+             $user_id = $user->beneficiary_id;
+         }else{
+             $user_id = $user->id;
+         }
+        $memoriesInfo = DB::table('memories')->where('user_id','=',$user_id)
+        ->select('memories.*')->get();
+
+        return response()->json($memoriesInfo, 200);
+    }
+
     public function getAllVideoById()
     {
          //Get the data

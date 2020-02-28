@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('record/getRecentByDay/{user_id}/{day}', 'API\MemoriesController@getRecentAudioRecordByDay');
 	Route::post('record/delete/{id}', 'API\MemoriesController@deleteAudioRecordById');
 	Route::get('memories/getContentDataCount/{user_id}', 'API\MemoriesController@getContentDataCountById');
+	Route::get('memories/getAllMemoriesData', 'API\MemoriesController@getAllMemoriesData');
 
 	Route::post('social_image/delete/{id}', 'API\MemoriesController@deleteSocialImageById');
 });
