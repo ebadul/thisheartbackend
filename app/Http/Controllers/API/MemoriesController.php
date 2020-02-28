@@ -19,15 +19,14 @@ class MemoriesController extends BaseController
 
     public function storeImage(Request $request)
     {
-        Log::info("Title = ".$request->title);
-        //Log::info("Image File = ".$request->file('image'));
-
+        $user = Auth::user();
+        $tmpMemories =[];
         if ($request->hasFile('images')) {
             $image = $request->file('images');
             $imageName = str_random(60);
            
             $name = $imageName.'.'.$image->extension();
-            $path_str = 'uploads/images/'.$request->user_id;
+            $path_str = 'uploads/images/'.$user->id;
             
             $path = $image->storeAs($path_str,$name);
  
@@ -35,7 +34,7 @@ class MemoriesController extends BaseController
             $memories->title = $request->title;
             $memories->filename = $path;
             $memories->filetype = "image";
-            $memories->user_id = $request->user_id;
+            $memories->user_id = $user->id;
 
             $memories->save();
           }
