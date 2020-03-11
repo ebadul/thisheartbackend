@@ -17,9 +17,9 @@ class OTPController extends Controller
         $otpCode = $otpService->getOTPCode();
         $sendStatus = $otpService->sendSMS($user->mobile,$otpCode);
         if($sendStatus){
-            echo "OTP sent success!";
+            echo "OTP is sent success!";
         }else{
-            echo "OTP not sent!";
+            echo "OTP is not sent!";
         }
     }
 

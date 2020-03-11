@@ -13,6 +13,7 @@ use App\User;
 use App\UserActivity;
 use Validator;
 use Auth;
+use Carbon\Carbon;
 
 class PrimaryUserController extends BaseController
 {
@@ -96,6 +97,16 @@ class PrimaryUserController extends BaseController
         $user_activities = UserActivity:: all();
         $user = Auth::user();
         return view ('admin.user_activities', ['user_activities'=>$user_activities,'user'=>$user]);
+    }
+
+    public function inactive_users () {
+        $days=isset($_GET['days'])?$_GET['days']:0;
+        $user_activities = UserActivity::select(['user_id','ip','platform','created_at','updated_at'])
+        ->where( 'created_at', '<', Carbon::now()->subDays($days))
+        ->get();
+         
+        $user = Auth::user();
+        return view ('admin.inactive_users', ['user_activities'=>$user_activities,'user'=>$user]);
     }
 
     public function updateUserById(Request $request)

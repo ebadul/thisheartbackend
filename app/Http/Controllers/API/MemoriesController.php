@@ -21,22 +21,28 @@ class MemoriesController extends BaseController
     {
         $user = Auth::user();
         $tmpMemories =[];
-        if ($request->hasFile('images')) {
-            $image = $request->file('images');
-            $imageName = str_random(60);
+        
+        if ($request->hasFile('imagesFiles')) {
+            $imageFile = $request->file('imagesFiles');
+            foreach($imageFile as $image){
+                $imageName = str_random(60);
            
-            $name = $imageName.'.'.$image->extension();
-            $path_str = 'uploads/images/'.$user->id;
-            
-            $path = $image->storeAs($path_str,$name);
- 
-            $memories = new Memories();
-            $memories->title = $request->title;
-            $memories->filename = $path;
-            $memories->filetype = "image";
-            $memories->user_id = $user->id;
-
-            $memories->save();
+                $name = $imageName.'.'.$image->extension();
+                $path_str = 'uploads/images/'.$user->id;
+                
+                $path = $image->storeAs($path_str,$name);
+                $file_name = $image->getClientOriginalName();
+                $title = pathinfo($file_name, PATHINFO_FILENAME);;
+                $memories = new Memories();
+                $memories->title = $title;
+                $memories->filename = $path;
+                $memories->filetype = "image";
+                $memories->user_id = $user->id;
+    
+                $memories->save();
+                $tmpMemories[]=  $memories;
+            }
+           
           }
           else{
             return response()->json([
@@ -47,7 +53,7 @@ class MemoriesController extends BaseController
 
         return response()->json([
             'message' => 'Image uploaded successfully.',
-            'data' => $memories
+            'data' => $tmpMemories
         ], 200);
     }
 
@@ -175,37 +181,49 @@ class MemoriesController extends BaseController
     public function storeVideo(Request $request)
     {
         $max_size = (int)ini_get('upload_max_filesize') * 1000000;
-        Log::info("max_size = ".$max_size);
+        $user = Auth::user();
         //Log::info("Image File = ".$request->file('image'));|max:10000040
-        $data=$request->all();
-        $rules=['video' =>'mimetypes:video/x-ms-asf,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/avi|max:'.$max_size.'|required'];
-        $validator = Validator($data,$rules);
+        // $data=$request->all();
+        // $rules=['video' =>'mimetypes:video/x-ms-asf,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/avi|max:'.$max_size.'|required'];
+        // $validator = Validator($data,$rules);
         
-        if ($validator->fails()){
-            return response()->json([
-                'message' => 'Please select valid video file.',
-            ], 400);
+        // if ($validator->fails()){
+        //     return response()->json([
+        //         'message' => 'Please select valid video file.',
+        //     ], 400);
 
-        }else{
-            $video = $request->file('video');
-            $videoName = str_random(60);
-            $name = $videoName.'.'.$video->getClientOriginalExtension();
-            $path_str = 'uploads/videos/'.$request->user_id;
-            $path = $video->storeAs($path_str,$name);
+        
+            if($request->hasFile('videos')){
+                $videos = $request->file('videos');
+                $memoriesTmp = [];
+                foreach($videos as $video){
+                    $videoName = str_random(60);
+                    $name = $videoName.'.'.$video->getClientOriginalExtension();
+                    $path_str = 'uploads/videos/'.$user->id;
+                    $path = $video->storeAs($path_str,$name);
+                    $file_name = $video->getClientOriginalName();
+                    $title = pathinfo($file_name, PATHINFO_FILENAME);;
+                    $memories = new Memories();
+                    $memories->title = $title;
+                    //$memories->filename = $path_str.'/'.$name; //filename and full path
+                    $memories->filename = $path;
+                    $memories->filetype = "video";
+                    $memories->user_id = $user->id;
+                    $memories->save();
+                    $memoriesTmp[] = $memories;
+                }
 
-            $memories = new Memories();
-            $memories->title = $request->title;
-            //$memories->filename = $path_str.'/'.$name; //filename and full path
-            $memories->filename = $path;
-            $memories->filetype = "video";
-            $memories->user_id = $request->user_id;
-            $memories->save();
-
-            return response()->json([
-                'message' => 'Video uploaded successfully.',
-                'data' => $memories
-            ], 200);
-        }
+                
+                return response()->json([
+                    'message' => 'Video uploaded successfully.',
+                    'data' => $memoriesTmp
+                ], 200);
+                    
+            } else{
+                return response()->json([
+                    'message' => 'Please select video file.',
+                ], 401);
+              }
 
     }
 
@@ -272,39 +290,33 @@ class MemoriesController extends BaseController
     public function storeAudioRecord(Request $request)
     {
         $max_size = (int)ini_get('upload_max_filesize') * 100000;
-        //Log::info("max_size = ".$max_size);
-        //Log::info("Image File = ".$request->file('image'));|max:10000040
-        $data=$request->all();
-        $rules=['audio' =>'mimetypes:audio/mpeg,audio/mpga,audio/mp3,m4a,audio/wma,webM,audio/ogg,aac|max:'.$max_size.'|required' ];
-        $validator = Validator($data,$rules);
-        if ($validator->fails()){
-            $rules=['audio' =>'mimes: mpeg, mpga, mp3,m4a, wma,webM,wav, ogg,aac |max:'.$max_size.'|required'];
-            $validator = Validator($data,$rules);
-        }
-        if ($validator->fails()){
-            return response()->json([
-                'message' => 'Please select valid audio file.',
-                'error'=>$validator 
-            ], 401);
+        $user = Auth::user();
 
-        }else{
-            $audio = $request->file('audio');
-            $audioName = str_random(60);
-           
-            $name = $audioName.'.'.$audio->getClientOriginalExtension();
-            $path_str = 'uploads/audios/'.$request->user_id;
-            $path = $audio->storeAs($path_str,$name);
+            if($request->hasFile('audios')){
+                $audios = $request->file('audios');
+                $memoriesTmp = [];
+                foreach($audios as $audio){
+                    $audioName = str_random(60);
+                
+                    $name = $audioName.'.'.$audio->getClientOriginalExtension();
+                    $path_str = 'uploads/audios/'.$user->id;
+                    $path = $audio->storeAs($path_str,$name);
 
-            $memories = new Memories();
-            $memories->title = $request->title;
-            $memories->filename = $path;
-            $memories->filetype = "record";
-            $memories->user_id = $request->user_id;
-            $memories->save();
+                    $file_name = $audio->getClientOriginalName();
+                    $title = pathinfo($file_name, PATHINFO_FILENAME);;
+
+                    $memories = new Memories();
+                    $memories->title = $title;
+                    $memories->filename = $path;
+                    $memories->filetype = "record";
+                    $memories->user_id = $user->id;
+                    $memories->save();
+                    $memoriesTmp[] = $memories;
+                }
 
             return response()->json([
                 'message' => 'Audio uploaded successfully.',
-                'data' => $memories
+                'data' => $memoriesTmp
             ], 200);
         }
 

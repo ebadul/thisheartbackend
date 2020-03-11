@@ -9,6 +9,7 @@ use App\Beneficiary;
 use App\BeneficiaryUser;
 use App\EmailVerification;
 use App\UserActivity;
+use App\OtpSetting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Lcobucci\JWT\Parser;
@@ -271,6 +272,27 @@ class AuthenticationController extends BaseController
             }
            
         }
+
+        $mobileData = User::where('mobile', '=', $request->mobile)->first();
+        if(!empty($mobileData)){
+            return response()->json([
+                'status'=>'fail',
+                'message' => 'Mobile number is used already. Please use another.',
+                'code'=>'mobile'
+            ], 400);
+        }
+
+        $otpSetting = new OtpSetting;
+        $otpSettingStatus = $otpSetting->sendWelcomeSMS($request->mobile);
+        if($otpSettingStatus!="success")
+        {
+            return response()->json([
+                'data'=>'Unable to send sms to your mobile number!',
+                'code'=>'mobile'
+            ]);
+        }
+        
+
 
         $userData = BeneficiaryUser::where('email', '=', $request->email)->first();
         if($userData){
