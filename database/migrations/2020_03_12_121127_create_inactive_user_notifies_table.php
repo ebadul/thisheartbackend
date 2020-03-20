@@ -17,14 +17,14 @@ class CreateInactiveUserNotifiesTable extends Migration
             $table->increments('id');
             $table->bigInteger('user_id');
             $table->dateTime('last_login');
-            $table->dateTime('first_send_email');
-            $table->dateTime('second_send_email');
-            $table->dateTime('send_sms');
-            $table->dateTime('make_phone_call');
-            $table->dateTime('send_email_beneficiary_user');
-            $table->dateTime('send_sms_beneficiary_user');
-            $table->dateTime('final_make_call');
-            $table->text('notes');
+            $table->dateTime('first_send_email')->nullable();
+            $table->dateTime('second_send_email')->nullable();
+            $table->dateTime('send_sms')->nullable();
+            $table->dateTime('make_phone_call')->nullable();
+            $table->dateTime('send_email_beneficiary_user')->nullable();
+            $table->dateTime('send_sms_beneficiary_user')->nullable();
+            $table->dateTime('final_make_call')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
