@@ -11,9 +11,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\User;
 use App\UserActivity;
+use App\InactiveUserNotify;
 use Validator;
 use Auth;
+use Mail;
 use Carbon\Carbon;
+use App\Mail\InactiveUserMail;
 
 class PrimaryUserController extends BaseController
 {
@@ -99,15 +102,7 @@ class PrimaryUserController extends BaseController
         return view ('admin.user_activities', ['user_activities'=>$user_activities,'user'=>$user]);
     }
 
-    public function inactive_users () {
-        $days=isset($_GET['days'])?$_GET['days']:0;
-        $user_activities = UserActivity::select(['user_id','ip','platform','created_at','updated_at'])
-        ->where( 'created_at', '<', Carbon::now()->subDays($days))
-        ->get();
-         
-        $user = Auth::user();
-        return view ('admin.inactive_users', ['user_activities'=>$user_activities,'user'=>$user]);
-    }
+   
 
     public function updateUserById(Request $request)
     {
@@ -131,7 +126,90 @@ class PrimaryUserController extends BaseController
         $data = User::find($request->user_id);
         $data->active = $request->active;
         $data->save();
-  
+        
         return response()->json(['success'=>'Status change successfully.']);
     }
+
+    public function inactive_primary_users () {
+        $days=isset($_GET['days'])?$_GET['days']:0;
+        $user_activities = User::where( 'last_login', '<', Carbon::now()->subDays($days))
+        ->get();
+         
+        $user = Auth::user();
+        return view ('admin.inactive_primary_users', ['user_activities'=>$user_activities,'user'=>$user]);
+    }
+    
+    public function inactive_beneficiary_users () {
+        $days=isset($_GET['days'])?$_GET['days']:0;
+        $user_activities = User::where( 'last_login', '<', Carbon::now()->subDays($days))
+        ->get();
+         
+        $user = Auth::user();
+        return view ('admin.inactive_beneficiary_users', ['user_activities'=>$user_activities,'user'=>$user]);
+    }
+
+    public function inactive_user_send_email(Request $request){
+        // $table->dateTime('first_send_email');
+        // $table->dateTime('second_send_email');
+        // $table->dateTime('send_sms');
+        // $table->dateTime('send_email_beneficiary_user');
+        // $table->dateTime('send_sms_beneficiary_user');
+        // $table->dateTime('final_make_call');
+        // InactiveUserNotify
+        $user_id_list = $request->userList;
+        $action_type = $request->actionType;
+        $sendStatus = "";
+        if(!empty($user_id_list)){
+            $inactive_user_notify = new InactiveUserNotify;
+            if($action_type==="first_send_email"){
+                $inactive_user_notify->sendFirstEmailPrimary($user_id_list);
+            }elseif($action_type==="second_send_email"){
+                $inactive_user_notify->sendSecondEmailPrimary($user_id_list);
+            }elseif($action_type==="send_sms"){
+                $sendStatus =  $inactive_user_notify->sendSMSPrimary($user_id_list);
+            }elseif($action_type==="send_email_beneficiary_user"){
+                $sendStatus = $inactive_user_notify->sendEmailBeneficiary($user_id_list);
+            }elseif($action_type==="send_sms_beneficiary_user"){
+                $sendStatus = $inactive_user_notify->sendSMSBeneficiary($user_id_list);
+            }elseif($action_type==="final_make_call"){
+                $inactive_user_notify->finalMakeCallPrimary($user_id_list);
+            }
+        } else{
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Please select at least one primary user from the list!',
+                'data'=>$user_id_list
+            ],400);
+        }
+       
+        return response()->json([
+            'status'=>'success',
+            'data'=>$sendStatus , 
+            'action_type'=>$action_type
+        ]);
+    }
+
+    public function inactive_user_send_email_automation(Request $request){
+        $user_id_list = $request->userList;
+        $action_type = $request->actionType;
+        $smsStatus = "";
+        if(!empty($user_id_list)){
+            $inactive_user_notify = new InactiveUserNotify;
+            $sendStatus = $inactive_user_notify->sendEmailAutomation($user_id_list);
+            
+        } else{
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Please select at least one primary user from the list!',
+                'data'=>$user_id_list
+            ],400);
+        }
+       
+        return response()->json([
+            'status'=>'success',
+            'data'=>$sendStatus , 
+            'action_type'=>$action_type
+        ]);
+    }
+
 }

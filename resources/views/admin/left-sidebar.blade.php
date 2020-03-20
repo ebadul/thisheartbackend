@@ -41,7 +41,8 @@
             <li><a href="/package_info"><i class="fa fa-circle-o"></i> Package Info</a></li>
             <li><a href="/user_package"><i class="fa fa-circle-o"></i> User Package</a></li>
             <li><a href="/user_activities"><i class="fa fa-circle-o"></i> User Activities</a></li>
-            <li><a href="/inactive_users"><i class="fa fa-circle-o"></i> Inactive User</a></li>
+            <li><a href="/inactive_primary_users"><i class="fa fa-circle-o"></i> Inactive Primary User</a></li>
+            <li><a href="/inactive_beneficiary_users"><i class="fa fa-circle-o"></i> Beneficiary of Inactive</a></li>
           </ul>
         </li>
 

@@ -10,6 +10,7 @@ use App\BeneficiaryUser;
 use App\EmailVerification;
 use App\UserActivity;
 use App\OtpSetting;
+use App\InactiveUserNotify;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Lcobucci\JWT\Parser;
@@ -73,6 +74,22 @@ class AuthenticationController extends BaseController
                     $user_activity->ip = $ip;
                     $user_activity->platform = json_encode($platform);
                     $user_activity->save();
+
+                    $inactive_user_notify =  InactiveUserNotify::where('user_id',$user->id)->first();
+                    if(empty($inactive_user_notify)){
+                        $inactive_user_notify = new InactiveUserNotify;
+                    }
+                        $inactive_user_notify->last_login = Carbon::now();
+                        $inactive_user_notify->first_send_email = null;
+                        $inactive_user_notify->second_send_email = null;
+                        $inactive_user_notify->send_sms = null;
+                        $inactive_user_notify->send_email_beneficiary_user = null;
+                        $inactive_user_notify->send_sms_beneficiary_user = null;
+                        $inactive_user_notify->final_make_call = null;
+                        $inactive_user_notify->save();
+                   
+                    $user->last_login=Carbon::now();
+                    $user->save();
 
                     $user_pkg = $user->user_package->last();
                     if(!empty( $user_pkg)){

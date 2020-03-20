@@ -30,6 +30,7 @@ Route::get('/', function () {
 Route::get('/login', "API\PrimaryUserController@loginAdmin")->name('login');
 Route::get('/logout', "API\PrimaryUserController@adminLogout")->name('logout')->middleware('auth');
 Route::get('/admin', "API\PrimaryUserController@adminUser")->name('admin');
+Auth::routes();
 Route::get('/dashboard', "API\PrimaryUserController@dashboard")->name('dashboard')->middleware('auth');
 Route::post('/primary_user_login', "API\PrimaryUserController@primary_user_login")->name('primary_user_login');
 Route::get('/primary_user', "API\PrimaryUserController@primary_user");
@@ -46,7 +47,10 @@ Route::get('/package_info', "API\PackagesController@package_info");
 Route::get('/package_entity/{package_id}', "API\PackagesController@package_entities");
 Route::get('/user_package', "API\PackagesController@user_package");
 Route::get('/user_activities', "API\PrimaryUserController@user_activities");
-Route::get('/inactive_users', "API\PrimaryUserController@inactive_users");
+Route::get('/inactive_primary_users', "API\PrimaryUserController@inactive_primary_users")->middleware('auth');
+Route::get('/inactive_beneficiary_users', "API\PrimaryUserController@inactive_beneficiary_users")->middleware('auth');
+Route::post('/inactive_user/send_email', "API\PrimaryUserController@inactive_user_send_email")->middleware('auth');
+Route::post('/inactive_user/send_email_automation', "API\PrimaryUserController@inactive_user_send_email_automation")->middleware('auth');
 
 
 

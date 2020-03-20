@@ -66,7 +66,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Inactive Users
+        Beneficiary of Inactive Users
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -79,7 +79,7 @@
     <div class="box-body">
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                 <div class="row">
-                  <div class="col-sm-6">
+                  <div class="col-sm-2">
                     <div class="dataTables_length" id="example1_length">
                       <label>Show 
                       <select name="example1_length" aria-controls="example1" class="form-control input-sm">
@@ -87,11 +87,40 @@
                       <option value="25">25</option>
                       <option value="50">50</option>
                       <option value="100">100</option>
-                      </select> entries
+                      </select> 
                       </label>
                     </div>
                   </div>
 
+                <div class="col-sm-5">
+                  <label> 
+                    
+                      <select name="selectCheckbox" id="selectCheckbox" aria-controls="" class="form-control input-sm">
+                        <option value="">::Select Users::</option>
+                        <option value="select">Select All</option>
+                        <option value="deselect">Deselect All</option>
+                      </select> 
+                      
+                      <select name="selectAction" id="selectAction" aria-controls="" class="form-control input-sm">
+                        <option value="">:: Action ::</option>
+                        <option value="send_email_beneficiary_user">Email to Beneficiary</option>
+                        <option value="send_sms_beneficiary_user">SMS to Beneficiary</option>
+                        <option value="final_make_call">Final Phone Call</option>
+                         
+                      </select> 
+                      
+                      <button type="submit" class="btn btn-info input-sm" 
+                          placeholder="" aria-controls="example1" id="btnEmail">
+                          Email
+                      </button>
+                      <button type="submit" class="btn btn-info input-sm" 
+                          placeholder="" aria-controls="example1" id="btnSMS">
+                          SMS
+                      </button>
+                      <i class="fa fa-refresh fa-spin fa-spin-email" style="visibility:hidden"></i>
+                  </label>
+
+                </div>
                 <div class="col-sm-3">
                     <div id="example1_filter" class="dataTables_filter">
                         @php
@@ -99,9 +128,9 @@
 
                         @endphp
                         <form action="" method="get" >
-                        <label>Days: <select class="form-control input-sm" 
+                        <label><select class="form-control input-sm" 
                                   name="days">
-                                    <option value="0" {{$days==0?'selected':''}}>:: Select ::</option>
+                                    <option value="0" {{$days==0?'selected':''}}>:: Days ::</option>
                                     <option value="30" {{$days==30?'selected':''}}>30 Days</option>
                                     <option value="60" {{$days==60?'selected':''}}>2 Months</option>
                                     <option value="90" {{$days==90?'selected':''}}>3 Months</option>
@@ -120,7 +149,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div id="example1_filter" class="dataTables_filter">
                         <label>Search:<input type="search" class="form-control input-sm" 
                             placeholder="" aria-controls="example1"></label>
@@ -132,13 +161,18 @@
               <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                 <thead>
                 <tr role="row">
-                <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 182px;">User Id</th>
-                <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">IP</th>
-                <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Platform</th>
-                <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Last Activity Time</th>
-                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Update Time</th>
-                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Notify</th>
-                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Delete</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="example1" >S/L</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="example1" >User Id</th>
+                <th  tabindex="0" aria-controls="example1" >Last Login</th>
+                <th  tabindex="0" aria-controls="example1" >Last Activity</th>
+                <th  tabindex="0" aria-controls="example1" >First Email</th>
+                <th  tabindex="0" aria-controls="example1" >Second Email</th>
+                <th  tabindex="0" aria-controls="example1" >Send SMS</th>
+                <th  tabindex="0" aria-controls="example1" >First Beneficiary</th>
+                <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
+                <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
+                <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
+                <th  tabindex="0" aria-controls="example1" >Delete</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -151,38 +185,119 @@
                     $i++;
                 @endphp
                 <tr role="row" class="odd">
-                   <td>{{ $i }}</td>
-                   <td>{{ $row['user_id'] }}</td>
                    <td>
-                    {{ $row['ip']}}
-                     <!--a href="/package_entity/{{$row['user_id']}}" alt="Package Details & Entities">
-                    
-                     </a-->
-                   </td>
-                   <td title="{{ $row['platform']}}">{{ substr($row['platform'],0,25)}}</td>
-                   <td>{{ $row['created_at']}}</td>
-                   <td>{{ $row['updated_at']}}</td>
+                   <input type="checkbox" class="selectChk" name="userSelect[{{$i}}]" id="userSelect{{$i}}" value="{{$row['id']}}">
+                     {{ $i }}
+                    </td>
+                   <td>{{ $row['id'] }}</td>
+                   <td>{{ $row['last_login']}}</td>
                    
-                   {{-- <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
-                  </td> --}}
-                  <td class="text-center"  >
-                    <button type="button" class="btn btn-block btn-info" user-data="{{$row['user_id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-envelope"></i></span> Notify</button>
-                  </td>
-                  <td class="text-center"  >
-                    <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['user_id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
-                  </td>
+                   <td>
+                     @php
+                      $date = Carbon\Carbon::parse($row['last_login']);
+                      $now = Carbon\Carbon::now();
+                      $diff = $date->diffInDays($now);
+                     @endphp
+                     {{ $diff}} days
+                    </td>
+                 
+                    <td>
+                      @php
+                        $first_email_date = Carbon\Carbon::parse($row->inactive_user_notify->first_send_email);
+                        $now_first_email = Carbon\Carbon::now();
+                        $diff_first_email = ($first_email_date=="-0001-11-30 00:00:00")?'0':
+                        $first_email_date->diffInDays($now_first_email);
+                        echo $diff_first_email;
+                      @endphp
+                      days
+                    </td>
+                    <td>
+                      @php
+                        $second_email_date = Carbon\Carbon::parse($row->inactive_user_notify->second_send_email);
+                        $now_first_email = Carbon\Carbon::now();
+                        $diff_first_email = ($second_email_date=="-0001-11-30 00:00:00")?'0':
+                        $second_email_date->diffInDays($now_first_email);
+                        echo $diff_first_email;
+                      @endphp
+                        days
+                    </td>
+                    <td>
+                      @php
+                      $send_sms = Carbon\Carbon::parse($row->inactive_user_notify->send_sms);
+                      $now_first_email = Carbon\Carbon::now();
+                      $diff_first_email = ($send_sms=="-0001-11-30 00:00:00")?'0':
+                      $send_sms->diffInDays($now_first_email);
+                      echo $diff_first_email;
+                    @endphp
+                      days
+                      
+                    </td>
+                    <td>
+                      @php
+                      $make_phone = Carbon\Carbon::parse($row->inactive_user_notify->make_phone_call);
+                      $now_first_email = Carbon\Carbon::now();
+                      $diff_first_email =($make_phone=="-0001-11-30 00:00:00")? '0':
+                      $make_phone->diffInDays($now_first_email);
+                      echo $diff_first_email;
+                    @endphp
+
+                      days
+                    </td>
+                    <td>
+                      @php
+                      $email_beneficiary = Carbon\Carbon::parse($row->inactive_user_notify->
+                      send_email_beneficiary_user);
+                      $now_first_email = Carbon\Carbon::now();
+                      $diff_first_email = ($email_beneficiary=="-0001-11-30 00:00:00")?'0':
+                      $email_beneficiary->diffInDays($now_first_email);
+                      echo $diff_first_email;
+                    @endphp
+                      days
+                      
+                    </td>
+                    <td>
+                      @php
+                      $send_sms_beneficiary = Carbon\Carbon::parse($row->inactive_user_notify->
+                      send_sms_beneficiary_user);
+                      $now_first_email = Carbon\Carbon::now();
+                      $diff_first_email = ($send_sms_beneficiary=="-0001-11-30 00:00:00")?'0':
+                      $send_sms_beneficiary->diffInDays($now_first_email);
+                      echo $diff_first_email;
+                    @endphp
+
+                      days
+                    </td>
+                    <td>
+                      @php
+                      $final_make_call = Carbon\Carbon::parse($row->inactive_user_notify->final_make_call);
+                      $now_make_call = Carbon\Carbon::now();
+                      $diff_make_call = ($final_make_call=="-0001-11-30 00:00:00")?'0':
+                      $final_make_call->diffInDays($now_make_call);
+                      echo $diff_make_call ;
+                    @endphp
+                      days
+                    </td>
+                    <td>
+                      {{$row->inactive_user_notify->notes}}
+                    </td>
+                    
+                     
+                    <td class="text-center"  >
+                      <button type="button" class="btn btn-block btn-info" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-envelope"></i></span> Notify</button>
+                    </td>
+                    <td class="text-center"  >
+                      <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
+                    </td>
                 </tr>
                 @endforeach
               <?php endif;?>
                 </tbody>
                 <tfoot>
                 <tr>
+                    <th rowspan="1" colspan="1">S/L</th>
                     <th rowspan="1" colspan="1">User Id</th>
-                    <th rowspan="1" colspan="1">IP</th>
-                    <th rowspan="1" colspan="1">Platform</th>
-                    <th rowspan="1" colspan="1">Last Activity</th> 
-                    <th rowspan="1" colspan="1">Updated at</th> 
+                    <th rowspan="1" colspan="1">Last Login</th>
+                    <th rowspan="1" colspan="1">Days</th>
                     <th>Notify</th>
                     <th>Delete</th>
                 </tr>
@@ -284,6 +399,63 @@
       }  
         });
     });
+
+
+    $('#selectCheckbox').on('change',function(e){
+          var status = e.target.value;
+          if(status==="select"){
+            $('.selectChk').parent().addClass('checked');
+            $('.selectChk').parent().attr('aria-checked','true');
+          }else if(status==="deselect"){
+            $('.selectChk').parent().removeClass('checked');
+            $('.selectChk').parent().attr('aria-checked','false');
+          }
+         
+    });
+    
+    $('#btnEmail').on('click',function(e){
+          var status = $('#selectAction').val();
+          $('.fa-spin-email').css('visibility','visible');
+          var userList = [];
+          $('.selectChk').each((index,value)=>{
+            var selectStatus = $(value).parent().attr('aria-checked');
+            if(selectStatus==="true"){
+              $(value).prop('checked', true);
+              userList.push($(value).val());
+            }
+            
+          })
+
+          $.ajax({
+            type: "post",
+            dataType: "json",
+            url: app_path+"inactive_user/send_email", 
+            data: {actionType:status,userList:userList},
+            beforeSend: function(xhr, type) {
+            if (!type.crossDomain) {
+                xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+            }
+            },
+                success: function(data){
+                  console.log(data)
+                  $('.fa-spin-email').css('visibility','hidden');
+                },
+                error:function(error){
+                console.log("error :", error);
+                $('.fa-spin-email').css('visibility','hidden');
+            }  
+        });
+
+           console.log('user list: ', userList);
+         
+    });
+
+    $('#btnSMS').on('click',function(e){
+          var status = e.target.value;
+          
+          console.log(status)
+    });
+
   });
 </script>
 
