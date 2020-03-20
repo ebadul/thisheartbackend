@@ -176,7 +176,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\TwilioServiceProvider::class,
         PragmaRX\Google2FALaravel\ServiceProvider::class,
-        Grimthorr\LaravelToast\ServiceProvider::class,
     ],
 
     /*
