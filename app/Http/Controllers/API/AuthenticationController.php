@@ -78,7 +78,9 @@ class AuthenticationController extends BaseController
                     $inactive_user_notify =  InactiveUserNotify::where('user_id',$user->id)->first();
                     if(empty($inactive_user_notify)){
                         $inactive_user_notify = new InactiveUserNotify;
+                        $inactive_user_notify->user_id = $user->id;
                     }
+                        
                         $inactive_user_notify->last_login = Carbon::now();
                         $inactive_user_notify->first_send_email = null;
                         $inactive_user_notify->second_send_email = null;
