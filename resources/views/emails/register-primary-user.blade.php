@@ -7,24 +7,24 @@
 <body>
     
 
-    <div id=":1pz" class="a3s aXjCH msg-1826355200228678289"> 
+    <div> 
 
         <div style="margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;color:#4d4d4d;background-color:#f0f0f0;font-family:Helvetica,sans-serif;font-size:14px;font-weight:normal">
         
-         <div class="m_-1826355200228678289body_style" style="color:#4d4d4d;background-color:#f0f0f0;font-family:Helvetica,sans-serif;font-size:14px;font-weight:normal">
+         <div style="color:#4d4d4d;background-color:#f0f0f0;font-family:Helvetica,sans-serif;font-size:14px;font-weight:normal">
         
-             <table class="m_-1826355200228678289emailContainer" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" align="center" style="margin-top:0;margin-bottom:0;margin-right:auto;margin-left:auto;max-width:600px;table-layout:fixed">
+             <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" align="center" style="margin-top:0;margin-bottom:0;margin-right:auto;margin-left:auto;max-width:600px;table-layout:fixed">
                  <tbody>
                      <tr>
                      <td align="center">
                          <div>
                              <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
                                  <tbody><tr>
-                                     <td align="center" class="m_-1826355200228678289gutter" style="padding-left:20px;padding-right:20px">
-                                         <table class="m_-1826355200228678289column m_-1826355200228678289inner-float-table" cellpadding="0" cellspacing="0" border="0" align="center" style="width:520px;max-width:520px;margin-top:0;margin-bottom:0;margin-right:auto;margin-left:auto;table-layout:fixed!important">
+                                     <td align="center" style="padding-left:20px;padding-right:20px">
+                                         <table  cellpadding="0" cellspacing="0" border="0" align="center" style="width:520px;max-width:520px;margin-top:0;margin-bottom:0;margin-right:auto;margin-left:auto;table-layout:fixed!important">
                                              <tbody><tr>
-                                                 <td align="left" class="m_-1826355200228678289contentContainer m_-1826355200228678289lg-font-size m_-1826355200228678289lg-pad-top" style="color:#4d4d4d;font-family:Helvetica,sans-serif;line-height:1.42857;padding-top:40px;font-size:24px">
-                                                     <div id="m_-1826355200228678289header" style="background-color:#ffffff;padding-top:0;padding-right:0;padding-bottom:20px;padding-left:0">
+                                                 <td align="left" style="color:#4d4d4d;font-family:Helvetica,sans-serif;line-height:1.42857;padding-top:40px;font-size:24px">
+                                                     <div style="background-color:#ffffff;padding-top:0;padding-right:0;padding-bottom:20px;padding-left:0">
                                                          <div>
                                                              {{--  <a style="color:#009ac7;text-decoration:none" href="https://thisheart.co/" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://thisheart.co/&amp;source=gmail&amp;ust=1574234592721000&amp;usg=AFQjCNGbDvUOEatVrSO6qQkJcyRCjSSDsw">  --}}
                                                              <a style="color:#009ac7;text-decoration:none" href="https://thisheart.co/" target="_blank">

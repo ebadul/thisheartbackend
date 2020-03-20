@@ -12,6 +12,7 @@ use App\UserType;
 use App\ImageList;
 use App\EmailVerification;
 use App\UserPackage;
+use App\InactiveUserNotify;
 
 class User extends Authenticatable
 {
@@ -85,5 +86,9 @@ class User extends Authenticatable
 
     public function user_package(){
         return $this->hasMany(UserPackage::class);
+    }
+
+    public function inactive_user_notify(){
+        return $this->hasOne(InactiveUserNotify::class);
     }
 }

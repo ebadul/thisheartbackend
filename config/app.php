@@ -176,7 +176,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\TwilioServiceProvider::class,
         PragmaRX\Google2FALaravel\ServiceProvider::class,
-
     ],
 
     /*
@@ -226,7 +225,6 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-
     ],
 
 ];

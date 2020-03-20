@@ -19,6 +19,7 @@ Route::post('login', 'API\AuthenticationController@login');
 
 Route::post('register', 'API\AuthenticationController@register');
 Route::get('email_verification/{url_token}/{email}', 'API\AuthenticationController@email_verification');
+Route::get('web/newsletter/{email}', 'API\WebController@newsletter_subscription');
 
 //Beneficiary User
 Route::post('beneficiary/login', 'API\AuthenticationController@loginBeneficiaryUser');

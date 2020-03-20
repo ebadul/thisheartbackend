@@ -23,7 +23,7 @@
    <!-- DataTables -->
    <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')}}">
   <!-- Morris chart -->
-  <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/morris.js')}}/morris.css')}}">
+  <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/morris.js/morris.css')}}">
    <!-- jvectormap -->
    <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/jvectormap/jquery-jvectormap.css')}}">
   <!-- iCheck -->
@@ -97,6 +97,7 @@
 <!-- <script src="{{asset('AdminLTE/dist/js/pages/dashboard.js')}}"></script> -->
 <!-- AdminLTE for demo purposes -->
 <script src="{{asset('AdminLTE/dist/js/demo.js')}}"></script>
+<script src="{{asset('js/application.js')}}"></script>
 <script>
   $(function () {
     $('input').iCheck({
@@ -106,6 +107,7 @@
     });
   });
 </script>
-
+<script src="{{asset('js/jquery.toast.min.js')}}"></script>
+<link rel="stylesheet" href="{{asset('css/jquery.toast.min.css')}}">
 </body>
 </html>

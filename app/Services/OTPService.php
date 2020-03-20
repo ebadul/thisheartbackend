@@ -565,6 +565,72 @@ class OTPService{
         return true;
     }
 
+
+    public function sendCheckMSG($to)
+    {
+        $accountSid = env('TWILIO_SID');
+        $authToken = env('TWILIO_TOKEN');
+        $twilioNumber = env('TWILIO_NUMBER');
+
+        try {         
+            $this->twilio->messages->create(
+                $to,
+                [
+                    "body" => "Welcome to thisheart.co",
+                    "from" => $twilioNumber
+                ]
+            );    
+        } catch (TwilioException $e) {
+            throw new Exception($e->getMessage());
+        }
+        return true;
+    }
+
+
+    public function sendSMSInactiveUserPrimary($to)
+    {
+        $accountSid = env('TWILIO_SID');
+        $authToken = env('TWILIO_TOKEN');
+        $twilioNumber = env('TWILIO_NUMBER');
+
+        try {         
+            $this->twilio->messages->create(
+                $to,
+                [
+                    "body" => "We haven't heard you for a long while, https://thisheart.co",
+                    "from" => $twilioNumber
+                ]
+            );    
+        } catch (TwilioException $e) {
+            throw new Exception($e->getMessage());
+        }
+        return true;
+    }
+
+    public function sendSMSInactiveUserBeneficiary($to, $name)
+    {
+        $accountSid = env('TWILIO_SID');
+        $authToken = env('TWILIO_TOKEN');
+        $twilioNumber = env('TWILIO_NUMBER');
+
+        try {         
+            $this->twilio->messages->create(
+                $to,
+                [
+                    "body" => "We didn't hear Mr $name for  
+                    longtime in thisheart, as we notify you get back him to 
+                    active thisheart. , https://thisheart.co",
+                    "from" => $twilioNumber
+                ]
+            );    
+        } catch (TwilioException $e) {
+            throw new Exception($e->getMessage());
+        }
+        return true;
+    }
+
+
+
     public function sendEmail($user,$otp)
     {
         try{
