@@ -111,12 +111,9 @@
                       
                       <button type="submit" class="btn btn-info input-sm" 
                           placeholder="" aria-controls="example1" id="btnEmail">
-                          Email
+                          Notify
                       </button>
-                      <button type="submit" class="btn btn-info input-sm" 
-                          placeholder="" aria-controls="example1" id="btnSMS">
-                          SMS
-                      </button>
+                      
                       <i class="fa fa-refresh fa-spin fa-spin-email" style="visibility:hidden"></i>
                   </label>
 
@@ -190,49 +187,73 @@
                      {{ $i }}
                     </td>
                    <td>{{ $row['id'] }}</td>
-                   <td>{{ $row['last_login']}}</td>
+                   <td>{{ !empty($row->inactive_user_notify->last_login)?$row->inactive_user_notify->last_login:''}}</td>
                    
                    <td>
                      @php
-                      $date = Carbon\Carbon::parse($row['last_login']);
-                      $now = Carbon\Carbon::now();
-                      $diff = $date->diffInDays($now);
+                      if(!empty($row->inactive_user_notify->last_login)){
+                        $date = Carbon\Carbon::parse(
+                        $row->inactive_user_notify->last_login);
+                        $now = Carbon\Carbon::now();
+                        $diff = $date->diffInDays($now);
+                      }else{
+                        $diff = 0;
+                      }
+                     
                      @endphp
                      {{ $diff}} days
                     </td>
                  
                     <td>
                       @php
-                        $first_email_date = Carbon\Carbon::parse($row->inactive_user_notify->first_send_email);
-                        $now_first_email = Carbon\Carbon::now();
-                        $diff_first_email = ($first_email_date=="-0001-11-30 00:00:00")?'0':
-                        $first_email_date->diffInDays($now_first_email);
+                        if(!empty($row->inactive_user_notify->first_send_email)){
+                          $first_email_date = Carbon\Carbon::parse(
+                            $row->inactive_user_notify->first_send_email);
+                          $now_first_email = Carbon\Carbon::now();
+                          $diff_first_email = ($first_email_date=="-0001-11-30 00:00:00")?'0':
+                          $first_email_date->diffInDays($now_first_email);
+                        }else{
+                          $diff_first_email = 0;
+                        }
+                        
                         echo $diff_first_email;
                       @endphp
                       days
                     </td>
                     <td>
                       @php
-                        $second_email_date = Carbon\Carbon::parse($row->inactive_user_notify->second_send_email);
-                        $now_first_email = Carbon\Carbon::now();
-                        $diff_first_email = ($second_email_date=="-0001-11-30 00:00:00")?'0':
-                        $second_email_date->diffInDays($now_first_email);
+                        if(!empty($row->inactive_user_notify->second_send_email)){
+                          $second_email_date = Carbon\Carbon::parse(
+                          $row->inactive_user_notify->second_send_email);
+                          $now_first_email = Carbon\Carbon::now();
+                          $diff_first_email = ($second_email_date=="-0001-11-30 00:00:00")?'0':
+                          $second_email_date->diffInDays($now_first_email);
+                        }else{
+                          $diff_first_email = 0;
+                        }
+                        
                         echo $diff_first_email;
                       @endphp
                         days
                     </td>
                     <td>
                       @php
-                      $send_sms = Carbon\Carbon::parse($row->inactive_user_notify->send_sms);
-                      $now_first_email = Carbon\Carbon::now();
-                      $diff_first_email = ($send_sms=="-0001-11-30 00:00:00")?'0':
-                      $send_sms->diffInDays($now_first_email);
+                      if(!empty($row->inactive_user_notify->send_sms)){
+                        $send_sms = Carbon\Carbon::parse(
+                        $row->inactive_user_notify->send_sms);
+                        $now_first_email = Carbon\Carbon::now();
+                        $diff_first_email = ($send_sms=="-0001-11-30 00:00:00")?'0':
+                        $send_sms->diffInDays($now_first_email);
+                      }else{
+                        $diff_first_email = 0;
+                      }
+                      
                       echo $diff_first_email;
                     @endphp
                       days
                       
                     </td>
-                    <td>
+                    {{--  <!--td>
                       @php
                       $make_phone = Carbon\Carbon::parse($row->inactive_user_notify->make_phone_call);
                       $now_first_email = Carbon\Carbon::now();
@@ -242,14 +263,20 @@
                     @endphp
 
                       days
-                    </td>
+                    </td-->  --}}
                     <td>
                       @php
-                      $email_beneficiary = Carbon\Carbon::parse($row->inactive_user_notify->
-                      send_email_beneficiary_user);
-                      $now_first_email = Carbon\Carbon::now();
-                      $diff_first_email = ($email_beneficiary=="-0001-11-30 00:00:00")?'0':
-                      $email_beneficiary->diffInDays($now_first_email);
+                      if(!empty($row->inactive_user_notify->
+                      send_email_beneficiary_user)){
+                        $email_beneficiary = Carbon\Carbon::parse($row->inactive_user_notify->
+                        send_email_beneficiary_user);
+                        $now_first_email = Carbon\Carbon::now();
+                        $diff_first_email = ($email_beneficiary=="-0001-11-30 00:00:00")?'0':
+                        $email_beneficiary->diffInDays($now_first_email);
+                      }else{
+                        $diff_first_email = 0;
+                      }
+                      
                       echo $diff_first_email;
                     @endphp
                       days
@@ -257,11 +284,17 @@
                     </td>
                     <td>
                       @php
-                      $send_sms_beneficiary = Carbon\Carbon::parse($row->inactive_user_notify->
-                      send_sms_beneficiary_user);
-                      $now_first_email = Carbon\Carbon::now();
-                      $diff_first_email = ($send_sms_beneficiary=="-0001-11-30 00:00:00")?'0':
-                      $send_sms_beneficiary->diffInDays($now_first_email);
+                      if(!empty($row->inactive_user_notify->
+                      send_sms_beneficiary_user)){
+                        $send_sms_beneficiary = Carbon\Carbon::parse($row->inactive_user_notify->
+                        send_sms_beneficiary_user);
+                        $now_first_email = Carbon\Carbon::now();
+                        $diff_first_email = ($send_sms_beneficiary=="-0001-11-30 00:00:00")?'0':
+                        $send_sms_beneficiary->diffInDays($now_first_email);
+                      }else{
+                        $diff_first_email = 0;
+                      }
+                      
                       echo $diff_first_email;
                     @endphp
 
@@ -269,22 +302,24 @@
                     </td>
                     <td>
                       @php
-                      $final_make_call = Carbon\Carbon::parse($row->inactive_user_notify->final_make_call);
-                      $now_make_call = Carbon\Carbon::now();
-                      $diff_make_call = ($final_make_call=="-0001-11-30 00:00:00")?'0':
-                      $final_make_call->diffInDays($now_make_call);
+                      if(!empty($row->inactive_user_notify->final_make_call)){
+                        $final_make_call = Carbon\Carbon::parse(
+                        $row->inactive_user_notify->final_make_call);
+                        $now_make_call = Carbon\Carbon::now();
+                        $diff_make_call = ($final_make_call=="-0001-11-30 00:00:00")?'0':
+                        $final_make_call->diffInDays($now_make_call);
+                      }else{
+                        $diff_make_call = 0;
+                      }
+                      
                       echo $diff_make_call ;
                     @endphp
                       days
                     </td>
                     <td>
-                      {{$row->inactive_user_notify->notes}}
+                      {{!empty($row->inactive_user_notify->notes)?$row->inactive_user_notify->notes:''}}
                     </td>
-                    
-                     
-                    <td class="text-center"  >
-                      <button type="button" class="btn btn-block btn-info" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-envelope"></i></span> Notify</button>
-                    </td>
+             
                     <td class="text-center"  >
                       <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
                     </td>
