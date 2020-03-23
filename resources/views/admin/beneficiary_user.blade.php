@@ -122,8 +122,11 @@
                    <td>
                     <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['id'] .'='. $row['beneficiary_id'] .'='. $row['email']}} "><span><i class="fa fa-edit"></i>Edit</button>
                   </td>
-                  <td class="text-center"><input class="activeSts" user-id="{{$row['id']}}" type="checkbox" {{$row["active"] ? "checked" : ""}} data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="InActive"/> 
-                </td>              
+                  <td class="text-center">
+                    <input class="activeSts" user-id="{{$row['id']}}" type="checkbox" {{$row["active"] ? "checked" : ""}} data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="InActive"/> 
+                  </td>     
+                  <td class="text-center"  >
+                    <a href="/delete_beneficiary_user/{{$row['id']}}" class="btn btn-block btn-danger" user-id="{{$row['id']}}"  type="button"   data-on="Active" data-off="InActive"  onclick="return confirm('Do you want to delete beneficiary user data')">Delete</a>          
                 </tr>
                 @endforeach
               <?php endif;?>

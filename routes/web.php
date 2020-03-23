@@ -36,6 +36,8 @@ Route::post('/primary_user_login', "API\PrimaryUserController@primary_user_login
 Route::get('/primary_user', "API\PrimaryUserController@primary_user");
 Route::post('/primary_user_edit', "API\PrimaryUserController@updateUserById")->name("primary_user_edit");
 Route::post('/user_status', "API\PrimaryUserController@changeStatus")->name("user_status");
+Route::get('/delete_primary_user/{user_id}', "API\PrimaryUserController@delete_primary_user");
+Route::get('/delete_beneficiary_user/{user_id}', "API\PrimaryUserController@delete_beneficiary_user");
 
 
 Route::get('/beneficiary_user', "API\BeneficiaryUserController@beneficiary_user");

@@ -122,6 +122,7 @@
                     <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
                   </td>
                   <td class="text-center"  ><input class="activeSts" user-id="{{$row['id']}}"  type="checkbox" {{$row["active"] ? "checked" : ""}} data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="InActive"/> 
+                  <td class="text-center"  ><a href="/delete_primary_user/{{$row['id']}}" class="btn btn-block btn-danger" user-id="{{$row['id']}}"  type="button"   data-on="Active" data-off="InActive"  onclick="return confirm('Do you want to delete user data')">Delte</a> 
                 </td>
                 </tr>
                 @endforeach

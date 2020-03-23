@@ -212,4 +212,31 @@ class PrimaryUserController extends BaseController
         ]);
     }
 
+
+    public function delete_primary_user($user_id){
+      if(!empty($user_id))  {
+          $user = User::where('id','=',$user_id)->first();
+          if(!empty($user)){
+              if($user->delete()){
+                  redirect('/primary_user')->with(['deleteMsg'=>'User has been deleted successfully!']);
+              }
+          }
+      }
+    }
+
+    public function delete_beneficiary_user($user_id){
+      if(!empty($user_id))  {
+          $user = User::where('id','=',$user_id)->first();
+          if(!empty($user)){
+              $user_email = $user->email;
+              if($user->delete()){
+                  $beneficiary_user = BeneficiaryUser::where('email','=',$user_email
+                  )->first();
+                  $beneficiary_user->delete();
+                  redirect('/primary_user')->with(['deleteMsg'=>'User has been deleted successfully!']);
+              }
+          }
+      }
+    }
+
 }
