@@ -155,6 +155,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 	//packages info
 	Route::post('/getPackages', 'API\PackagesController@getPackages');
+	Route::post('/getPackageByUser', 'API\PackagesController@getPackageByUser');
 	Route::post('/savePackageInfo', 'API\PackagesController@savePackageInfo');
 	Route::post('/savePaymentInfo', 'API\PackagesController@savePaymentInfo');
  

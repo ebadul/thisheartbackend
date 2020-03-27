@@ -11,6 +11,8 @@ use App\EmailVerification;
 use App\UserActivity;
 use App\OtpSetting;
 use App\InactiveUserNotify;
+use App\PackageInfo;
+use App\UserPackage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Lcobucci\JWT\Parser;
@@ -93,8 +95,24 @@ class AuthenticationController extends BaseController
                     $user->last_login=Carbon::now();
                     $user->save();
 
-                    $user_pkg = $user->user_package->last();
+                    $user_pkg = $user->user_package;
                     if(!empty( $user_pkg)){
+                        $now = Carbon::now();
+                        $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
+                        $diff = $expire_date->diffInDays($now);
+                        // return response()->json([
+                        //     'package_data'=>$user->user_package->package_entities,
+                            
+                        // ], 400);
+
+                        if($now > $expire_date){
+                            return response()->json([
+                                'status'=>'error',
+                                'message' => 'This user package subscription is expired!',
+                                'code'=>'user_type',
+                            ], 400);
+                        }
+                        
                         $user_pkg->push('package_info',$user_pkg->package_info);
                     }
 
@@ -201,6 +219,21 @@ class AuthenticationController extends BaseController
             $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
         });
 
+        $sub_plan = PackageInfo::where('package','=','Trial Package')->first();
+        
+        if(!empty($sub_plan)){
+            $user_id = $user->id;
+            $pkgData = [
+                'user_id'=>$user_id,
+                'package_id'=>$sub_plan->id
+            ];
+            $user_package = new UserPackage;
+            $user_pkg = $user_package->saveUserPackage($pkgData);
+            $user_pkg->push('package_info',$user_pkg->package_info);
+            
+        }
+        
+
         return response()->json([
             'status' => 'success',
             'message' => 'User registered successfully!',
@@ -211,7 +244,9 @@ class AuthenticationController extends BaseController
             'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
             'data'=>$user,
             'primary_user_id'=>$user->beneficiary_id,
-            'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:''
+            'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
+            'package_info'=>$user_pkg->package_info,
+            'sub_plan'=>$user_pkg,
         ], 200);
     }
 

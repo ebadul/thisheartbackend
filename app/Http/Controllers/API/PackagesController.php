@@ -11,6 +11,7 @@ use App\PackageInfo;
 use App\PackageEntity;
 use App\UserPackage;
 use App\PaymentDetails;
+use App\PackageEntitiesInfo;
 use Illuminate\Support\Facades\Validator;
  
 
@@ -19,6 +20,18 @@ class PackagesController extends Controller
     
     public function getPackages(){
         $packages = PackageInfo::all();
+        return response()->json([
+            'status'=>'success',
+            'data'=>$packages
+        ]);
+    }
+
+    public function getPackageByUser(){
+        $user = Auth::user();
+        $packages = "";
+        if(!empty($user->user_package)){
+            $packages = $user->user_package->package_info;
+        }
         return response()->json([
             'status'=>'success',
             'data'=>$packages
@@ -69,8 +82,65 @@ class PackagesController extends Controller
         return view('admin.package_info',['user'=>$user,'package_info'=>$package_info]);
     }
 
-    public function package_entities($package_id){
-        $package_entity = PackageEntity::where('package_id','=',$package_id)->get();
+    public function package_entities_info(){
+        $package_entities_info = PackageEntitiesInfo::all();
+        $user = Auth::user();
+        return view('admin.package_entities_info',['user'=>$user,'package_entities_info'=>$package_entities_info]);
+    }
+
+    public function package_entities_info_add(Request $rs){
+        //$package_info = PackageEntitiesInfo::all();
+        $user = Auth::user();
+        if($rs->isMethod('post')){
+             $package_entities_info = new PackageEntitiesInfo;
+             $package_entities_info->package_entity_title = $rs->entity_title;
+             $package_entities_info->package_entity_description = $rs->entity_description;
+             $save_pkg_entity = $package_entities_info->save();
+             if( $save_pkg_entity){
+                $package_entities_info = PackageEntitiesInfo::all();
+                return view('admin.package_entities_info',['user'=>$user,'package_entities_info'=>$package_entities_info]);
+            }
+        }
+        
+            return view('admin.package_entities_info_add',['user'=>$user]);
+        
+    }
+
+    public function package_entities_add(Request $rs){
+        //$package_info = PackageEntitiesInfo::all();
+        $user = Auth::user();
+        $package_list = PackageInfo::all();
+        $entity_list = PackageEntitiesInfo::all();
+        if($rs->isMethod('post')){
+             $package_entity = new PackageEntity;
+             $package_entity->package_id = $rs->txtPackageID;
+             $package_entity->package_entities_id = $rs->txtEntityID;
+             $package_entity->entity_value = $rs->entity_value;
+             $save_pkg_entity = $package_entity->save();
+             if( $save_pkg_entity){
+                return redirect('/package_entities');
+            }
+        }
+         
+            return view('admin.package_entities_add',['user'=>$user,'package_list'=>$package_list, 'entity_list'=>$entity_list]);
+         
+    }
+
+    public function package_entities_info_delete($entity_id){
+        //$package_info = PackageEntitiesInfo::all();
+        $user = Auth::user();
+        if(!empty($entity_id)){
+             $package_entities_info = PackageEntitiesInfo::where('id','=',$entity_id)->delete();
+        }
+        if( $package_entities_info){
+            return redirect('/package_entities_info');
+        }else{
+            return redirect('/package_entities_info');
+        }
+    }
+
+    public function package_entities(){
+        $package_entity = PackageEntity::all();
         $user = Auth::user();
         return view('admin.package_entity',['user'=>$user,'package_entity'=>$package_entity]);
     }

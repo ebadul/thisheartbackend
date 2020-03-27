@@ -28,13 +28,13 @@
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="{{asset('AdminLTE/dist/img/userphoto.jpg')}}" class="user-image" alt="User Image">
+              <img src="AdminLTE/dist/img/userphoto.jpg" class="user-image" alt="User Image">
             <span class="hidden-xs">{{$user->email}}</span>
             </a>
             <ul class="dropdown-menu">
               <!-- User image -->
               <li class="user-header">
-                <img src="{{asset('AdminLTE/dist/img/userphoto.jpg')}}" class="img-circle" alt="User Image">
+                <img src="AdminLTE/dist/img/userphoto.jpg" class="img-circle" alt="User Image">
 
                 <p>
                   Admin This Heart - Web Developer
@@ -66,7 +66,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Package Details - Entities
+        Package Entities Info
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -74,87 +74,32 @@
         <li class="active">User list</li>
       </ol>
     </section>
-
+    <hr>
     <!-- Main content -->
     <div class="box-body">
-            <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
-                <div class="row">
-                  <div class="col-sm-6">
-                    <div class="dataTables_length" id="example1_length">
-                      <label>Show 
-                      <select name="example1_length" aria-controls="example1" class="form-control input-sm">
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      </select> entries
-                      </label>
-                    </div>
-                  </div>
-              <div class="col-sm-6 text-right">
-                <span id="example1_filter" class="dataTables_filter">
-                  <a href="/package_entities_add" class="btn btn-success">+ Add</a>
-                </span>
-                <span id="example1_filter" class="dataTables_filter">
-                  <label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="example1"></label>
-                </span>
-              </div>
-              </div><!--end row -->
-              <div class="row">
-              <div class="col-sm-12">
-              <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
-                <thead>
-                <tr role="row">
-                  <th class="sorting_asc" style="width: 182px;">Package Id</th>
-                  <th class="sorting" style="width: 224px;">Entity Title</th>
-                  <th class="sorting"  style="width: 199px;">Value</th>
-                  <th style="width: 156px; text-align:center;">Status</th>
-                  <th style="width: 156px; text-align:center;">Edit</th>
-                  <th style="width: 156px; text-align:center;">Delete</th>
-                </tr>
-                </thead>
-                <tbody>
-               <?php if( $package_entity ):?>
-                @foreach ( $package_entity  as $row )
-                  <tr role="row" class="odd">
-                    
-                    <td>{{ $row->package_info->package}}</td>
-                    <td>{{ !empty($row->entity_info->package_entity_title)?
-                    $row->entity_info->package_entity_title:''}}</td>
-                    <td>{{ $row['entity_value']}}</td>
-                    <td>{{ $row['entity_status']}}</td>
-                    <td>
-                      <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
-                    </td>
-                    <td class="text-center"  >
-                      <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
-                    </td>
-                  </tr>
-                @endforeach
-              <?php endif;?>
-                </tbody>
-                <tfoot>
-                  <tr role="row">
-                    <th class="sorting_asc" style="width: 182px;">Package Id</th>
-                    <th class="sorting" style="width: 224px;">Entity Title</th>
-                    <th class="sorting"  style="width: 199px;">Value</th>
-                    <th style="width: 156px; text-align:center;">Status</th>
-                    <th style="width: 156px; text-align:center;">Edit</th>
-                    <th style="width: 156px; text-align:center;">Delete</th>
-                  </tr>
-                </tfoot>
-              </table>
-              </div>
-              </div>
-              <div class="row"><div class="col-sm-5">
-              </div>
-              <div class="col-sm-7">
-              <div class="dataTables_paginate paging_simple_numbers" id="example1_paginate">
-              </div>
-              </div>
-              </div>
-              </div>
-            </div>
+        
+            <div class="row">
+                <div class="col-sm-6 col-md-push-3">
+                    <form role="form" id="addForm" action="" method="post" name="addPackageEntity">
+                        {{csrf_field()}}
+                        <div class=" col-sm-12 form-group">
+                            <label for="uname">Entity Title</label>
+                            <input type="text" name="entity_title" class="form-control" id="entity_title" value="" required placeholder="Entity Title">
+                        </div>
+                        <div class=" col-sm-12 form-group">
+                            <label for="email">Description</label>
+                            <input type="text" name="entity_description" class="form-control" id="entity_description" value="" required placeholder="Description">
+                        </div>
+                        <div class="form-group col-sm-12 form-group">
+                            <input type="submit" class="btn btn-success" id="mobile" value="SAVE" >
+                        </div>
+                    </form>
+                </div>
+            
+            </div><!-- end row -->
+            
+        
+    </div>
 <!-----------------------------------------  Edit Modal start ---------------------------------------------->
 
 <div class="modal modal-info fade" id="modal-edit">

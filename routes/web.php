@@ -48,6 +48,11 @@ Route::post('/bnuser_status', "API\BeneficiaryUserController@changeStatus")->nam
 Route::get('/package_info', "API\PackagesController@package_info");
 Route::get('/package_entity/{package_id}', "API\PackagesController@package_entities");
 Route::get('/user_package', "API\PackagesController@user_package");
+Route::get('/package_entities_info', "API\PackagesController@package_entities_info");
+Route::any('/package_entities_info_add', "API\PackagesController@package_entities_info_add");
+Route::any('/package_entities_info_delete/{id}', "API\PackagesController@package_entities_info_delete");
+Route::get('/package_entities', "API\PackagesController@package_entities");
+Route::any('/package_entities_add', "API\PackagesController@package_entities_add");
 Route::get('/user_activities', "API\PrimaryUserController@user_activities");
 Route::get('/inactive_primary_users', "API\PrimaryUserController@inactive_primary_users")->middleware('auth');
 Route::get('/inactive_beneficiary_users', "API\PrimaryUserController@inactive_beneficiary_users")->middleware('auth');
