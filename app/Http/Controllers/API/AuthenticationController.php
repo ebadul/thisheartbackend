@@ -100,11 +100,7 @@ class AuthenticationController extends BaseController
                         $now = Carbon::now();
                         $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
                         $diff = $expire_date->diffInDays($now);
-                        // return response()->json([
-                        //     'package_data'=>$user->user_package->package_entities,
-                            
-                        // ], 400);
-
+                     
                         if($now > $expire_date){
                             return response()->json([
                                 'status'=>'error',

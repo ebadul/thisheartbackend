@@ -43,15 +43,6 @@ class UserPackage extends Model
                 }else{
                     return false;
                 }
-
-                // return [
-                //     'status'=>'success',
-                //     'data'=>'images',
-                //     'entity_info'=>$entity_info,
-                //     'user_package_entities'=>$user_entity_details,
-                //     'entity_value'=>$entity_value,
-                //     'image_count'=>$imageCount,
-                // ];
                 break;
             case "videos":
                 $user_package = $user->user_package;
@@ -84,30 +75,36 @@ class UserPackage extends Model
                 }
                 break;
             case "storages":
-                $user_package = $user->user_package;
-                $user_package_entities = $user_package->package_entities;
-                $entity_info = PackageEntitiesInfo::where('package_entity_title','=','Storage')->first();
-                $user_entity_details = $user_package_entities->where('package_entities_id','=',$entity_info->id)->first();
-                $entity_value = $user_entity_details->entity_value;
-                $user_path = public_path('uploads/'.$user->id);
-                $user_storage_size = File::size($user_path);
-                $getAllDirs = File::directories($user_path);
-                $fileSize =[];
-                $totalFileSizeGB=0;
-                foreach( $getAllDirs as $dir ) {
-                    $dirNames[] = basename($dir);
-                    $fileList=File::files($user_path.'/'.basename($dir));
-                    foreach($fileList as $fileTmp){
-                        $fileSize[] = ($fileTmp->getSize()/1024)/1027;
-                        $totalFileSizeGB+=(($fileTmp->getSize()/1024)/1024)/1024;
-                    }
-                }
+                try{
+                        $user_package = $user->user_package;
+                        $user_package_entities = $user_package->package_entities;
+                        $entity_info = PackageEntitiesInfo::where('package_entity_title','=','Storage')->first();
+                        $user_entity_details = $user_package_entities->where('package_entities_id','=',$entity_info->id)->first();
+                        $entity_value = $user_entity_details->entity_value;
+                        $user_path = public_path('uploads/'.$user->id);
+                        if (File::exists($user_path)) {
+                            $user_storage_size = File::size($user_path);
+                            $getAllDirs = File::directories($user_path);
+                            $fileSize =[];
+                            $totalFileSizeGB=0;
+                            foreach( $getAllDirs as $dir ) {
+                                $dirNames[] = basename($dir);
+                                $fileList=File::files($user_path.'/'.basename($dir));
+                                foreach($fileList as $fileTmp){
+                                    $fileSize[] = ($fileTmp->getSize()/1024)/1027;
+                                    $totalFileSizeGB+=(($fileTmp->getSize()/1024)/1024)/1024;
+                                }
+                            }
 
-                if($totalFileSizeGB>=$entity_value){
-                    return true;
-                }else{
-                    return false;
-                }
+                            if($totalFileSizeGB>=$entity_value){
+                                return true;
+                            }else{
+                                return false;
+                            }
+                        }
+                    }catch(Exception $ex){
+                        return new Exception($ex->getMessage());
+                    }
                 break;
             default:
                 return response()->json([
