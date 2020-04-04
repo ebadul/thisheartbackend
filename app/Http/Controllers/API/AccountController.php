@@ -31,15 +31,12 @@ class AccountController extends BaseController
         $request->acc_description = base64_decode($request->acc_description);
         $request->acc_user_name = base64_decode($request->acc_user_name);
         $request->acc_password = base64_decode($request->acc_password);
-
+        $user = Auth::user(); 
         $validator = Validator::make($request->all(), [
             'acc_type' => 'required',
             'acc_name' => 'required',
-            'user_id' => 'required',
-            'acc_url' => 'required',
             'acc_description' => 'required',
-            'acc_user_name' => 'required',
-            'acc_password' => 'required'
+         
         ]);
 
         if ($validator->fails()){
@@ -52,7 +49,7 @@ class AccountController extends BaseController
 
             $accountInfo->acc_type = Crypt::encryptString($request->acc_type);
             $accountInfo->acc_name = Crypt::encryptString($request->acc_name);
-            $accountInfo->user_id = $request->user_id;
+            $accountInfo->user_id = $user->id;
             $accountInfo->acc_url = Crypt::encryptString($request->acc_url);
             $accountInfo->acc_description = Crypt::encryptString($request->acc_description);
 

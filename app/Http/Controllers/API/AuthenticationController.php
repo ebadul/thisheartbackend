@@ -55,16 +55,23 @@ class AuthenticationController extends BaseController
                 'code'=>'email'
             ], 401);
         }else{
+
+            if($user->email_verified===0){
+                return response()->json([
+                    'status'=>'error',
+                    'message' => "Sorry, this email isn't verified",
+                    'code'=>'email'
+                ], 401);
+            }
+
             
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
 
-                if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+                if(Auth::attempt(['email' => $request->email, 'password' => $request->password,'email_verified'=>1])){
                     $user = Auth::user();
                     $tokenResult = $user->createToken('ThisHeartAccessToken');
                     $accountProgressStatus = true;
-                    //Check all account progress data.
-                    //$user->forceFill(['token'=>$tokenResult->accessToken])->save();
                     $accountProgressStatus = $this->checkAccountProgressData($user->id);
                     $checkAccountWizard = $this->checkAccountWizard($user->id);
                    
@@ -130,7 +137,10 @@ class AuthenticationController extends BaseController
                     ], 200);
                 }
                 else{
-                    return response()->json(['error'=>'Unauthorised'], 401);
+                    return response()->json([
+                        'error'=>'Unauthorised',
+                        'message' => 'Sorry, that didn’t work. Please try again',
+                    ], 401);
                 }
             
             }else{
@@ -424,8 +434,6 @@ class AuthenticationController extends BaseController
     public function loginBeneficiaryUser(Request $request){
 
         $user = BeneficiaryUser::where('email', '=', $request->email)->first();
-        //Log::info("Email = ".$request->email);
-        //Log::info("Password = ".$request->password);
 
         if($user === null){
             return response()->json([

@@ -13,6 +13,7 @@ use App\UserPackage;
 use App\PaymentDetails;
 use App\PackageEntitiesInfo;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
  
 
 class PackagesController extends Controller
@@ -28,13 +29,29 @@ class PackagesController extends Controller
 
     public function getPackageByUser(){
         $user = Auth::user();
-        $packages = "";
+        $packages;
+        $expire_days;
         if(!empty($user->user_package)){
+            $user_package = $user->user_package;
             $packages = $user->user_package->package_info;
+            $now = Carbon::now();
+            $expireDate = Carbon::parse($user_package->subscription_expire_date);
+            if($expireDate<$now ){
+                $expire_days=0;
+            }else{
+                $expire_days=$expireDate->diffInDays($now);
+            }
         }
+     
+        $all_packages = PackageInfo::all();
+
         return response()->json([
             'status'=>'success',
-            'data'=>$packages
+            'user_package'=> $user_package,
+            'package_info'=> $packages,
+            'data'=> $packages,
+            'remaining_days'=>$expire_days,
+            'all_package_list'=>$all_packages,
         ]);
     }
 
