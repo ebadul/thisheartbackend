@@ -97,4 +97,8 @@ class User extends Authenticatable
     public function inactive_user_notify(){
         return $this->hasOne(InactiveUserNotify::class);
     }
+
+    public function primary_user(){
+        return $this->belongsTo(User::class,'beneficiary_id');
+    }
 }
