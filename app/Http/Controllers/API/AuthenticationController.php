@@ -122,7 +122,9 @@ class AuthenticationController extends BaseController
                     $user_type = $user->user_types->user_type;
                     if($user_type==="beneficiary"){
                         $primary_user = $user->primary_user ;
-                        $primary_user->name = Crypt::decryptString($primary_user->name);
+                        if($primary_user){
+                            $primary_user->name = Crypt::decryptString($primary_user->name);
+                        } 
                     }
 
                     return response()->json([
