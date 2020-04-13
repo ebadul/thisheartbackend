@@ -4,13 +4,22 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\PackageInfo;
+use App\PaymentSession;
 use App\User;
 use Auth;
 use File;
+use Crypt;
+
 
 class UserPackage extends Model
 {
     //
+    protected $access_url = "";
+    public function __construct(){
+        \Stripe\Stripe::setApiKey('sk_test_9DkPWEVGZrgEo6q9EeZBDXlC00rgoKMYML');
+        $this->access_url = Request()->headers->get('origin').'/';
+    }
+
     protected $fillable = ['id','user_id','package_id','subscription_date','subscription_expire_date','subscription_status'];
     public function user(){
         return $this->belongsTo(User::class);
@@ -137,4 +146,70 @@ class UserPackage extends Model
         }
 
     }
+
+    public function paymentCreateSession($rs){
+        try{
+                $user = Auth::user();
+                \Stripe\Stripe::setApiKey('sk_test_9DkPWEVGZrgEo6q9EeZBDXlC00rgoKMYML');
+                $success_url = $this->access_url.'payment-success/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
+                $cancel_url = $this->access_url."payment-cancel/".Crypt::encryptString('payment-cancel');
+                $session = \Stripe\Checkout\Session::create([
+                'payment_method_types' => ['card','ideal'],
+                'line_items' => [[
+                    'name' => $rs->item,
+                    'description' => $rs->description,
+                    'images' => ['http://localhost:8000/uploads/60/images/07sVbQNABRs0Nh6ii34Ko7ofREypd4lpxbkocsJ2Vv4Nnqflu2Coy8CygAjU.jpeg'],
+                    'amount' => $rs->amount*100,
+                    'currency' => 'eur',
+                    'quantity' => 1,
+                ]],
+                'metadata'=>[
+                    'user_id' => $user->id,
+                    'package_id' => $rs->item_id,
+                    'amount' => $rs->amount*100
+                ],
+                'success_url' => $success_url,
+                'cancel_url' =>  $cancel_url,
+                ]);
+            }catch(Exception $ex){
+                $exp = $ex->getMessage();
+            }
+        if(!empty($session)){
+            $session_rs = [
+                'package_id'=>$rs->item_id,
+                'payment_session_id' => $session->id,
+                'paid' => 0,
+                'amount' => $session->display_items[0]->amount,
+                'user_package_id' => '0',
+                'payment_details_id' => '0',
+            ];
+            $payment_session = new PaymentSession;
+            $payment_session->savePaymentSession($session_rs);
+
+            return [
+                'status'=>'success',
+                'data'=>$session
+            ];
+        }else{
+            return [
+                'status'=>'error',
+                'data'=>$exp
+            ];
+        }
+    }
+
+    public function retriveSessionInfo($session_id){
+        $session_status = \Stripe\Checkout\Session::retrieve(
+            $session_id
+          );
+        return $session_status;
+    }
+    
+    public function retrivePaymentInfo($payment_intent_id){
+        $payment_intent = \Stripe\PaymentIntent::retrieve(
+            $payment_intent_id
+          );
+        return $payment_intent;
+    }
+
 }

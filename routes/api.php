@@ -158,6 +158,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/getPackageByUser', 'API\PackagesController@getPackageByUser');
 	Route::post('/savePackageInfo', 'API\PackagesController@savePackageInfo');
 	Route::post('/savePaymentInfo', 'API\PackagesController@savePaymentInfo');
+	Route::post('/package/paymentInit', 'API\PackagesController@paymentInit');
+	Route::post('/package/payment/create-session', 'API\PackagesController@paymentCreateSession');
+	Route::post('/package/payment/session-success', 'API\PackagesController@paymentSessionSuccess');
  
 		
 });
