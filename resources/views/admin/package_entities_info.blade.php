@@ -126,10 +126,13 @@
                 
                    
                    <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
+                    <button type="button" class="btn btn-block btn-info editBtn" 
+                    user-data="{{$row}} "><span><i class="fa fa-edit"></i></span> Edit</button>
                   </td>
                   <td class="text-center"  >
-                  <a href="/package_entities_info_delete/{{$row['id']}}" class="btn btn-block btn-warning editBtn" onclick="return confirm('Do you want to delete id: {{$row['id']}}')">
+                    <a href="/package_entities_info_delete/{{$row['id']}}" 
+                      class="btn btn-block btn-warning editBtn" 
+                      onclick="return confirm('Do you want to delete entity id: {{$row['id']}}')">
                       <span><i class="fa fa-remove"></i></span> Delete</a>
                   </td>
                 </tr>
@@ -158,7 +161,7 @@
             </div>
 <!-----------------------------------------  Edit Modal start ---------------------------------------------->
 
-<div class="modal modal-info fade" id="modal-edit">
+        <div class="modal modal-info fade" id="modal-edit">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -167,23 +170,21 @@
                 <h4 class="modal-title">Info Modal</h4>
               </div>
               <div class="modal-body">
-              <form role="form" id="editForm" name="edit">
+             
               {{csrf_field()}}
               <input type="hidden" name="editBtn" id="editUserId" value="" />
 
               <div class="form-group">
-                  <label for="uname">User Name</label>
-                  <input type="text" class="form-control" id="username" value="" placeholder="User Name">
+                  <label for="entity_title">Entity Title</label>
+                  <input type="hidden" class="form-control" id="entity_id" value="" placeholder="Entity ID">
+                  <input type="text" class="form-control" id="entity_title" value="" placeholder="Entity Title">
                 </div>
                 <div class="form-group">
-                  <label for="email">Email Address</label>
-                  <input type="email" class="form-control" id="email" value="" placeholder="Enter email">
+                  <label for="description">Entity Description</label>
+                  <input type="email" class="form-control" id="description" value="" placeholder="Entity Description">
                 </div>
-                <div class="form-group">
-                  <label for="mobile">Mobile</label>
-                  <input type="text" class="form-control" id="mobile" value="" placeholder="Mobile">
-                </div>
-            </form>
+                 
+            
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
@@ -255,31 +256,29 @@
    });
 
    $(document).on('click', '.editBtn', function(){
-     var userdata = $(this).attr('user-data') ;
-     console.log("Edit item on Id :::", userdata);
-     var user_edit= userdata.split('=');
-     $('#editUserId').val(user_edit[0]);
-     $('#username').val(user_edit[1]);
-     $('#email').val(user_edit[2]);
-     $('#mobile').val(user_edit[3]);
+     var entity_info = JSON.parse($(this).attr('user-data')) ;
+     console.log("Edit item on Id :::", entity_info);
+     
+     $('#entity_id').val(entity_info.id);
+     $('#entity_title').val(entity_info.package_entity_title);
+     $('#description').val(entity_info.package_entity_description);
      $('#modal-edit').modal('show');
      
    });
 
    $('#edit_btn').click(function(data){
-     var user_id = $('#editUserId').val();
-     console.log("user id edit:>>>>", user_id);
+     
      var data = {
-       user_id:$('#editUserId').val(),
-       user_name:$('#username').val(),
-       email:$('#email').val(),
-       mobile:$('#mobile').val()
+      entity_id:$('#entity_id').val(),
+      entity_title:$('#entity_title').val(),
+      description:$('#description').val(),
+ 
      }
         
          console.log("Item edit data on:::", data);
 
      $.ajax({
-       url:"http://127.0.0.1:8000/primary_user_edit", 
+       url:"./package_entities_info_edit", 
        dataType: "json",
        data:data,
        method:"post",
@@ -291,11 +290,11 @@
     },
        success:function(){
          setTimeout(function(){
-          console.log(user_id);
+          
           $('#modal-edit').modal('hide');
           $('#example1').dataTable();
 
-          location.reload();
+          location.reload(true);
          }, 2000)
        },
       error:function(error){

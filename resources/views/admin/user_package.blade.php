@@ -126,14 +126,15 @@
                    <td>{{ $row['subscription_date']}}</td>
                    <td>{{ $row['subscription_expire_date']}}</td>
                    <td>{{ $row['subscription_status']}}</td>
-          
-                   
-                   
-                   <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
+                   <td class="text-center">
+                    <button type="button" class="btn btn-info editBtn" user-data="{{$row}} ">
+                      <span><i class="fa fa-edit"></i></span> Edit</button>
                   </td>
                   <td class="text-center"  >
-                    <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
+                    <a href="/user_package_delete/{{$row['id']}}" 
+                      class="btn btn-warning editBtn" 
+                      onclick="return confirm('Do you want to delete use package id: {{$row['id']}}')">
+                      <span><i class="fa fa-remove"></i></span> Delete</a>
                   </td>
                 </tr>
                 @endforeach
@@ -165,23 +166,35 @@
                 <h4 class="modal-title">Info Modal</h4>
               </div>
               <div class="modal-body">
-              <form role="form" id="editForm" name="edit">
+              
               {{csrf_field()}}
-              <input type="hidden" name="editBtn" id="editUserId" value="" />
+              
 
               <div class="form-group">
-                  <label for="uname">User Name</label>
-                  <input type="text" class="form-control" id="username" value="" placeholder="User Name">
+                  <label for="user_id">User ID</label>
+                  <input type="hidden" class="form-control" id="user_package_id" value="" placeholder="User ID" readonly required>
+                  <input type="text" class="form-control" id="user_id" value="" placeholder="User ID" readonly required>
                 </div>
                 <div class="form-group">
-                  <label for="email">Email Address</label>
-                  <input type="email" class="form-control" id="email" value="" placeholder="Enter email">
+                  <label for="package_id">Package</label>
+                  <input type="text" class="form-control" id="package_id" value="" placeholder="Enter Package ID" required>
                 </div>
                 <div class="form-group">
-                  <label for="mobile">Mobile</label>
-                  <input type="text" class="form-control" id="mobile" value="" placeholder="Mobile">
+                  <label for="subscription_date">Subscription Date</label>
+                  <input type="text" class="form-control" id="subscription_date" value="" placeholder="Subscription Date" required>
                 </div>
-            </form>
+                <div class="form-group">
+                  <label for="subscription_expire_date">Subscription Expire</label>
+                  <input type="text" class="form-control" id="subscription_expire_date" value="" placeholder="Expire Subscription" required>
+                </div>
+                <div class="form-group">
+                  <label for="subscription_status">Subscription Status</label>
+                  <select class="form-control" id="subscription_status" required>
+                      <option value="1">Active</option>
+                      <option value="0">In-active</option>
+                  </select>
+                </div>
+           
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
@@ -224,7 +237,7 @@
         $.ajax({
             type: "post",
             dataType: "json",
-            url: "http://127.0.0.1:8000/user_status", 
+            url: "./user_status", 
             data: {'active': status, 'user_id': userid},
             beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
@@ -253,31 +266,32 @@
    });
 
    $(document).on('click', '.editBtn', function(){
-     var userdata = $(this).attr('user-data') ;
-     console.log("Edit item on Id :::", userdata);
-     var user_edit= userdata.split('=');
-     $('#editUserId').val(user_edit[0]);
-     $('#username').val(user_edit[1]);
-     $('#email').val(user_edit[2]);
-     $('#mobile').val(user_edit[3]);
+     var user_package = JSON.parse($(this).attr('user-data')) ;
+ 
+     $('#user_package_id').val(user_package.id);
+     $('#user_id').val(user_package.user_id);
+     $('#package_id').val(user_package.package_id);
+     $('#subscription_date').val(user_package.subscription_date);
+     $('#subscription_expire_date').val(user_package.subscription_expire_date);
+     $('#subscription_status').val(user_package.subscription_status);
      $('#modal-edit').modal('show');
      
    });
 
    $('#edit_btn').click(function(data){
-     var user_id = $('#editUserId').val();
-     console.log("user id edit:>>>>", user_id);
+ 
      var data = {
-       user_id:$('#editUserId').val(),
-       user_name:$('#username').val(),
-       email:$('#email').val(),
-       mobile:$('#mobile').val()
+      user_package_id:$('#user_package_id').val(),
+      user_id:$('#user_id').val(),
+      package_id:$('#package_id').val(),
+      subscription_date:$('#subscription_date').val(),
+      subscription_expire_date:$('#subscription_expire_date').val(),
+      subscription_status:$('#subscription_status').val()
      }
-        
-         console.log("Item edit data on:::", data);
+
 
      $.ajax({
-       url:"http://127.0.0.1:8000/primary_user_edit", 
+       url:"./user_package_edit", 
        dataType: "json",
        data:data,
        method:"post",
@@ -289,11 +303,11 @@
     },
        success:function(){
          setTimeout(function(){
-          console.log(user_id);
+         
           $('#modal-edit').modal('hide');
           $('#example1').dataTable();
 
-          location.reload();
+          location.reload(true);
          }, 2000)
        },
       error:function(error){

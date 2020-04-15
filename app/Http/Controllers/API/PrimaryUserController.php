@@ -123,11 +123,22 @@ class PrimaryUserController extends BaseController
     }
     public function changeStatus(Request $request)
     {
-        $data = User::find($request->user_id);
-        $data->active = $request->active;
-        $data->save();
+        $user = User::where('id','=',$request->user_id)->first();
+        $user->active = $request->active;
+        if($user->save()){
+            return response()->json([
+                'status'=>'success',
+                'success'=>'Status change successfully.'
+                ]);
+        }else{
+            return response()->json([
+                'status'=>'error',
+                'data'=>$request->all(),
+                'message'=>'sorry, user status is not changed!.'
+                ]);
+        }
         
-        return response()->json(['success'=>'Status change successfully.']);
+        
     }
 
     public function inactive_primary_users () {
@@ -239,7 +250,7 @@ class PrimaryUserController extends BaseController
                     $user_email = $user->email;
                     if($user->delete()){
                         $beneficiary_user = BeneficiaryUser::where('email','=',$user_email
-                        )->first();
+                        )->firstOrFail();
                         if(!empty($beneficiary_user)){
                             $beneficiary_user->delete();
                         }else{
@@ -255,4 +266,72 @@ class PrimaryUserController extends BaseController
         }
     }
 
+    public function user_activities_delete($activities_id){
+        $user_activity = UserActivity::where('id','=',$activities_id)->first();
+        if(!empty($user_activity)){
+            $user_activity->delete();
+        }
+
+        return redirect('/user_activities');
+    }
+    
+    public function inactive_user_notify_edit(Request $rs){
+        //$package_info = PackageEntitiesInfo::all();
+        $user = Auth::user();
+        if($rs->isMethod('post')){
+            try{
+                $id = $rs->id;
+                $user_id = $rs->user_id;
+                $last_login = $rs->last_login;
+                $notes = $rs->notes;
+                $inactive_user_notify = InactiveUserNotify::where('id','=',$id)->first();
+                if(!empty($inactive_user_notify)){
+                    $inactive_user_notify->last_login = $last_login;
+                    $inactive_user_notify->notes = $notes;
+                    $save_inactive_user_notify = $inactive_user_notify->save();
+                    if($save_inactive_user_notify){
+                        return response()->json([
+                            'status'=>'success',
+                            'message'=>'Data saved successfully!'
+                        ]);
+                    }else{
+                        
+                        return response()->json([
+                            'status'=>'error',
+                            'message'=>'Sorry, data saved fail!',
+                            'data'=>$rs->all(),
+                        ],500);
+                    }
+                }else{
+                    $inactive_user_notify = new InactiveUserNotify;
+                    $inactive_user_notify->user_id = $user_id;
+                    $inactive_user_notify->last_login = $last_login;
+                    $inactive_user_notify->notes = $notes;
+                    $save_inactive_user_notify = $inactive_user_notify->save();
+                    if($save_inactive_user_notify){
+                        return response()->json([
+                            'status'=>'success',
+                            'message'=>'Data saved successfully!'
+                        ]);
+                    }else{
+                        
+                        return response()->json([
+                            'status'=>'error',
+                            'message'=>'Sorry, data saved fail!',
+                            'data'=>$rs->all(),
+                        ],500);
+                    }
+                }
+            }catch(Exception $ex){
+                return response()->json([
+                    'status'=>'error',
+                    'message'=>$ex->getMessage()
+                ],500);  
+            }
+            
+        }
+        
+             
+        
+    }
 }

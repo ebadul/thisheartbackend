@@ -126,11 +126,14 @@
                    <td>{{ $row['days']}}</td>
                    
                    <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
-                  </td>
-                  <td class="text-center"  >
-                    <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
-                  </td>
+                    <button type="button" class="btn btn-info editBtn" user-data="{{$row}}"><span><i class="fa fa-edit"></i></span> Edit</button>
+                   </td>
+                   <td class="text-center"  >
+                    <a href="/delete_package_info/{{$row['id']}}" 
+                    class="btn btn-danger" user-id="{{$row['id']}}" type="button"   
+                    onclick="return confirm('Do you want to delete package info data')">
+                    Delete</a> 
+                   </td>
                 </tr>
                 @endforeach
               <?php endif;?>
@@ -158,31 +161,34 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Info Modal</h4>
+                <h4 class="modal-title">Edit Package Details</h4>
               </div>
-              <div class="modal-body">
-              <form role="form" id="editForm" name="edit">
-              {{csrf_field()}}
-              <input type="hidden" name="editBtn" id="editUserId" value="" />
-
-              <div class="form-group">
-                  <label for="uname">User Name</label>
-                  <input type="text" class="form-control" id="username" value="" placeholder="User Name">
-                </div>
-                <div class="form-group">
-                  <label for="email">Email Address</label>
-                  <input type="email" class="form-control" id="email" value="" placeholder="Enter email">
-                </div>
-                <div class="form-group">
-                  <label for="mobile">Mobile</label>
-                  <input type="text" class="form-control" id="mobile" value="" placeholder="Mobile">
-                </div>
-            </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
-                <button type="submit" name="edit_ok" id="edit_btn" class="btn btn-danger">Update Changes</button>
-              </div>
+            
+                  <div class="modal-body">
+                        {{csrf_field()}}
+                        <input type="hidden" name="package_id" id="package_id" value="" />
+                        <div class="form-group">
+                          <label for="package">Package Name</label>
+                          <input type="text" class="form-control" id="package" name="package" value="" placeholder="Package Name">
+                        </div>
+                        <div class="form-group">
+                          <label for="description">Description</label>
+                          <textarea class="form-control" id="description" name="description" value="" placeholder="Description"></textarea>
+                        </div>
+                        <div class="form-group">
+                          <label for="price">Price</label>
+                          <input type="text" class="form-control" id="price" name="price" value="" placeholder="Price">
+                        </div>
+                        <div class="form-group">
+                          <label for="days">Days</label>
+                          <input type="text" class="form-control" id="days" name="days" value="" placeholder="Days">
+                        </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
+                    <button type="submit" name="edit_ok" id="edit_btn" class="btn btn-danger">Update Changes</button>
+                  </div>
+           
             </div>
             <!-- /.modal-content -->
           </div>
@@ -210,33 +216,7 @@
 
 
  <!-- -----------------------------  Active/Deactive Item Ajax Request Start ------------------------------- ---->
- <script>
-  $(document).ready(function() {
-    $('.activeSts').change(function() {
-      var userid = $(this).attr('user-id') ;
-     //console.log("Active item on Id :::", userid);
-      var status = $(this).prop('checked') == true ? 1 : 0; 
-      //console.log("Active Status :::", status); 
-        $.ajax({
-            type: "post",
-            dataType: "json",
-            url: "http://127.0.0.1:8000/user_status", 
-            data: {'active': status, 'user_id': userid},
-            beforeSend: function(xhr, type) {
-        if (!type.crossDomain) {
-            xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-        }
-        },
-            success: function(data){
-              console.log(data.success)
-            },
-            error:function(error){
-            console.log("error :", error);
-      }  
-        });
-    });
-  });
-</script>
+
 
   <!------------------------------- Active/Deactive Item Ajax Request End  ------------------------------------>
 
@@ -249,47 +229,42 @@
    });
 
    $(document).on('click', '.editBtn', function(){
-     var userdata = $(this).attr('user-data') ;
-     console.log("Edit item on Id :::", userdata);
-     var user_edit= userdata.split('=');
-     $('#editUserId').val(user_edit[0]);
-     $('#username').val(user_edit[1]);
-     $('#email').val(user_edit[2]);
-     $('#mobile').val(user_edit[3]);
+     var userdata = JSON.parse($(this).attr('user-data'));
+     $('#package_id').val(userdata.id);
+     $('#package').val(userdata.package);
+     $('#description').val(userdata.description);
+     $('#price').val(userdata.price);
+     $('#days').val(userdata.days);
      $('#modal-edit').modal('show');
      
    });
 
    $('#edit_btn').click(function(data){
-     var user_id = $('#editUserId').val();
-     console.log("user id edit:>>>>", user_id);
      var data = {
-       user_id:$('#editUserId').val(),
-       user_name:$('#username').val(),
-       email:$('#email').val(),
-       mobile:$('#mobile').val()
+      id: $('#package_id').val(),
+      package: $('#package').val(),
+      description: $('#description').val(),
+      price: $('#price').val(),
+      days: $('#days').val()
      }
-        
-         console.log("Item edit data on:::", data);
 
      $.ajax({
-       url:"http://127.0.0.1:8000/primary_user_edit", 
+       url:"./package_info_edit", 
        dataType: "json",
        data:data,
        method:"post",
        beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
             xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-            $('#edit_btn').text('Updating User Item....');  
+            $('#edit_btn').text('Updating Package Info....');  
         }
     },
        success:function(){
          setTimeout(function(){
-          console.log(user_id);
+         
           $('#modal-edit').modal('hide');
           $('#example1').dataTable();
-
-          location.reload();
+          location.reload(true);
          }, 2000)
        },
       error:function(error){

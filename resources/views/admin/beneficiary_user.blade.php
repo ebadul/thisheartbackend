@@ -120,13 +120,23 @@
                    <td>{{ $row['beneficiary_id']}}</td>
                    <td>{{ $row['email']}}</td>
                    <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['id'] .'='. $row['beneficiary_id'] .'='. $row['email']}} "><span><i class="fa fa-edit"></i>Edit</button>
+                    <button type="button" class="btn btn-block btn-info editBtn" 
+                    user-data="{{$row['id'] .'='. $row['id'] .'='. 
+                    $row['beneficiary_id'] .'='. $row['email']}} ">
+                    <span><i class="fa fa-edit"></i>Edit</button>
                   </td>
                   <td class="text-center">
-                    <input class="activeSts" user-id="{{$row['id']}}" type="checkbox" {{$row["active"] ? "checked" : ""}} data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="InActive"/> 
+                    <input class="activeSts" user-id="{{$row['id']}}" 
+                      type="checkbox" {{$row["active"] ? "checked" : ""}} 
+                      data-toggle="toggle" data-onstyle="success" 
+                      data-offstyle="danger" data-on="Active" data-off="InActive"/> 
                   </td>     
-                  <td class="text-center"  >
-                    <a href="/delete_beneficiary_user/{{$row['id']}}" class="btn btn-block btn-danger" user-id="{{$row['id']}}"  type="button"   data-on="Active" data-off="InActive"  onclick="return confirm('Do you want to delete beneficiary user data')">Delete</a>          
+                  <td class="text-center" >
+                    <a href="/delete_beneficiary_user/{{$row['id']}}" 
+                      class="btn btn-block btn-danger" user-id="{{$row['id']}}"  
+                      type="button"   data-on="Active" data-off="InActive"  
+                      onclick="return confirm('Do you want to delete beneficiary user data')">
+                      Delete</a>          
                 </tr>
                 @endforeach
               <?php endif;?>
@@ -166,16 +176,13 @@
 
               <div class="form-group">
                   <label for="uid">User ID</label>
-                  <input type="text" class="form-control" id="userid" value="" placeholder="user Id">
+                  <input type="text" class="form-control" id="userid" value="" placeholder="user Id" readonly>
                 </div>
                 <div class="form-group">
                   <label for="beneid">Beneficiary ID</label>
                   <input type="text" class="form-control" id="bnuserid" value="" placeholder="Beneficiary Id">
                 </div>
-                <div class="form-group">
-                  <label for="email">Email</label>
-                  <input type="email" class="form-control" id="email" value="" placeholder="Email">
-                </div>
+               
             </form>
               </div>
               <div class="modal-footer">
@@ -221,7 +228,7 @@
         $.ajax({
             type: "post",
             dataType: "json",
-            url: "http://127.0.0.1:8000/bnuser_status", 
+            url: "/bnuser_status", 
             data: {'active': status, 'user_id': userid},
             beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
@@ -253,10 +260,9 @@
      var userdata = $(this).attr('user-data') ;
      console.log("Edit item on Id :::", userdata);
      var user_edit= userdata.split('=');
-     $('#editUserId').val(user_edit[0]);
      $('#userid').val(user_edit[1]);
      $('#bnuserid').val(user_edit[2]);
-     $('#email').val(user_edit[3]);
+  
      $('#modal-edit').modal('show');
      
    });
@@ -265,16 +271,14 @@
      var user_id = $('#editUserId').val();
      console.log("user id edit:>>>>", user_id);
      var data = {
-       user_id:$('#editUserId').val(),
-       userId:$('#userid').val(),
-       beneficiary_id:$('#bnuserid').val(),
-       email:$('#email').val()
+       user_id:$('#userid').val(),
+       beneficiary_id:$('#bnuserid').val()
      }
         
          console.log("Item edit data on:::", data);
 
      $.ajax({
-       url:"http://127.0.0.1:8000/beneficiary_user_edit", 
+       url:"./beneficiary_user_edit", 
        dataType: "json",
        data:data,
        method:"post",

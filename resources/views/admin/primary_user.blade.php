@@ -114,16 +114,24 @@
                <?php if( $primary_accounts ):?>
                 @foreach ( $primary_accounts  as $row )
                 <tr role="row" class="odd">
-                   <td>{{ $row['id']}}</td>
-                   <td>{{ Crypt::decryptString($row['name'])}}</td>
-                   <td>{{ $row['email']}}</td>
-                   <td>{{ $row['mobile']}}</td>
-                   <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
-                  </td>
-                  <td class="text-center"  ><input class="activeSts" user-id="{{$row['id']}}"  type="checkbox" {{$row["active"] ? "checked" : ""}} data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="InActive"/> 
-                  <td class="text-center"  ><a href="/delete_primary_user/{{$row['id']}}" class="btn btn-block btn-danger" user-id="{{$row['id']}}"  type="button"   data-on="Active" data-off="InActive"  onclick="return confirm('Do you want to delete user data')">Delete</a> 
-                </td>
+                    <td>{{ $row['id']}}</td>
+                    <td>{{ Crypt::decryptString($row['name'])}}</td>
+                    <td>{{ $row['email']}}</td>
+                    <td>{{ $row['mobile']}}</td>
+                    {{--  <td>
+                      <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
+                    </td>  --}}
+                    <td class="text-center"  >
+                      <input class="activeSts" user-id="{{$row['id']}}"  
+                      type="checkbox" {{$row["active"] ? "checked" : ""}} 
+                      data-toggle="toggle" data-onstyle="success" data-offstyle="danger" 
+                      data-on="Active" data-off="InActive"/> 
+                    <td class="text-center"  >
+                      <a href="/delete_primary_user/{{$row['id']}}" 
+                      class="btn btn-danger" user-id="{{$row['id']}}"  
+                      type="button"   data-on="Active" data-off="InActive"  
+                      onclick="return confirm('Do you want to delete user data')">Delete</a> 
+                    </td>
                 </tr>
                 @endforeach
               <?php endif;?>
@@ -207,13 +215,13 @@
   $(document).ready(function() {
     $('.activeSts').change(function() {
       var userid = $(this).attr('user-id') ;
-     //console.log("Active item on Id :::", userid);
+      console.log("Active item on Id :::", userid);
       var status = $(this).prop('checked') == true ? 1 : 0; 
       //console.log("Active Status :::", status); 
         $.ajax({
             type: "post",
             dataType: "json",
-            url: "http://127.0.0.1:8000/user_status", 
+            url: "./user_status", 
             data: {'active': status, 'user_id': userid},
             beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
@@ -224,7 +232,7 @@
               console.log(data.success)
             },
             error:function(error){
-            console.log("error :", error);
+            console.log("error from server :", error.response.message);
       }  
         });
     });

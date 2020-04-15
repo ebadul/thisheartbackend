@@ -123,12 +123,11 @@
                    <td>{{ $row['platform']}}</td>
                    <td>{{ $row['created_at']}}</td>
                    <td>{{ $row['updated_at']}}</td>
-                   
-                   {{-- <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
-                  </td> --}}
-                  <td class="text-center"  >
-                    <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
+                   <td class="text-center"  >
+                    <a href="/user_activities_delete/{{$row['id']}}" 
+                      class="btn btn-warning editBtn" 
+                      onclick="return confirm('Do you want to delete use activities id: {{$row['id']}}')">
+                      <span><i class="fa fa-remove"></i></span> Delete</a>
                   </td>
                 </tr>
                 @endforeach

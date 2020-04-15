@@ -64,6 +64,14 @@ class AuthenticationController extends BaseController
                 ], 401);
             }
 
+            if($user->active===0){
+                return response()->json([
+                    'status'=>'error',
+                    'message' => "Sorry, user isn't actived",
+                    'code'=>'email'
+                ], 401);
+            }
+
             
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
