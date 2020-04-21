@@ -7,19 +7,19 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class MailNotifyFifteenDaysMail extends Mailable
+class ContactUsMail extends Mailable
 {
     use Queueable, SerializesModels;
-    private $user,$user_pkg;
+    private $user, $otp;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user,$user_pkg)
+    public function __construct($user)
     {
         $this->user = $user;
-        $this->user_pkg = $user_pkg;
+      
     }
 
     /**
@@ -29,10 +29,6 @@ class MailNotifyFifteenDaysMail extends Mailable
      */
     public function build()
     {
-        return $this->from('info@thisheart.com','This Heart')->
-        view('emails.mail-notify-fifteen-days-mail',[
-                'user'=>$this->user,
-                'user_pkg'=>$this->user_pkg
-            ]);
+        return $this->from('info@thisheart.com','This Heart')->view('emails.contactus-mail',['user'=>$this->user]);
     }
 }

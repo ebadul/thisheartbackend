@@ -20,30 +20,38 @@
 	<table cellpadding="10" cellspacing="0" style="background:#eee;width:600px;margin:0px auto">
 		<tr>
 			<td style="text-align: center;background:lightblue;padding:50px;">
-				<h2>Thank you for your payment</h2>
+				<h2>Remainder your package subscription</h2>
 			</td>
 		</tr>
 			<td>
 				<p><b>Hi, {{Crypt::decryptString($user->name)}},</b></p>
-				<p> You're now signed for the package plan of <b>{{$payment_session->display_items[0]->custom->name}} - {{$payment_session->metadata['amount']/100}}/Yearly</b>. We have </b><br>
-					received your payment and from now you will enjoy the features of this package.  <br>
+				<p>
+					Your package subscription for <b>{{$user_pkg->package_info->package}}</b> is expiring within 15 days. 
+					It is time to renew. It is important to keep your subscription up to date in order 
+					to continue getting updates for <b>{{$user_pkg->package_info->package}}</b> 
+					and continued support.
+
+					If you wish to renew your subscription, simply click the link below and 
+					follow the instructions.
 					<br>
 					<br>
 					<br>
-                    <b>Payment information:</b>
+                    <b>Package information:</b>
 					<table width="450" border="1" cellpadding="7" style="border-collapse: collapse;">
-                        <tr><td>Date</td><td>{{$payment_session->date}}</td></tr>
-                        <tr><td>Transaction ID</td><td>{{$payment_session->payment_intent}}</td></tr>
-                        <tr><td>Payment type</td><td>{{$payment_session->payment_method_types[0]}}</td></tr>
-                        <tr><td>Package</td><td>{{$payment_session->display_items[0]->custom->name}}</td></tr>
-                        <tr><td>Amount</td><td>{{$payment_session->metadata['amount']/100}}</td></tr>
-                        <tr><td>Customer Ref.</td><td>{{$payment_session->customer}}</td></tr>
+                        <tr><td>Package</td><td>{{$user_pkg->package_info->package}}</td></tr>
+                        <tr><td>Remaining</td><td>{{$user_pkg->remaining_days}} Days</td></tr>
+                        <tr><td>Subscription Date</td><td>{{$user_pkg->subscription_date}}</td></tr>
+                        <tr><td>Subscription Expire</td><td>{{$user_pkg->subscription_expire_date}}</td></tr>
+                        <tr><td>Cost</td><td>${{$user_pkg->package_info->price}}/Yearly</td></tr>
+						<tr><td></td><td><a href="{{$user_pkg->access_url}}packageSubscription/{{$user_pkg->encryptedString}}">
+							Upgrade Package</a></td></tr>
+          
 					</table>
-					</a>
+				 
 					<br>
                     <br>
-                    Thanks again for your payment and if you have any question, please write <br> 
-                    an email to us at info@thisheart.co </p>
+					Thanks again for your package subscription and if you have any question, 
+					please write <br> an email to us at info@thisheart.co </p>
 					<br>
 					<br>
 					Best Regards<br>

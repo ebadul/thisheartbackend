@@ -15,4 +15,9 @@ class MedicalHistory extends Model
         return $medical_history;
     }
 
+    public function diagnosisInfo(){
+        
+        return $this->belongsTo(DiagnosisInfo::class,'diagnosis_id');
+    }
+
 }

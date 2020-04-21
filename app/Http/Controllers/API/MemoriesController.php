@@ -8,6 +8,9 @@ use App\Memories;
 use App\ImageList;
 use App\SocialPhotos;
 use App\UserPackage;
+use App\Account;
+use App\Beneficiary;
+use App\MedicalHistory;
 use Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +18,7 @@ use Carbon\Carbon;
 use File;
 use Storage;
 use Auth;
+use Crypt;
 
 class MemoriesController extends BaseController
 {
@@ -415,6 +419,81 @@ class MemoriesController extends BaseController
                 'data' => $memoriesInfo
             ],200);
         }
+    }
+
+    public function searchAll(Request $rs){
+        try{
+            $user = Auth::user();
+            $search_text = $rs->search_text;
+            $memoriesInfo = Memories::where('user_id','=',$user->id)->get();
+            $search_text_str = Crypt::encryptString($search_text);
+            $accountInfo = Account::where('user_id','=',$user->id)->get();
+            $accList = [];
+            foreach($accountInfo as $acc){
+                $acc->acc_type = Crypt::decryptString($acc->acc_type);
+                $acc->acc_name = Crypt::decryptString($acc->acc_name);
+                $acc->acc_url = Crypt::decryptString($acc->acc_url);
+                $acc->acc_description = Crypt::decryptString($acc->acc_description);
+                $acc->acc_user_name = Crypt::decryptString($acc->acc_user_name);
+                $acc->acc_password = Crypt::decryptString($acc->acc_password);
+                $accList []= $acc;
+            }
+            $beneficiariesInfo = Beneficiary::where('user_id','=',$user->id)->get();
+            $beneList = [];
+            foreach($beneficiariesInfo as $beneficiary){
+                $beneficiary->last_4_beneficiary = Crypt::decryptString($beneficiary->last_4_beneficiary);
+                $beneficiary->first_name = Crypt::decryptString($beneficiary->first_name);
+                $beneficiary->last_name = Crypt::decryptString($beneficiary->last_name);
+                $beneficiary->mail_address = Crypt::decryptString($beneficiary->mail_address);
+                $beneficiary->mail_address2 = Crypt::decryptString($beneficiary->mail_address2);
+                $beneficiary->city = Crypt::decryptString($beneficiary->city);
+                $beneficiary->state = Crypt::decryptString($beneficiary->state);
+                $beneficiary->zip = Crypt::decryptString($beneficiary->zip);
+                $beneficiary->email = Crypt::decryptString($beneficiary->email);
+                $beneList []= $beneficiary;
+            }
+
+            $medical_history = MedicalHistory::where('user_id','=',$user->id)->get();
+            $medicalHistory = [];
+            foreach($medical_history as $medical){
+                $medical->diagnosis_name = $medical->diagnosisInfo->diagnosis_name;
+                $medicalHistory []= $medical;
+            }
+
+
+            if(!empty($memoriesInfo)){
+                return response()->json([
+                    'status'=>'success',
+                    'memories' => $memoriesInfo,
+                    'accounts' => $accList,
+                    'beneficiaries' => $beneList,
+                    'medicals' => $medicalHistory,
+                ],200);
+            }else{
+                return response()->json([
+                    'status'=>'success',
+                    'data' => $memoriesInfo
+                ],200);
+            }
+           
+        }catch(Exception $ex){
+            return response()->json([
+                'status'=>'error',
+                'data' => $ex->getMessage()
+            ],500);
+        }
+    }
+
+    public function content_dashboard(Request $rs){
+        $user = Auth::user();
+        $memoriesInfoUser = Memories::where('user_id','=',$user->id);
+        $memoriesImage =  $memoriesInfoUser->where('filetype','=','image')->get();
+        $memoriesVideo =  $memoriesInfoUser->where('filetype','=','video')->get();
+        return response()->json([
+            'status'=>'success',
+            'memoriesImage' => $memoriesImage,
+            'memoriesVideo' => $memoriesVideo,
+        ],200);
     }
    
 }
