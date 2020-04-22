@@ -487,7 +487,7 @@ class MemoriesController extends BaseController
     public function content_dashboard(Request $rs){
         $user = Auth::user();
         $memoriesInfoUser = Memories::where('user_id','=',$user->id);
-        $memoriesImage =  $memoriesInfoUser->where('filetype','=','image')->get();
+        $memoriesImage =  $memoriesInfoUser->where('filetype','=','image')->orderBy('id','desc')->get();
         $memoriesVideo =  $memoriesInfoUser->where('filetype','=','video')->get();
         return response()->json([
             'status'=>'success',
