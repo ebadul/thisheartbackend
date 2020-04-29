@@ -103,7 +103,7 @@ class PackagesController extends Controller
     }
 
     public function package_info(){
-        $package_info = PackageInfo::all();
+        $package_info = PackageInfo::orderBy('id')->get();
         $user = Auth::user();
         return view('admin.package_info',['user'=>$user,'package_info'=>$package_info]);
     }
@@ -143,6 +143,7 @@ class PackagesController extends Controller
         $package_entities_id = $rs->package_entities_id;
         $package_id = $rs->package_id;
         $entities_id = $rs->entities_id;
+        $entity_unit = $rs->entity_unit;
         $entity_value = $rs->entity_value;
         $entity_status = $rs->entity_status;
 
@@ -150,6 +151,7 @@ class PackagesController extends Controller
         if(!empty($package_entity)){
             $package_entity->package_id = $package_id;
             $package_entity->package_entities_id = $entities_id;
+            $package_entity->entity_unit = $entity_unit;
             $package_entity->entity_value = $entity_value;
             $package_entity->entity_status = $entity_status;
             if($package_entity->save()){
@@ -218,7 +220,7 @@ class PackagesController extends Controller
             $user_package->delete();
         }
 
-        return redirect('/user_package');
+        return redirect('/user_package')->withErrors(['Successfully, user package deleted!']);
     }
 
     public function package_entities_delete($package_entity_id){
@@ -227,7 +229,7 @@ class PackagesController extends Controller
             $package_entity->delete();
         }
         $user = Auth::user();
-        return redirect('/package_entities');
+        return redirect('/package_entity'.'/'.$package_entity->package_id);
     }
 
     public function package_entities_info(){
@@ -236,8 +238,26 @@ class PackagesController extends Controller
         return view('admin.package_entities_info',['user'=>$user,'package_entities_info'=>$package_entities_info]);
     }
 
-    public function package_entities_info_add(Request $rs){
+    public function package_info_add(Request $rs){
         //$package_info = PackageEntitiesInfo::all();
+        $user = Auth::user();
+        if($rs->isMethod('post')){
+             $package_info = new PackageInfo;
+             $package_info->package = $rs->package;
+             $package_info->description = $rs->description;
+             $package_info->price = $rs->price;
+             $package_info->days = $rs->days;
+             $save_pkg_info = $package_info->save();
+             if( $save_pkg_info){
+                $package_info = PackageInfo::all();
+                return view('admin.package_info',['user'=>$user,'package_info'=>$package_info]);
+            }
+        }
+        
+            return view('admin.package_info_add',['user'=>$user]);
+        
+    }
+    public function package_entities_info_add(Request $rs){
         $user = Auth::user();
         if($rs->isMethod('post')){
              $package_entities_info = new PackageEntitiesInfo;
@@ -296,10 +316,11 @@ class PackagesController extends Controller
              $package_entity = new PackageEntity;
              $package_entity->package_id = $rs->txtPackageID;
              $package_entity->package_entities_id = $rs->txtEntityID;
+             $package_entity->entity_unit = $rs->txtUnit;
              $package_entity->entity_value = $rs->entity_value;
              $save_pkg_entity = $package_entity->save();
              if( $save_pkg_entity){
-                return redirect('/package_entities');
+                return redirect('/package_entity'.'/'.$package_entity->package_id);
             }
         }
          
@@ -320,8 +341,12 @@ class PackagesController extends Controller
         }
     }
 
-    public function package_entities(){
-        $package_entity = PackageEntity::all();
+    public function package_entities($package_id=null){
+        if($package_id>0){
+            $package_entity = PackageEntity::where('package_id',$package_id)->get();
+        }else{
+            $package_entity = PackageEntity::all();
+        }
         $package_list= PackageInfo::all();
         $entity_list = PackageEntitiesInfo::all();
         $user = Auth::user();
@@ -335,8 +360,9 @@ class PackagesController extends Controller
 
     public function user_package(){
         $user = Auth::user();
+        $package_list = PackageInfo::all();
         $user_package = UserPackage::all();
-        return view('admin.user_package',['user'=>$user,'user_package'=>$user_package]);
+        return view('admin.user_package',['user'=>$user,'user_package'=>$user_package,'package_list'=>$package_list]);
     }
 
     public function paymentInit(Request $rs){

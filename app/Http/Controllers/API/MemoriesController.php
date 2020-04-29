@@ -30,13 +30,13 @@ class MemoriesController extends BaseController
         
         if ($request->hasFile('imagesFiles')) {
             $user_package = new UserPackage;
-            $package_count_action = $user_package->checkPkgEntityActionStop("images");
+            // $package_count_action = $user_package->checkPkgEntityActionStop("images");
            
-            if($package_count_action){
-                return response()->json([
-                    'message' => "Sorry, your package exceeds the store more images",
-                ], 500); 
-            }
+            // if($package_count_action){
+            //     return response()->json([
+            //         'message' => "Sorry, your package exceeds the store more images",
+            //     ], 500); 
+            // }
 
             $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
             if($package_storage_action){
@@ -212,12 +212,12 @@ class MemoriesController extends BaseController
   
             if($request->hasFile('videos')){
                 $user_package = new UserPackage;
-                $package_action = $user_package->checkPkgEntityActionStop("videos");
-                if($package_action){
-                    return response()->json([
-                        'message' => "Sorry, your package exceeds the store more video",
-                    ], 500); 
-                }
+                // $package_action = $user_package->checkPkgEntityActionStop("videos");
+                // if($package_action){
+                //     return response()->json([
+                //         'message' => "Sorry, your package exceeds the store more video",
+                //     ], 500); 
+                // }
 
                 $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
                 if($package_storage_action){
@@ -330,12 +330,12 @@ class MemoriesController extends BaseController
             if($request->hasFile('audios')){
 
                 $user_package = new UserPackage;
-                $package_action = $user_package->checkPkgEntityActionStop("records");
-                if($package_action){
-                    return response()->json([
-                        'message' => "Sorry, your package exceeds the store more record",
-                    ], 500); 
-                }
+                // $package_action = $user_package->checkPkgEntityActionStop("records");
+                // if($package_action){
+                //     return response()->json([
+                //         'message' => "Sorry, your package exceeds the store more record",
+                //     ], 500); 
+                // }
 
                 $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
                 if($package_storage_action){
@@ -444,12 +444,12 @@ class MemoriesController extends BaseController
                 $beneficiary->last_4_beneficiary = Crypt::decryptString($beneficiary->last_4_beneficiary);
                 $beneficiary->first_name = Crypt::decryptString($beneficiary->first_name);
                 $beneficiary->last_name = Crypt::decryptString($beneficiary->last_name);
-                $beneficiary->mail_address = Crypt::decryptString($beneficiary->mail_address);
-                $beneficiary->mail_address2 = Crypt::decryptString($beneficiary->mail_address2);
-                $beneficiary->city = Crypt::decryptString($beneficiary->city);
-                $beneficiary->state = Crypt::decryptString($beneficiary->state);
-                $beneficiary->zip = Crypt::decryptString($beneficiary->zip);
-                $beneficiary->email = Crypt::decryptString($beneficiary->email);
+                $beneficiary->mail_address = !empty($beneficiary->mail_address)?Crypt::decryptString($beneficiary->mail_address):$beneficiary->mail_address;
+                $beneficiary->mail_address2 = !empty($beneficiary->mail_address2)?Crypt::decryptString($beneficiary->mail_address2):$beneficiary->mail_address2;
+                $beneficiary->city = !empty($beneficiary->city)?Crypt::decryptString($beneficiary->city):$beneficiary->city;
+                $beneficiary->state = !empty($beneficiary->state)?Crypt::decryptString($beneficiary->state):$beneficiary->state;
+                $beneficiary->zip = !empty($beneficiary->zip)?Crypt::decryptString($beneficiary->zip):$beneficiary->zip;
+                $beneficiary->email = !empty($beneficiary->email)?Crypt::decryptString($beneficiary->email):$beneficiary->email;
                 $beneList []= $beneficiary;
             }
 
@@ -488,11 +488,22 @@ class MemoriesController extends BaseController
         $user = Auth::user();
         $memoriesInfoUser = Memories::where('user_id','=',$user->id);
         $memoriesImage =  $memoriesInfoUser->where('filetype','=','image')->orderBy('id','desc')->get();
-        $memoriesVideo =  $memoriesInfoUser->where('filetype','=','video')->get();
+        $memoriesVideo =  $memoriesInfoUser->where('filetype','=','video')->orderBy('id','desc')->get();
+        $accountInfo = Account::where('user_id','=',$user->id)->get(['acc_type','acc_name']);
+        $accList = [];
+        foreach($accountInfo as $acc){
+            $acc->acc_type = Crypt::decryptString($acc->acc_type);
+            $acc->acc_name = Crypt::decryptString($acc->acc_name);
+            $accList []= $acc;
+        }
+
+        $accountInfo->acc_count = $acc->where('user_id','=',$user->id)->count();
+
         return response()->json([
             'status'=>'success',
             'memoriesImage' => $memoriesImage,
             'memoriesVideo' => $memoriesVideo,
+            'accounts' => $accList,
         ],200);
     }
    

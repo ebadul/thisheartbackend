@@ -1,0 +1,5 @@
+.user-panel>.info>p {
+    width:145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

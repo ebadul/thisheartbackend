@@ -38,10 +38,10 @@ class EditPackageEntitiesTable extends Migration
         Schema::table('package_entities', function (Blueprint $table) {
            
          
-            $table->integer('package_id');
-            $table->string('package_entities_id');
-            $table->string('entity_value')->nullable();
-            $table->string('entity_status')->default(1);
+             $table->string('entity_status')->default(1)->after('id');
+             $table->string('entity_value')->nullable()->after('id');
+             $table->string('package_entities_id')->after('id');
+             $table->integer('package_id')->after('id');
             
         });
 

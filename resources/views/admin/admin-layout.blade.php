@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/bootstrap-daterangepicker/daterangepicker.css')}}">
   <!-- bootstrap wysihtml5 - text editor -->
   <link rel="stylesheet" href="{{asset('AdminLTE/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css')}}">
+  <link rel="stylesheet" href="{{asset('css/style.css')}}">
 
   <!-- HTML5 Shim and Respond.js')}} IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js')}} doesn't work if you view the page via file:// -->
@@ -45,8 +46,6 @@
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 <!-- jQuery 3 -->
-
-<!-- <script src="{{asset('AdminLTE/bower_components/jquery/dist/jquery.min.js')}}"></script> -->
   <script src="{{asset('AdminLTE/bower_components/jquery/dist/jquery-3.4.1.min.js')}}"></script>
 </head>
 <body class="hold-transition login-page">

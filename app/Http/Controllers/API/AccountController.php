@@ -45,8 +45,19 @@ class AccountController extends BaseController
             ], 400);
 
         }else{
-            $accountInfo = new Account();
 
+            $user_package = new UserPackage;
+            $package_storage_action = $user_package->checkPkgEntityActionStop("accounts");
+            if($package_storage_action){
+                return response()->json([
+                    'status'=>'error',
+                    'code'=>'exceeds-accounts',
+                    'message' => "Sorry, your package exceeds the accounts saved limit",
+                    'storage'=>$package_storage_action
+                ], 500); 
+            }
+
+            $accountInfo = new Account();
             $accountInfo->acc_type = Crypt::encryptString($request->acc_type);
             $accountInfo->acc_name = Crypt::encryptString($request->acc_name);
             $accountInfo->user_id = $user->id;
@@ -135,7 +146,6 @@ class AccountController extends BaseController
 
     public function updateAccountInfo(Request $rs)
     {
-         
         $user = Auth::user();
         if(empty($user)){
             return response()->json([
@@ -159,26 +169,8 @@ class AccountController extends BaseController
         $user->name = Crypt::encryptString($rs->user_name);
         !empty($rs->mobile)?$user->mobile = $rs->mobile:'';
         if($user->save()){
-
-            // if(!empty($sub_plan)){
-            //     $user_id = $user->id;
-            //     $pkgData = [
-            //         'user_id'=>$user_id,
-            //         'package_id'=>$sub_plan
-            //     ];
-            //     $user_package = new UserPackage;
-            //     $user_pkg = $user_package->saveUserPackage($pkgData);
-            //     $user_pkg->push('package_info',$user_pkg->package_info);
-            //     return response()->json([
-            //         'status'=>'success',
-            //         'package_info'=>$user_pkg->package_info,
-            //         'sub_plan'=>$user_pkg,
-            //         'user_name'=>Crypt::decryptString($user->name),
-            //         'data'=>$user,
-            //     ], 200);
-            // }else{
-                // $user_pkg = UserPackage::where('user_id','=',$user->id)->first();
-                $user_pkg = $user->user_package->first();
+                $user_pkg_obj = $user->user_package;
+                $user_pkg = !empty($user_pkg_obj)?$user_pkg_obj->first():"";
                 if(!empty( $user_pkg)){
                     $user_pkg->push('package_info',$user_pkg->package_info);
                 }
@@ -195,7 +187,7 @@ class AccountController extends BaseController
             return response()->json([
                 'status'=>'error',
                 'message'=>"Update didn't finish successfully!",
-            ]);
+            ],500);
         }
         
     }

@@ -3,61 +3,7 @@
 @section('content')
 
 <div class="wrapper">
-<header class="main-header">
-    <!-- Logo -->
-    <a href="dashboard" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>A</b>LT</span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>Admin</b>This Heart</span>
-    </a>
-    <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Toggle navigation</span>
-      </a>
-
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <!-- Messages: style can be found in dropdown.less-->
-          <!-- Notifications: style can be found in dropdown.less -->
-
-          <!-- Tasks: style can be found in dropdown.less -->
-
-          <!-- User Account: style can be found in dropdown.less -->
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="{{asset('AdminLTE/dist/img/userphoto.jpg')}}" class="user-image" alt="User Image">
-            <span class="hidden-xs">{{$user->email}}</span>
-            </a>
-            <ul class="dropdown-menu">
-              <!-- User image -->
-              <li class="user-header">
-                <img src="{{asset('AdminLTE/dist/img/userphoto.jpg')}}" class="img-circle" alt="User Image">
-
-                <p>
-                  Admin This Heart - Web Developer
-                  <small>Member since Nov. 2012</small>
-                </p>
-              </li>
-              <!-- Menu Body -->
-              <!-- Menu Footer-->
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="#" class="btn btn-default btn-flat">Profile</a>
-                </div>
-                <div class="pull-right">
-                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-          <!-- Control Sidebar Toggle Button -->
-        </ul>
-      </div>
-    </nav>
-  </header>
+  @include('admin/header')
   <!-- Left side column. contains the logo and sidebar -->
   @include('admin/left-sidebar')
 
@@ -65,40 +11,39 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>
-        Package Details - Entities
-      </h1>
-      <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="#">Primary</a></li>
-        <li class="active">User list</li>
-      </ol>
+      <div class="row">
+        <div class="col-md-4">
+          <span class="h1">Package - Entities</span class="h1">
+        </div>
+        <div class="col-md-2">
+          <a href="/package_entities_add" role='button' class="btn btn-success" style="margin-left:20px"> &nbsp; Add Package Entity &nbsp;</a>
+        </div>
+        <div class="col-md-3">
+          <span class="form-group">
+            <select class="select select2 form-control" id="select_package">
+              <option value="">:: Select Package ::</option>
+              @foreach($package_list as $package)
+                <option value="{{$package->id}}">{{$package->package}}</option>
+              @endforeach
+            </select>
+          </span>
+        </div>
+        <div class="col-md-3">
+          <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="#">Primary</a></li>
+            <li class="active">User list</li>
+          </ol>
+        </div>
+      </div>
+      
     </section>
 
     <!-- Main content -->
     <div class="box-body">
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                 <div class="row">
-                  <div class="col-sm-6">
-                    <div class="dataTables_length" id="example1_length">
-                      <label>Show 
-                      <select name="example1_length" aria-controls="example1" class="form-control input-sm">
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      </select> entries
-                      </label>
-                    </div>
-                  </div>
-              <div class="col-sm-6 text-right">
-                <span id="example1_filter" class="dataTables_filter">
-                  <a href="/package_entities_add" class="btn btn-success">+ Add</a>
-                </span>
-                <span id="example1_filter" class="dataTables_filter">
-                  <label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="example1"></label>
-                </span>
-              </div>
+             
               </div><!--end row -->
               <div class="row">
               <div class="col-sm-12">
@@ -108,21 +53,23 @@
                   <th class="sorting_asc" style="width: 182px;">Package Id</th>
                   <th class="sorting" style="width: 224px;">Entity Title</th>
                   <th class="sorting"  style="width: 199px;">Value</th>
+                  <th class="sorting"  style="width: 199px;">Unit</th>
                   <th style="width: 156px; text-align:center;">Status</th>
                   <th style="width: 156px; text-align:center;">Edit</th>
                   <th style="width: 156px; text-align:center;">Delete</th>
                 </tr>
                 </thead>
                 <tbody>
-               <?php if( $package_entity ):?>
+               <?php if(!empty( $package_entity )):?>
                 @foreach ( $package_entity  as $row )
                   <tr role="row" class="odd">
                     
                     <td>{{ $row->package_info->package}}</td>
                     <td>{{ !empty($row->entity_info->package_entity_title)?
                            $row->entity_info->package_entity_title:''}}</td>
-                    <td>{{ $row['entity_value']}}</td>
-                    <td>{{ $row['entity_status']}}</td>
+                    <td>{{ ($row['entity_value']==="-1")?'Unlimited':$row['entity_value']}}</td>
+                    <td>{{ $row['entity_unit']}}</td>
+                    <td>{{ $row['entity_status']?'Actived':'Inactived'}}</td>
                     <td class="text-center">
                       <button type="button" class="btn btn-info editBtn" user-data="{{$row}} ">
                         <span><i class="fa fa-edit"></i></span> Edit</button>
@@ -142,6 +89,7 @@
                     <th class="sorting_asc" style="width: 182px;">Package Id</th>
                     <th class="sorting" style="width: 224px;">Entity Title</th>
                     <th class="sorting"  style="width: 199px;">Value</th>
+                    <th class="sorting"  style="width: 199px;">Unit</th>
                     <th style="width: 156px; text-align:center;">Status</th>
                     <th style="width: 156px; text-align:center;">Edit</th>
                     <th style="width: 156px; text-align:center;">Delete</th>
@@ -192,6 +140,20 @@
                     @endforeach
                   </select>
                 </div>
+
+                <div class="form-group">
+                  <label for="txtUnit">Unit</label>
+                  <select name="txtUnit" id="txtUnit" required class="select select2 form-control">
+                    <option value="">:: Unit ::</option>
+                    <option value="GB">GB</option>
+                    <option value="Qnty">Qnty</option>
+                    <option value="Status">Status</option>
+                    <option value="Others">Others</option>
+                    <option value="Unlimited">Unlimited</option>
+                     
+                  </select>
+              </div>
+
                 <div class="form-group">
                   <label for="entity_value">Entity Value</label>
                   <input type="text" class="form-control" id="entity_value" value="" placeholder="Entity Value">
@@ -239,29 +201,14 @@
  <!-- -----------------------------  Active/Deactive Item Ajax Request Start ------------------------------- ---->
  <script>
   $(document).ready(function() {
-    $('.activeSts').change(function() {
-      var userid = $(this).attr('user-id') ;
-     //console.log("Active item on Id :::", userid);
-      var status = $(this).prop('checked') == true ? 1 : 0; 
-      //console.log("Active Status :::", status); 
-        $.ajax({
-            type: "post",
-            dataType: "json",
-            url: "./user_status", 
-            data: {'active': status, 'user_id': userid},
-            beforeSend: function(xhr, type) {
-        if (!type.crossDomain) {
-            xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-        }
-        },
-            success: function(data){
-              console.log(data.success)
-            },
-            error:function(error){
-            console.log("error :", error);
-      }  
-        });
-    });
+    $("#select_package").on('change',function(){
+      var txt_package = $(this).val();
+      if(txt_package>0){
+        window.location = '/package_entity/'+txt_package;
+      }else{
+        window.location = '/package_entities';
+      }
+    })
   });
 </script>
 
@@ -271,14 +218,28 @@
  <!---------------------------------- Edit Item Ajax Request  Start  ------------------------------------------->
 <script>
 
+$("#txtUnit").on('change',function(){
+      var txt_unit = this.value;
+      if(txt_unit==="Unlimited"){
+        $("#entity_value").attr('readonly','readonly');
+        $("#entity_value").closest('div').hide('slow');
+        $("#entity_value").val('-1');
+      }else{
+        $("#entity_value").removeAttr('readonly');
+        $("#entity_value").closest('div').show();
+        $("#entity_value").val('');
+      }
+    });
 
    $(document).on('click', '.editBtn', function(){
      var pkg_entity = JSON.parse($(this).attr('user-data')) ;
-     console.log("Edit item on Id :::", pkg_entity);
-     
      $('#package_entities_id').val(pkg_entity.id);
      $('#package_id').val(pkg_entity.package_id);
      $('#entities_id').val(pkg_entity.package_entities_id);
+     $('#txtUnit').val(pkg_entity.entity_unit);
+     if(pkg_entity.entity_unit==="Unlimited"){
+      $('#entity_value').attr('readonly','readonly');
+     }
      $('#entity_value').val(pkg_entity.entity_value);
      $('#entity_status').val(pkg_entity.entity_status);
      $('#modal-edit').modal('show');
@@ -291,6 +252,7 @@
        package_entities_id:$('#package_entities_id').val(),
        package_id:$('#package_id').val(),
        entities_id:$('#entities_id').val(),
+       entity_unit:$('#txtUnit').val(),
        entity_value:$('#entity_value').val(),
        entity_status:$('#entity_status').val()
      }
@@ -298,7 +260,7 @@
          
 
      $.ajax({
-       url:"./package_entities_edit", 
+       url:"/package_entities_edit", 
        dataType: "json",
        data:data,
        method:"post",
@@ -309,6 +271,14 @@
         }
     },
        success:function(){
+        $.toast({
+                            heading: 'Information',
+                            text: 'Successfully, package entity updated!',
+                            icon: 'info',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#088'  // To change the background
+                        })
          setTimeout(function(){
          
           $('#modal-edit').modal('hide');
@@ -329,8 +299,8 @@
   $(function () {
     $('#example1').dataTable({
       'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
+      'lengthChange': true,
+      'searching'   : true,
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false

@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\PackageInfo;
 use App\PaymentSession;
 use App\User;
+use App\Beneficiary;
+use App\Account;
+use App\Letters;
 use Auth;
 use File;
 use Crypt;
@@ -87,9 +90,12 @@ class UserPackage extends Model
                 try{
                         $user_package = $user->user_package;
                         $user_package_entities = $user_package->package_entities;
-                        $entity_info = PackageEntitiesInfo::where('package_entity_title','=','Storage')->first();
+                        $entity_info = PackageEntitiesInfo::where('package_entity_title','=','File Storage')->first();
                         $user_entity_details = $user_package_entities->where('package_entities_id','=',$entity_info->id)->first();
                         $entity_value = $user_entity_details->entity_value;
+                        if($entity_value==="-1"){
+                            return false;
+                        }
                         $user_path = public_path('uploads/'.$user->id);
                         if (File::exists($user_path)) {
                             $user_storage_size = File::size($user_path);
@@ -111,6 +117,75 @@ class UserPackage extends Model
                                 return false;
                             }
                         }
+                    }catch(Exception $ex){
+                        return new Exception($ex->getMessage());
+                    }
+                break;
+            case "beneficiaries":
+                try{
+                        $user_package = $user->user_package;
+                        $user_package_entities = $user_package->package_entities;
+                        $entity_info = PackageEntitiesInfo::where('package_entity_title','=','Beneficiaries Saved')->first();
+                        $user_entity_details = $user_package_entities->where('package_entities_id','=',$entity_info->id)->first();
+                        $entity_value = $user_entity_details->entity_value;
+                        $beneficiaries_count = Beneficiary::where('user_id',$user->id)->count();
+
+                        if($entity_value==="-1"){
+                            return false;
+                        }
+
+                        if($beneficiaries_count>=$entity_value){
+                            return true; //generate error 
+                        }else{
+                            return false;
+                        }
+
+                    }catch(Exception $ex){
+                        return new Exception($ex->getMessage());
+                    }
+                break;
+            case "accounts":
+                try{
+                        $user_package = $user->user_package;
+                        $user_package_entities = $user_package->package_entities;
+                        $entity_info = PackageEntitiesInfo::where('package_entity_title','=','Accounts Saved')->first();
+                        $user_entity_details = $user_package_entities->where('package_entities_id','=',$entity_info->id)->first();
+                        $entity_value = $user_entity_details->entity_value;
+                        $account_count = Account::where('user_id',$user->id)->count();
+
+                        if($entity_value==="-1"){
+                            return false;
+                        }
+
+                        if($account_count>=$entity_value){
+                            return true; //generate error 
+                        }else{
+                            return false;
+                        }
+
+                    }catch(Exception $ex){
+                        return new Exception($ex->getMessage());
+                    }
+                break;
+            case "letters":
+                try{
+                        $user_package = $user->user_package;
+                        $user_package_entities = $user_package->package_entities;
+                        $entity_info = PackageEntitiesInfo::where('package_entity_title','=','Encrypted Letters/Messages')->first();
+                        $user_entity_details = $user_package_entities->where('package_entities_id','=',$entity_info->id)->first();
+                        $entity_value = $user_entity_details->entity_value;
+                        $letters_count = Letters::where('user_id',$user->id)->count();
+
+                        if($entity_value==="-1"){
+                            return false;
+                        }
+
+                        if($letters_count>=$entity_value){
+                            return true; //generate error 
+                        }else{
+                            return false;
+                        }
+
                     }catch(Exception $ex){
                         return new Exception($ex->getMessage());
                     }
@@ -154,13 +229,13 @@ class UserPackage extends Model
                 $success_url = $this->access_url.'payment-success/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
                 $cancel_url = $this->access_url."payment-cancel/".Crypt::encryptString('payment-cancel');
                 $session = \Stripe\Checkout\Session::create([
-                'payment_method_types' => ['card','ideal'],
+                'payment_method_types' => ['card'],
                 'line_items' => [[
                     'name' => $rs->item,
                     'description' => $rs->description,
                     'images' => ['http://localhost:8000/uploads/60/images/07sVbQNABRs0Nh6ii34Ko7ofREypd4lpxbkocsJ2Vv4Nnqflu2Coy8CygAjU.jpeg'],
                     'amount' => $rs->amount*100,
-                    'currency' => 'eur',
+                    'currency' => 'usd',
                     'quantity' => 1,
                 ]],
                 'metadata'=>[

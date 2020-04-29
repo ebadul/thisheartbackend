@@ -6,85 +6,59 @@
   @include('admin/header')
   <!-- Left side column. contains the logo and sidebar -->
   @include('admin/left-sidebar')
-  <!-- <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column descending" style="width: 224px;" aria-sort="ascending">Browser</th> -->
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Beneficiary User List   
+        Package Info Add
+        <a href="/package_info" role='button' class="btn btn-success" style="margin-left:20px"> &nbsp; Package List &nbsp;</a>
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="#">Beneficiary</a></li>
+        <li><a href="#">Primary</a></li>
         <li class="active">User list</li>
       </ol>
     </section>
-
+    <hr>
     <!-- Main content -->
     <div class="box-body">
-           
-              <table id="example1" class="table table-bordered table-striped "    >
-                <thead>
-                  <tr>
-                 
-                    <th rowspan="1" colspan="1">Beneficiary User Name</th>
-                    <th rowspan="1" colspan="1">Email</th> 
-                    <th rowspan="1" colspan="1">Edit</th> 
-                    <th>Action</th> 
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-               <?php if( $beneficiary_accounts):?>
-                @foreach ( $beneficiary_accounts as $row )
-                <tr role="row" class="odd">
-              
-                   <td>{{ Crypt::decryptString($row['name'])}}</td>
-                   <td>{{ $row['email']}}</td>
-                   <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" 
-                    user-data="{{$row['id'] .'='. $row['id'] .'='. 
-                    $row['beneficiary_id'] .'='. $row['email']}} ">
-                    <span><i class="fa fa-edit"></i>Edit</button>
-                  </td>
-                  <td class="text-center">
-                    <input class="activeSts" user-id="{{$row['id']}}" 
-                      type="checkbox" {{$row["active"] ? "checked" : ""}} 
-                      data-toggle="toggle" data-onstyle="success" 
-                      data-offstyle="danger" data-on="Active" data-off="InActive"/> 
-                  </td>     
-                  <td class="text-center" >
-                    <a href="/delete_beneficiary_user/{{$row['id']}}" 
-                      class="btn btn-block btn-danger" user-id="{{$row['id']}}"  
-                      type="button"   data-on="Active" data-off="InActive"  
-                      onclick="return confirm('Do you want to delete beneficiary user data')">
-                      Delete</a>  
-                    </td>         
-                </tr>
-                @endforeach
-              <?php endif;?>
-                </tbody>
-                <tfoot>
-                <tr>
+        
+            <div class="row">
+                <div class="col-sm-6 col-md-push-3">
+                    <form role="form" id="addForm" action="" method="post" name="addPackageEntity">
+                        {{csrf_field()}}
+
+                        <div class="form-group">
+                            <label for="package">Package Name</label>
+                            <input type="text" class="form-control" id="package" name="package" value="" placeholder="Package Name" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" value="" placeholder="Description" required></textarea>
+                          </div>
+                          <div class="form-group">
+                            <label for="price">Price</label>
+                            <input type="text" class="form-control" id="price" name="price" value="" placeholder="Price" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="days">Days</label>
+                            <input type="text" class="form-control" id="days" name="days" value="" placeholder="Days" required>
+                          </div>
+
+
+                        <div class="form-group   form-group text-right">
+                            <input type="submit" class="btn btn-success" id="mobile" value="SAVE" >
+                        </div>
+                    </form>
+                </div>
             
-                  <th rowspan="1" colspan="1">Beneficiary User Name</th>
-               
-                  <th rowspan="1" colspan="1">Email</th> 
-                  <th rowspan="1" colspan="1">Edit</th> 
-                  <th>Action</th> 
-                  <th>Status</th>
-                </tr>
-                </tfoot>
-              </table>
-              
-         
-            </div>
-
-
-    <!-- /.content -->
- <!-----------------------------------------  Edit Modal start ---------------------------------------------->
+            </div><!-- end row -->
+            
+        
+    </div>
+<!-----------------------------------------  Edit Modal start ---------------------------------------------->
 
 <div class="modal modal-info fade" id="modal-edit">
           <div class="modal-dialog">
@@ -100,14 +74,17 @@
               <input type="hidden" name="editBtn" id="editUserId" value="" />
 
               <div class="form-group">
-                  <label for="uid">User ID</label>
-                  <input type="text" class="form-control" id="userid" value="" placeholder="user Id" readonly>
+                  <label for="uname">User Name</label>
+                  <input type="text" class="form-control" id="username" value="" placeholder="User Name">
                 </div>
                 <div class="form-group">
-                  <label for="beneid">Beneficiary ID</label>
-                  <input type="text" class="form-control" id="bnuserid" value="" placeholder="Beneficiary Id">
+                  <label for="email">Email Address</label>
+                  <input type="email" class="form-control" id="email" value="" placeholder="Enter email">
                 </div>
-               
+                <div class="form-group">
+                  <label for="mobile">Mobile</label>
+                  <input type="text" class="form-control" id="mobile" value="" placeholder="Mobile">
+                </div>
             </form>
               </div>
               <div class="modal-footer">
@@ -121,7 +98,6 @@
         </div>
 
     <!--------------------------------  Edit Modal End --------------------------------------------->    
-
 
 
     <!-- /.content -->
@@ -142,18 +118,17 @@
 
 
  <!-- -----------------------------  Active/Deactive Item Ajax Request Start ------------------------------- ---->
-
  <script>
   $(document).ready(function() {
     $('.activeSts').change(function() {
       var userid = $(this).attr('user-id') ;
-     console.log("Active item on Id :::", userid);
+     //console.log("Active item on Id :::", userid);
       var status = $(this).prop('checked') == true ? 1 : 0; 
-      console.log("Active Status :::", status); 
+      //console.log("Active Status :::", status); 
         $.ajax({
             type: "post",
             dataType: "json",
-            url: "/bnuser_status", 
+            url: "http://127.0.0.1:8000/user_status", 
             data: {'active': status, 'user_id': userid},
             beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
@@ -171,7 +146,7 @@
   });
 </script>
 
-  <!--------------------------------- Active/Deactive Item Ajax Request End ----------------------------------->
+  <!------------------------------- Active/Deactive Item Ajax Request End  ------------------------------------>
 
 
  <!---------------------------------- Edit Item Ajax Request  Start  ------------------------------------------->
@@ -179,25 +154,16 @@
  
  $(document).ready( function(){
      //console.log("Event triggered");
-      $(function () {
-        $('#example1').dataTable({
-          'paging'      : true,
-          'lengthChange': true,
-          'searching'   : true,
-          'ordering'    : true,
-          'info'        : true,
-          'autoWidth'   : false
-        });
-    });
    });
 
    $(document).on('click', '.editBtn', function(){
      var userdata = $(this).attr('user-data') ;
      console.log("Edit item on Id :::", userdata);
      var user_edit= userdata.split('=');
-     $('#userid').val(user_edit[1]);
-     $('#bnuserid').val(user_edit[2]);
-  
+     $('#editUserId').val(user_edit[0]);
+     $('#username').val(user_edit[1]);
+     $('#email').val(user_edit[2]);
+     $('#mobile').val(user_edit[3]);
      $('#modal-edit').modal('show');
      
    });
@@ -206,14 +172,16 @@
      var user_id = $('#editUserId').val();
      console.log("user id edit:>>>>", user_id);
      var data = {
-       user_id:$('#userid').val(),
-       beneficiary_id:$('#bnuserid').val()
+       user_id:$('#editUserId').val(),
+       user_name:$('#username').val(),
+       email:$('#email').val(),
+       mobile:$('#mobile').val()
      }
         
          console.log("Item edit data on:::", data);
 
      $.ajax({
-       url:"./beneficiary_user_edit", 
+       url:"http://127.0.0.1:8000/primary_user_edit", 
        dataType: "json",
        data:data,
        method:"post",
@@ -239,9 +207,18 @@
      });
    });
  </script>
- <!-- page script -->
- <script>
- 
+  <!-- page script -->
+  <script>
+  $(function () {
+    $('#example1').dataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : false,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false
+    });
+  });
 </script>
   <!------------------------------------------ Edit Item Ajax Request End --------------------------------------->
 

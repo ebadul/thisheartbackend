@@ -80,7 +80,7 @@
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                 <div class="row">
                   <div class="col-sm-6">
-                    <div class="dataTables_length" id="example1_length">
+                    {{-- <div class="dataTables_length" id="example1_length">
                       <label>Show 
                       <select name="example1_length" aria-controls="example1" class="form-control input-sm">
                       <option value="10">10</option>
@@ -89,12 +89,12 @@
                       <option value="100">100</option>
                       </select> entries
                       </label>
-                    </div>
+                    </div> --}}
                   </div>
               <div class="col-sm-6">
-              <div id="example1_filter" class="dataTables_filter">
-                <label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="example1"></label>
-              </div>
+                {{-- <div id="example1_filter" class="dataTables_filter">
+                  <label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="example1"></label>
+                </div> --}}
               </div>
               </div>
               <div class="row">
@@ -102,7 +102,7 @@
               <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                 <thead>
                 <tr role="row">
-                <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 182px;">User Id</th>
+                
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User Full Name</th>
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Email</th>
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Mobile</th>
@@ -114,7 +114,7 @@
                <?php if( $primary_accounts ):?>
                 @foreach ( $primary_accounts  as $row )
                 <tr role="row" class="odd">
-                    <td>{{ $row['id']}}</td>
+                   
                     <td>{{ Crypt::decryptString($row['name'])}}</td>
                     <td>{{ $row['email']}}</td>
                     <td>{{ $row['mobile']}}</td>
@@ -137,7 +137,7 @@
               <?php endif;?>
                 </tbody>
                 <tfoot>
-                <tr><th rowspan="1" colspan="1">User Id</th><th rowspan="1" colspan="1">User Name</th><th rowspan="1" colspan="1">Email</th><th rowspan="1" colspan="1">Mobile</th> <th>Action</th> <th>Status</th></tr>
+                <tr><th rowspan="1" colspan="1">User Name</th><th rowspan="1" colspan="1">Email</th><th rowspan="1" colspan="1">Mobile</th> <th>Action</th> <th>Status</th></tr>
                 </tfoot>
               </table>
               </div>
@@ -305,8 +305,8 @@
   $(function () {
     $('#example1').dataTable({
       'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
+      'lengthChange': true,
+      'searching'   : true,
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false

@@ -10,6 +10,7 @@ use App\User;
 use App\Beneficiary;
 use App\BeneficiaryUser;
 use App\WizardStep;
+use App\UserPackage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -46,6 +47,17 @@ class BeneficiaryController extends BaseController
             ], 400);
 
         }else{
+            $user_package = new UserPackage;
+            $package_storage_action = $user_package->checkPkgEntityActionStop("beneficiaries");
+            if($package_storage_action){
+                return response()->json([
+                    'status'=>'error',
+                    'code'=>'exceeds-beneficiaries',
+                    'message' => "Sorry, your package exceeds the beneficiaries saved limit",
+                    'storage'=>$package_storage_action
+                ], 500); 
+            }
+
 
             if(is_null($request->mail_address2)){
                 $request->mail_address2 = "";

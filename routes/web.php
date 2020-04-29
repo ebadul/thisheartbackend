@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
 
 // Route::get('/admin', function () {
@@ -31,6 +31,7 @@ Route::get('/login', "API\PrimaryUserController@loginAdmin")->name('login');
 Route::get('/logout', "API\PrimaryUserController@adminLogout")->name('logout')->middleware('auth');
 Route::get('/admin', "API\PrimaryUserController@adminUser")->name('admin');
 Auth::routes();
+Route::get('/home', "API\PrimaryUserController@dashboard")->name('home')->middleware('auth');
 Route::get('/dashboard', "API\PrimaryUserController@dashboard")->name('dashboard')->middleware('auth');
 Route::post('/primary_user_login', "API\PrimaryUserController@primary_user_login")->name('primary_user_login');
 Route::get('/primary_user', "API\PrimaryUserController@primary_user");
@@ -48,6 +49,7 @@ Route::post('/bnuser_status', "API\BeneficiaryUserController@changeStatus")->nam
 Route::get('/package_info', "API\PackagesController@package_info");
 Route::get('/delete_package_info/{user_id}', "API\PackagesController@delete_package_info");
 Route::post('/package_info_edit', "API\PackagesController@package_info_edit");
+Route::any('/package_info_add', "API\PackagesController@package_info_add");
 Route::get('/package_entity/{package_id}', "API\PackagesController@package_entities");
 Route::get('/user_package', "API\PackagesController@user_package");
 Route::post('/user_package_edit', "API\PackagesController@user_package_edit");
@@ -58,7 +60,7 @@ Route::post('/package_entities_info_edit', "API\PackagesController@package_entit
 Route::any('/package_entities_info_delete/{id}', "API\PackagesController@package_entities_info_delete");
 Route::get('/package_entities', "API\PackagesController@package_entities");
 Route::any('/package_entities_add', "API\PackagesController@package_entities_add");
-Route::any('/package_entities_edit', "API\PackagesController@package_entities_edit");
+Route::post('/package_entities_edit', "API\PackagesController@package_entities_edit");
 Route::any('/package_entities_delete/{id}', "API\PackagesController@package_entities_delete");
 Route::get('/user_activities', "API\PrimaryUserController@user_activities");
 Route::get('/user_activities_delete/{id}', "API\PrimaryUserController@user_activities_delete");

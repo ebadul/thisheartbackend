@@ -48,6 +48,7 @@ class PrimaryUserController extends BaseController
             $user= Auth::user();
             $primary_accounts = User:: where('user_type','2')-> count () ;
             $beneficiary_accounts = User:: where('user_type','3')-> count () ;
+         
             return view('admin.dashboard')->with(['user'=>$user,'primary_users'=>$primary_accounts ,'beneficiary_count'=>$beneficiary_accounts]);
         }else{
             return redirect('login');
