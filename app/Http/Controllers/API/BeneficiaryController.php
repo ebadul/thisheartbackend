@@ -45,7 +45,7 @@ class BeneficiaryController extends BaseController
             return response()->json([
                 'message' => 'Validation error,please check input field.',
             ], 400);
-
+             
         }else{
             $user_package = new UserPackage;
             $package_storage_action = $user_package->checkPkgEntityActionStop("beneficiaries");
@@ -396,7 +396,7 @@ class BeneficiaryController extends BaseController
             $beneficiaryInfo->last_name = Crypt::encryptString($rs->last_name);
             $beneficiaryInfo->user_id = $user->id;
             $beneficiaryInfo->email = Crypt::encryptString($rs->email);
-            $beneficiaryInfo->mail_address = '';
+            $beneficiaryInfo->mail_address = Crypt::encryptString($rs->mail_address);
             $beneficiaryInfo->mail_address2 = '';
             $beneficiaryInfo->city = '';
             $beneficiaryInfo->state = '';
