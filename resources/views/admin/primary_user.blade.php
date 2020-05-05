@@ -77,24 +77,25 @@
 
     <!-- Main content -->
     <div class="box-body">
+            @if ($message = Session::get('warning'))
+            <div class="alert alert-warning alert-block">
+              <button type="button" class="close" data-dismiss="alert">×</button>	
+                    <strong>{{ $message }}</strong>
+            </div>
+            @endif
+            @if ($message = Session::get('success'))
+            <div class="alert alert-success alert-block">
+              <button type="button" class="close" data-dismiss="alert">×</button>	
+                    <strong>{{ $message }}</strong>
+            </div>
+            @endif
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                 <div class="row">
                   <div class="col-sm-6">
-                    {{-- <div class="dataTables_length" id="example1_length">
-                      <label>Show 
-                      <select name="example1_length" aria-controls="example1" class="form-control input-sm">
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      </select> entries
-                      </label>
-                    </div> --}}
+                   
                   </div>
               <div class="col-sm-6">
-                {{-- <div id="example1_filter" class="dataTables_filter">
-                  <label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="example1"></label>
-                </div> --}}
+            
               </div>
               </div>
               <div class="row">

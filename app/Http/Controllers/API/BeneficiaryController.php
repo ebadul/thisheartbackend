@@ -391,6 +391,14 @@ class BeneficiaryController extends BaseController
 
         }else{
             $user = Auth::user();
+            $beneficiary_count = Beneficiary::where('user_id','=',$user->id)->count();
+            if($beneficiary_count>1){
+                return response()->json([
+                    'status'=>'error',
+                    'message' => "Sorry, To more than 2 beneficiary users isn't allowed for current package.",
+                ], 500);
+    
+            }
             $beneficiaryInfo = new Beneficiary();
             $beneficiaryInfo->first_name = Crypt::encryptString($rs->first_name);
             $beneficiaryInfo->last_name = Crypt::encryptString($rs->last_name);

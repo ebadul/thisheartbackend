@@ -103,7 +103,7 @@
                 <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
                 <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
                 <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
-                <th  tabindex="0" aria-controls="example1" >Delete</th>
+                <th  tabindex="0" aria-controls="example1" >Edit</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -274,7 +274,7 @@
                   <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
                   <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
                   <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
-                  <th  tabindex="0" aria-controls="example1" >Delete</th>
+                  <th  tabindex="0" aria-controls="example1" >Edit</th>
                 </tr>
                 </tfoot>
               </table>

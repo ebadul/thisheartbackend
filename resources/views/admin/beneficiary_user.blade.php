@@ -24,7 +24,18 @@
 
     <!-- Main content -->
     <div class="box-body">
-           
+              @if ($message = Session::get('warning'))
+              <div class="alert alert-warning alert-block">
+                <button type="button" class="close" data-dismiss="alert">×</button>	
+                      <strong>{{ $message }}</strong>
+              </div>
+              @endif
+              @if ($message = Session::get('success'))
+              <div class="alert alert-success alert-block">
+                <button type="button" class="close" data-dismiss="alert">×</button>	
+                      <strong>{{ $message }}</strong>
+              </div>
+              @endif
               <table id="example1" class="table table-bordered table-striped "    >
                 <thead>
                   <tr>
@@ -56,10 +67,10 @@
                       data-offstyle="danger" data-on="Active" data-off="InActive"/> 
                   </td>     
                   <td class="text-center" >
-                    <a href="/delete_beneficiary_user/{{$row['id']}}" 
-                      class="btn btn-block btn-danger" user-id="{{$row['id']}}"  
-                      type="button"   data-on="Active" data-off="InActive"  
-                      onclick="return confirm('Do you want to delete beneficiary user data')">
+                    <a href="{{url("/delete_beneficiary_user/".$row['id'])}}" 
+                      class="btn btn-block btn-danger" 
+                      role="button" 
+                      onclick="return confirm('Do you want to delete beneficiary user data')" alt="Delete Beneficiary User">
                       Delete</a>  
                     </td>         
                 </tr>

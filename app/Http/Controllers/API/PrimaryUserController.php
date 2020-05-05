@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 use App\User;
 use App\UserActivity;
 use App\InactiveUserNotify;
+use App\BeneficiaryUser;
+use App\Memories;
+use App\Account;
 use Validator;
 use Auth;
 use Mail;
@@ -161,13 +164,7 @@ class PrimaryUserController extends BaseController
     }
 
     public function inactive_user_send_email(Request $request){
-        // $table->dateTime('first_send_email');
-        // $table->dateTime('second_send_email');
-        // $table->dateTime('send_sms');
-        // $table->dateTime('send_email_beneficiary_user');
-        // $table->dateTime('send_sms_beneficiary_user');
-        // $table->dateTime('final_make_call');
-        // InactiveUserNotify
+       
         $user_id_list = $request->userList;
         $action_type = $request->actionType;
         $sendStatus = "";
@@ -230,41 +227,59 @@ class PrimaryUserController extends BaseController
             if(!empty($user_id))  {
                 $user = User::where('id','=',$user_id)->first();
                 if(!empty($user)){
+                    $memories_count = Memories::where('user_id','=',$user->id)->count();
+                    $account_count = Account::where('user_id','=',$user->id)->count();
+                    $beneficiary_count = User::where('beneficiary_id','=',$user->id)->count();
+                    if($memories_count>0 || $account_count>0|| $beneficiary_count>0){
+                        return redirect('/primary_user')->with("warning","Sorry, you can't delete this user because 
+                                                            user has memories, accounts or beneficiaries data!");  
+                    }
                     if($user->delete()){
-                        return redirect('/primary_user')->with(['deleteMsg'=>'User has been deleted successfully!']);
+                        return redirect('/primary_user')->with('success','User has been deleted successfully!');
                     }else{
-                        echo "User not deleted";
+                        return redirect('/primary_user')->with('warning','Sorry, user not deleted!');
                     }
                 }
             }
         }catch(Exception $ex){
-            echo "User not deleted" + $ex.getMessage();
+            return redirect('/primary_user')->with('warning','Sorry, user not deleted!');
         }
      
     }
 
-    public function delete_beneficiary_user($user_id){
-        try{
+    public function delete_beneficiary_user($user_id=null){
+  
+            $deleted = false;
             if(!empty($user_id))  {
                 $user = User::where('id','=',$user_id)->first();
                 if(!empty($user)){
                     $user_email = $user->email;
                     if($user->delete()){
                         $beneficiary_user = BeneficiaryUser::where('email','=',$user_email
-                        )->firstOrFail();
+                        )->first();
                         if(!empty($beneficiary_user)){
                             $beneficiary_user->delete();
-                        }else{
-                            echo "User not deleted!";
-                        }
+                            $deleted = true;
+                        } 
+                        $deleted = true;
                         
-                        return redirect('/beneficiary_user')->with(['deleteMsg'=>'User has been deleted successfully!']);
+                    }else{
+                        $deleted = false;
                     }
+                }else{
+                    $deleted = false;
                 }
+            }else{
+                $deleted = false;
             }
-        }catch(Exception $ex){
-            echo "User not deleted" + $ex.getMessage();
+       
+
+        if($deleted){
+            return redirect()->back()->with('success','User has been deleted successfully!');
+        }else{
+            return redirect()->back()->with('warning','Sorry, user not deleted!');
         }
+        
     }
 
     public function user_activities_delete($activities_id){
@@ -277,7 +292,7 @@ class PrimaryUserController extends BaseController
     }
     
     public function inactive_user_notify_edit(Request $rs){
-        //$package_info = PackageEntitiesInfo::all();
+         
         $user = Auth::user();
         if($rs->isMethod('post')){
             try{

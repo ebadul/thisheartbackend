@@ -41,6 +41,20 @@
 
     <!-- Main content -->
     <div class="box-body">
+
+      
+            @if ($message = Session::get('warning'))
+            <div class="alert alert-warning alert-block">
+              <button type="button" class="close" data-dismiss="alert">×</button>	
+                    <strong>{{ $message }}</strong>
+            </div>
+            @endif
+            @if ($message = Session::get('success'))
+            <div class="alert alert-success alert-block">
+              <button type="button" class="close" data-dismiss="alert">×</button>	
+                    <strong>{{ $message }}</strong>
+            </div>
+            @endif
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                 <div class="row">
              
@@ -64,8 +78,8 @@
                 @foreach ( $package_entity  as $row )
                   <tr role="row" class="odd">
                     
-                    <td>{{ $row->package_info->package}}</td>
-                    <td>{{ !empty($row->entity_info->package_entity_title)?
+                    <td>{{ !empty($row->package_info)?$row->package_info->package:''}}</td>
+                    <td>{{ !empty($row->entity_info)?
                            $row->entity_info->package_entity_title:''}}</td>
                     <td>{{ ($row['entity_value']==="-1")?'Unlimited':$row['entity_value']}}</td>
                     <td>{{ $row['entity_unit']}}</td>

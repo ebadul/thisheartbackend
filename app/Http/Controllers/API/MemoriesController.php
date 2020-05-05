@@ -486,9 +486,10 @@ class MemoriesController extends BaseController
 
     public function content_dashboard(Request $rs){
         $user = Auth::user();
-        $memoriesInfoUser = Memories::where('user_id','=',$user->id);
-        $memoriesImage =  $memoriesInfoUser->where('filetype','=','image')->orderBy('id','desc')->get();
-        $memoriesVideo =  $memoriesInfoUser->where('filetype','=','video')->orderBy('id','desc')->get();
+        $memoriesInfo1 = Memories::where('user_id','=',$user->id);
+        $memoriesInfo2 = Memories::where('user_id','=',$user->id);
+        $memoriesImage =  $memoriesInfo1->where('filetype','=','image')->orderBy('id','desc')->get();
+        $memoriesVideo =  $memoriesInfo2->where('filetype','=','video')->orderBy('id','desc')->get();
         $accountInfo = Account::where('user_id','=',$user->id)->get(['acc_type','acc_name']);
         $accList = [];
         foreach($accountInfo as $acc){

@@ -208,28 +208,45 @@ class PackagesController extends Controller
     public function delete_package_info($package_id){
         $package_info = PackageInfo::where('id','=',$package_id)->first();
         if(!empty($package_info)){
-            $package_info->delete();
+            if($package_info->delete()){
+                return redirect('/package_info')->with('success','Package deleted successfully');
+            }else{
+                return redirect('/package_info')->with('warning','Sorry, package not deleted'); 
+            }
+        }else{
+            return redirect('/package_info')->with('warning','Sorry, package not deleted');
         }
     
-        return redirect('/package_info');
+        
     }
 
     public function user_package_delete($package_id){
         $user_package = UserPackage::where('id','=',$package_id)->first();
+        $deleted = false;
         if(!empty($user_package)){
-            $user_package->delete();
+            $deleted = $user_package->delete();
         }
-
-        return redirect('/user_package')->withErrors(['Successfully, user package deleted!']);
+        if( $deleted){
+            return redirect('/user_package')->with('success','user package deleted successfully!');
+        }else{
+            return redirect('/user_package')->with('warning','Sorry, user package not deleted!');
+        }
+        
     }
 
     public function package_entities_delete($package_entity_id){
         $package_entity = PackageEntity::where('id','=',$package_entity_id)->first();
-        if(!empty($package_entity)){
-            $package_entity->delete();
-        }
         $user = Auth::user();
-        return redirect('/package_entity'.'/'.$package_entity->package_id);
+        $deleted = false;
+        if(!empty($package_entity)){
+            $deleted = $package_entity->delete();
+        }
+        if($deleted){
+            return redirect('/package_entity'.'/'.$package_entity->package_id)->with('success','Package entity deleted successfully!');
+        }else{
+            return redirect('/package_entity'.'/'.$package_entity->package_id)->with('warning','Sorry, package entity not deleted!');
+        }
+        
     }
 
     public function package_entities_info(){
@@ -335,9 +352,9 @@ class PackagesController extends Controller
              $package_entities_info = PackageEntitiesInfo::where('id','=',$entity_id)->delete();
         }
         if( $package_entities_info){
-            return redirect('/package_entities_info');
+            return redirect('/package_entities_info')->with('success','Entity info deleted successfully!');
         }else{
-            return redirect('/package_entities_info');
+            return redirect('/package_entities_info')->with('warning','Sorry, entity info not deleted!');
         }
     }
 
