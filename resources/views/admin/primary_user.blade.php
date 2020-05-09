@@ -77,24 +77,25 @@
 
     <!-- Main content -->
     <div class="box-body">
+            @if ($message = Session::get('warning'))
+            <div class="alert alert-warning alert-block">
+              <button type="button" class="close" data-dismiss="alert">×</button>	
+                    <strong>{{ $message }}</strong>
+            </div>
+            @endif
+            @if ($message = Session::get('success'))
+            <div class="alert alert-success alert-block">
+              <button type="button" class="close" data-dismiss="alert">×</button>	
+                    <strong>{{ $message }}</strong>
+            </div>
+            @endif
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                 <div class="row">
                   <div class="col-sm-6">
-                    <div class="dataTables_length" id="example1_length">
-                      <label>Show 
-                      <select name="example1_length" aria-controls="example1" class="form-control input-sm">
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      </select> entries
-                      </label>
-                    </div>
+                   
                   </div>
               <div class="col-sm-6">
-              <div id="example1_filter" class="dataTables_filter">
-                <label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="example1"></label>
-              </div>
+            
               </div>
               </div>
               <div class="row">
@@ -102,7 +103,7 @@
               <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                 <thead>
                 <tr role="row">
-                <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 182px;">User Id</th>
+                
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User Full Name</th>
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Email</th>
                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Mobile</th>
@@ -114,21 +115,32 @@
                <?php if( $primary_accounts ):?>
                 @foreach ( $primary_accounts  as $row )
                 <tr role="row" class="odd">
-                   <td>{{ $row['id']}}</td>
-                   <td>{{ Crypt::decryptString($row['name'])}}</td>
-                   <td>{{ $row['email']}}</td>
-                   <td>{{ $row['mobile']}}</td>
-                   <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
-                  </td>
-                  <td class="text-center"  ><input class="activeSts" user-id="{{$row['id']}}"  type="checkbox" {{$row["active"] ? "checked" : ""}} data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="InActive"/> 
-                </td>
+                   
+                    <td>{{ Crypt::decryptString($row['name'])}}</td>
+                    <td>{{ $row['email']}}</td>
+                    <td>{{ $row['mobile']}}</td>
+                    {{--  <td>
+                      <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
+                    </td>  --}}
+                    <td class="text-center"  >
+                      <input class="activeSts checkbox" user-id="{{$row['id']}}"  
+                      type="checkbox" {{$row["active"] ? "checked" : ""}} 
+                      data-toggle="toggle" data-onstyle="success" 
+                      data-offstyle="danger" 
+                      data-on="Active" data-off="InActive"/> 
+                    </td>
+                    <td class="text-center"  >
+                      <a href="/delete_primary_user/{{$row['id']}}" 
+                      class="btn btn-danger" user-id="{{$row['id']}}"  
+                      type="button"   data-on="Active" data-off="InActive"  
+                      onclick="return confirm('Do you want to delete user data')">Delete</a> 
+                    </td>
                 </tr>
                 @endforeach
               <?php endif;?>
                 </tbody>
                 <tfoot>
-                <tr><th rowspan="1" colspan="1">User Id</th><th rowspan="1" colspan="1">User Name</th><th rowspan="1" colspan="1">Email</th><th rowspan="1" colspan="1">Mobile</th> <th>Action</th> <th>Status</th></tr>
+                <tr><th rowspan="1" colspan="1">User Name</th><th rowspan="1" colspan="1">Email</th><th rowspan="1" colspan="1">Mobile</th> <th>Action</th> <th>Status</th></tr>
                 </tfoot>
               </table>
               </div>
@@ -206,13 +218,13 @@
   $(document).ready(function() {
     $('.activeSts').change(function() {
       var userid = $(this).attr('user-id') ;
-     //console.log("Active item on Id :::", userid);
+      console.log("Active item on Id :::", userid);
       var status = $(this).prop('checked') == true ? 1 : 0; 
       //console.log("Active Status :::", status); 
         $.ajax({
             type: "post",
             dataType: "json",
-            url: "http://127.0.0.1:8000/user_status", 
+            url: "./user_status", 
             data: {'active': status, 'user_id': userid},
             beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
@@ -221,9 +233,25 @@
         },
             success: function(data){
               console.log(data.success)
+              $.toast({
+                            heading: 'Information',
+                            text: 'Successfully, primary user status changed!',
+                            icon: 'info',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#B0BF1A'  // To change the background
+                        })
             },
             error:function(error){
-            console.log("error :", error);
+              $.toast({
+                            heading: 'Information',
+                            text: 'Sorry, user status not changed!',
+                            icon: 'error',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#FF6A4D'  // To change the background
+                        })
+            console.log("error from server :", error.response.message);
       }  
         });
     });
@@ -296,8 +324,8 @@
   $(function () {
     $('#example1').dataTable({
       'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
+      'lengthChange': true,
+      'searching'   : true,
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false

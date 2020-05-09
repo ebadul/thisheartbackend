@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 use App\User;
 use App\UserActivity;
 use App\InactiveUserNotify;
+use App\BeneficiaryUser;
+use App\Memories;
+use App\Account;
 use Validator;
 use Auth;
 use Mail;
@@ -48,6 +51,7 @@ class PrimaryUserController extends BaseController
             $user= Auth::user();
             $primary_accounts = User:: where('user_type','2')-> count () ;
             $beneficiary_accounts = User:: where('user_type','3')-> count () ;
+         
             return view('admin.dashboard')->with(['user'=>$user,'primary_users'=>$primary_accounts ,'beneficiary_count'=>$beneficiary_accounts]);
         }else{
             return redirect('login');
@@ -123,11 +127,22 @@ class PrimaryUserController extends BaseController
     }
     public function changeStatus(Request $request)
     {
-        $data = User::find($request->user_id);
-        $data->active = $request->active;
-        $data->save();
+        $user = User::where('id','=',$request->user_id)->first();
+        $user->active = $request->active;
+        if($user->save()){
+            return response()->json([
+                'status'=>'success',
+                'success'=>'Status change successfully.'
+                ]);
+        }else{
+            return response()->json([
+                'status'=>'error',
+                'data'=>$request->all(),
+                'message'=>'sorry, user status is not changed!.'
+                ]);
+        }
         
-        return response()->json(['success'=>'Status change successfully.']);
+        
     }
 
     public function inactive_primary_users () {
@@ -149,13 +164,7 @@ class PrimaryUserController extends BaseController
     }
 
     public function inactive_user_send_email(Request $request){
-        // $table->dateTime('first_send_email');
-        // $table->dateTime('second_send_email');
-        // $table->dateTime('send_sms');
-        // $table->dateTime('send_email_beneficiary_user');
-        // $table->dateTime('send_sms_beneficiary_user');
-        // $table->dateTime('final_make_call');
-        // InactiveUserNotify
+       
         $user_id_list = $request->userList;
         $action_type = $request->actionType;
         $sendStatus = "";
@@ -212,4 +221,133 @@ class PrimaryUserController extends BaseController
         ]);
     }
 
+
+    public function delete_primary_user($user_id){
+        try{
+            if(!empty($user_id))  {
+                $user = User::where('id','=',$user_id)->first();
+                if(!empty($user)){
+                    $memories_count = Memories::where('user_id','=',$user->id)->count();
+                    $account_count = Account::where('user_id','=',$user->id)->count();
+                    $beneficiary_count = User::where('beneficiary_id','=',$user->id)->count();
+                    if($memories_count>0 || $account_count>0|| $beneficiary_count>0){
+                        return redirect('/primary_user')->with("warning","Sorry, you can't delete this user because 
+                                                            user has memories, accounts or beneficiaries data!");  
+                    }
+                    if($user->delete()){
+                        return redirect('/primary_user')->with('success','User has been deleted successfully!');
+                    }else{
+                        return redirect('/primary_user')->with('warning','Sorry, user not deleted!');
+                    }
+                }
+            }
+        }catch(Exception $ex){
+            return redirect('/primary_user')->with('warning','Sorry, user not deleted!');
+        }
+     
+    }
+
+    public function delete_beneficiary_user($user_id=null){
+  
+            $deleted = false;
+            if(!empty($user_id))  {
+                $user = User::where('id','=',$user_id)->first();
+                if(!empty($user)){
+                    $user_email = $user->email;
+                    if($user->delete()){
+                        $beneficiary_user = BeneficiaryUser::where('email','=',$user_email
+                        )->first();
+                        if(!empty($beneficiary_user)){
+                            $beneficiary_user->delete();
+                            $deleted = true;
+                        } 
+                        $deleted = true;
+                        
+                    }else{
+                        $deleted = false;
+                    }
+                }else{
+                    $deleted = false;
+                }
+            }else{
+                $deleted = false;
+            }
+       
+
+        if($deleted){
+            return redirect()->back()->with('success','User has been deleted successfully!');
+        }else{
+            return redirect()->back()->with('warning','Sorry, user not deleted!');
+        }
+        
+    }
+
+    public function user_activities_delete($activities_id){
+        $user_activity = UserActivity::where('id','=',$activities_id)->first();
+        if(!empty($user_activity)){
+            $user_activity->delete();
+        }
+
+        return redirect('/user_activities');
+    }
+    
+    public function inactive_user_notify_edit(Request $rs){
+         
+        $user = Auth::user();
+        if($rs->isMethod('post')){
+            try{
+                $id = $rs->id;
+                $user_id = $rs->user_id;
+                $last_login = $rs->last_login;
+                $notes = $rs->notes;
+                $inactive_user_notify = InactiveUserNotify::where('id','=',$id)->first();
+                if(!empty($inactive_user_notify)){
+                    $inactive_user_notify->last_login = $last_login;
+                    $inactive_user_notify->notes = $notes;
+                    $save_inactive_user_notify = $inactive_user_notify->save();
+                    if($save_inactive_user_notify){
+                        return response()->json([
+                            'status'=>'success',
+                            'message'=>'Data saved successfully!'
+                        ]);
+                    }else{
+                        
+                        return response()->json([
+                            'status'=>'error',
+                            'message'=>'Sorry, data saved fail!',
+                            'data'=>$rs->all(),
+                        ],500);
+                    }
+                }else{
+                    $inactive_user_notify = new InactiveUserNotify;
+                    $inactive_user_notify->user_id = $user_id;
+                    $inactive_user_notify->last_login = $last_login;
+                    $inactive_user_notify->notes = $notes;
+                    $save_inactive_user_notify = $inactive_user_notify->save();
+                    if($save_inactive_user_notify){
+                        return response()->json([
+                            'status'=>'success',
+                            'message'=>'Data saved successfully!'
+                        ]);
+                    }else{
+                        
+                        return response()->json([
+                            'status'=>'error',
+                            'message'=>'Sorry, data saved fail!',
+                            'data'=>$rs->all(),
+                        ],500);
+                    }
+                }
+            }catch(Exception $ex){
+                return response()->json([
+                    'status'=>'error',
+                    'message'=>$ex->getMessage()
+                ],500);  
+            }
+            
+        }
+        
+             
+        
+    }
 }

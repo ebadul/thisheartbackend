@@ -7,12 +7,18 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use App\Memories;
 use App\ImageList;
 use App\SocialPhotos;
+use App\UserPackage;
+use App\Account;
+use App\Beneficiary;
+use App\MedicalHistory;
 use Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use File;
+use Storage;
 use Auth;
+use Crypt;
 
 class MemoriesController extends BaseController
 {
@@ -23,12 +29,29 @@ class MemoriesController extends BaseController
         $tmpMemories =[];
         
         if ($request->hasFile('imagesFiles')) {
+            $user_package = new UserPackage;
+            // $package_count_action = $user_package->checkPkgEntityActionStop("images");
+           
+            // if($package_count_action){
+            //     return response()->json([
+            //         'message' => "Sorry, your package exceeds the store more images",
+            //     ], 500); 
+            // }
+
+            $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
+            if($package_storage_action){
+                return response()->json([
+                    'message' => "Sorry, your package exceeds the storage limit",
+                    'storage'=>$package_storage_action
+                ], 500); 
+            }
+
             $imageFile = $request->file('imagesFiles');
             foreach($imageFile as $image){
                 $imageName = str_random(60);
            
                 $name = $imageName.'.'.$image->extension();
-                $path_str = 'uploads/images/'.$user->id;
+                $path_str = 'uploads/'.$user->id.'/images';
                 
                 $path = $image->storeAs($path_str,$name);
                 $file_name = $image->getClientOriginalName();
@@ -141,18 +164,22 @@ class MemoriesController extends BaseController
         $memoriesInfo = Memories::findOrfail($id);
 
         //Delete file from disk.
-        $image_path = storage_path()."uploads/images/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        // $image_path = storage_path()."uploads/images/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        $image_path = public_path('/').$memoriesInfo->filename;
         //Log::info("file path = ".$image_path);
         if (File::exists($image_path)) {
             Log::info("file exist");
             File::delete($image_path);
+            
         }
 
         if($memoriesInfo->delete()) {
 
             return response()->json([
+                'status'=>'success',
                 'message' => 'Data deleted successfully!',
-                'data' => $memoriesInfo
+                'data' => $memoriesInfo,
+                'filepath'=>$image_path
             ],200);
         }
     }
@@ -182,24 +209,30 @@ class MemoriesController extends BaseController
     {
         $max_size = (int)ini_get('upload_max_filesize') * 1000000;
         $user = Auth::user();
-        //Log::info("Image File = ".$request->file('image'));|max:10000040
-        // $data=$request->all();
-        // $rules=['video' =>'mimetypes:video/x-ms-asf,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/avi|max:'.$max_size.'|required'];
-        // $validator = Validator($data,$rules);
-        
-        // if ($validator->fails()){
-        //     return response()->json([
-        //         'message' => 'Please select valid video file.',
-        //     ], 400);
-
-        
+  
             if($request->hasFile('videos')){
+                $user_package = new UserPackage;
+                // $package_action = $user_package->checkPkgEntityActionStop("videos");
+                // if($package_action){
+                //     return response()->json([
+                //         'message' => "Sorry, your package exceeds the store more video",
+                //     ], 500); 
+                // }
+
+                $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
+                if($package_storage_action){
+                    return response()->json([
+                        'message' => "Sorry, your package exceeds the storage limit",
+                        'storage'=>$package_storage_action
+                    ], 500); 
+                }
+
                 $videos = $request->file('videos');
                 $memoriesTmp = [];
                 foreach($videos as $video){
                     $videoName = str_random(60);
                     $name = $videoName.'.'.$video->getClientOriginalExtension();
-                    $path_str = 'uploads/videos/'.$user->id;
+                    $path_str = 'uploads/'.$user->id.'/videos';
                     $path = $video->storeAs($path_str,$name);
                     $file_name = $video->getClientOriginalName();
                     $title = pathinfo($file_name, PATHINFO_FILENAME);;
@@ -273,14 +306,16 @@ class MemoriesController extends BaseController
         //Get the task
         $memoriesInfo = Memories::findOrfail($id);
         //Delete file from disk.
-        $video_path = storage_path()."uploads/videos/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        $video_path = public_path('/').$memoriesInfo->filename;
         if (File::exists($video_path)) {
             Log::info("file path = ".$video_path);
             File::delete($video_path);
+            
         }
 
         if($memoriesInfo->delete()) {
             return response()->json([
+                'status'=>'success',
                 'message' => 'Data deleted successfully!',
                 'data' => $memoriesInfo
             ],200);
@@ -293,13 +328,30 @@ class MemoriesController extends BaseController
         $user = Auth::user();
 
             if($request->hasFile('audios')){
+
+                $user_package = new UserPackage;
+                // $package_action = $user_package->checkPkgEntityActionStop("records");
+                // if($package_action){
+                //     return response()->json([
+                //         'message' => "Sorry, your package exceeds the store more record",
+                //     ], 500); 
+                // }
+
+                $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
+                if($package_storage_action){
+                    return response()->json([
+                        'message' => "Sorry, your package exceeds the storage limit",
+                        'storage'=>$package_storage_action
+                    ], 500); 
+                }
+
                 $audios = $request->file('audios');
                 $memoriesTmp = [];
                 foreach($audios as $audio){
                     $audioName = str_random(60);
                 
                     $name = $audioName.'.'.$audio->getClientOriginalExtension();
-                    $path_str = 'uploads/audios/'.$user->id;
+                    $path_str = 'uploads/'.$user->id.'/audios';
                     $path = $audio->storeAs($path_str,$name);
 
                     $file_name = $audio->getClientOriginalName();
@@ -352,18 +404,108 @@ class MemoriesController extends BaseController
         //Get the task
         $memoriesInfo = Memories::findOrfail($id);
         //Delete file from disk.
-        $video_path = storage_path()."uploads/audios/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        // $video_path = storage_path()."uploads/audios/".$memoriesInfo->user_id."/".$memoriesInfo->filename;
+        $video_path = public_path('/').$memoriesInfo->filename;
         if (File::exists($video_path)) {
             Log::info("file path = ".$video_path);
             File::delete($video_path);
+             
         }
 
         if($memoriesInfo->delete()) {
             return response()->json([
+                'status'=>'success',
                 'message' => 'Data deleted successfully!',
                 'data' => $memoriesInfo
             ],200);
         }
+    }
+
+    public function searchAll(Request $rs){
+        try{
+            $user = Auth::user();
+            $search_text = $rs->search_text;
+            $memoriesInfo = Memories::where('user_id','=',$user->id)->get();
+            $search_text_str = Crypt::encryptString($search_text);
+            $accountInfo = Account::where('user_id','=',$user->id)->get();
+            $accList = [];
+            foreach($accountInfo as $acc){
+                $acc->acc_type = Crypt::decryptString($acc->acc_type);
+                $acc->acc_name = Crypt::decryptString($acc->acc_name);
+                $acc->acc_url = Crypt::decryptString($acc->acc_url);
+                $acc->acc_description = Crypt::decryptString($acc->acc_description);
+                $acc->acc_user_name = Crypt::decryptString($acc->acc_user_name);
+                $acc->acc_password = Crypt::decryptString($acc->acc_password);
+                $accList []= $acc;
+            }
+            $beneficiariesInfo = Beneficiary::where('user_id','=',$user->id)->get();
+            $beneList = [];
+            foreach($beneficiariesInfo as $beneficiary){
+                $beneficiary->last_4_beneficiary = Crypt::decryptString($beneficiary->last_4_beneficiary);
+                $beneficiary->first_name = Crypt::decryptString($beneficiary->first_name);
+                $beneficiary->last_name = Crypt::decryptString($beneficiary->last_name);
+                $beneficiary->mail_address = !empty($beneficiary->mail_address)?Crypt::decryptString($beneficiary->mail_address):$beneficiary->mail_address;
+                $beneficiary->mail_address2 = !empty($beneficiary->mail_address2)?Crypt::decryptString($beneficiary->mail_address2):$beneficiary->mail_address2;
+                $beneficiary->city = !empty($beneficiary->city)?Crypt::decryptString($beneficiary->city):$beneficiary->city;
+                $beneficiary->state = !empty($beneficiary->state)?Crypt::decryptString($beneficiary->state):$beneficiary->state;
+                $beneficiary->zip = !empty($beneficiary->zip)?Crypt::decryptString($beneficiary->zip):$beneficiary->zip;
+                $beneficiary->email = !empty($beneficiary->email)?Crypt::decryptString($beneficiary->email):$beneficiary->email;
+                $beneList []= $beneficiary;
+            }
+
+            $medical_history = MedicalHistory::where('user_id','=',$user->id)->get();
+            $medicalHistory = [];
+            foreach($medical_history as $medical){
+                $medical->diagnosis_name = $medical->diagnosisInfo->diagnosis_name;
+                $medicalHistory []= $medical;
+            }
+
+
+            if(!empty($memoriesInfo)){
+                return response()->json([
+                    'status'=>'success',
+                    'memories' => $memoriesInfo,
+                    'accounts' => $accList,
+                    'beneficiaries' => $beneList,
+                    'medicals' => $medicalHistory,
+                ],200);
+            }else{
+                return response()->json([
+                    'status'=>'success',
+                    'data' => $memoriesInfo
+                ],200);
+            }
+           
+        }catch(Exception $ex){
+            return response()->json([
+                'status'=>'error',
+                'data' => $ex->getMessage()
+            ],500);
+        }
+    }
+
+    public function content_dashboard(Request $rs){
+        $user = Auth::user();
+        $memoriesInfo1 = Memories::where('user_id','=',$user->id);
+        $memoriesInfo2 = Memories::where('user_id','=',$user->id);
+        $memoriesImage =  $memoriesInfo1->where('filetype','=','image')->orderBy('id','desc')->get();
+        $memoriesVideo =  $memoriesInfo2->where('filetype','=','video')->orderBy('id','desc')->get();
+        $accountInfo = Account::where('user_id','=',$user->id)->get(['acc_type','acc_name']);
+        $accList = [];
+        foreach($accountInfo as $acc){
+            $acc->acc_type = Crypt::decryptString($acc->acc_type);
+            $acc->acc_name = Crypt::decryptString($acc->acc_name);
+            $accList []= $acc;
+        }
+
+        $accountInfo->acc_count = $acc->where('user_id','=',$user->id)->count();
+
+        return response()->json([
+            'status'=>'success',
+            'memoriesImage' => $memoriesImage,
+            'memoriesVideo' => $memoriesVideo,
+            'accounts' => $accList,
+        ],200);
     }
    
 }

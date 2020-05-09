@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Http\Request;
 
 use App\Letters;
+use App\UserPackage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -20,16 +21,29 @@ class LettersController extends BaseController
         // $validator = Validator::make($request->all(), [
         //     'subject' => 'required'
         // ]);
-        if($request->subject == ""){
+        if($request->subject === ""){
             return response()->json([
+                'status'=>'error',
                 'message' => 'Subject field could not be empty.'
-            ],422);
+            ],500);
         }
 
-        if($request->description == ""){
+        if($request->description === ""){
             return response()->json([
+                'status'=>'error',
                 'message' => 'Description field could not be empty.'
-            ],422);
+            ],500);
+        }
+
+        $user_package = new UserPackage;
+        $package_storage_action = $user_package->checkPkgEntityActionStop("letters");
+        if($package_storage_action){
+            return response()->json([
+                'status'=>'error',
+                'code'=>'exceeds-letters',
+                'message' => "Sorry, your package exceeds the letters saved limit",
+                'storage'=>$package_storage_action
+            ], 500); 
         }
 
         $lettersInfo = new Letters();

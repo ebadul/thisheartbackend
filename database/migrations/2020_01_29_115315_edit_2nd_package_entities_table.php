@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePackageEntitiesTable extends Migration
+class Edit2ndPackageEntitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreatePackageEntitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('package_entities', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('package_id');
-            $table->string('package_entities_id');
-            $table->string('entity_value');
-            $table->string('entity_status');
-            $table->timestamps();
+        Schema::table('package_entities', function (Blueprint $table) {
+           
+         
+            $table->string('entity_unit')->nullable()->after('id');
+            
+            
         });
     }
 

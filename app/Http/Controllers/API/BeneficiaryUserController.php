@@ -29,12 +29,8 @@ class BeneficiaryUserController extends BaseController
     public function updateBnUserById(Request $request)
     {
 
-        $data = BeneficiaryUser::find($request->user_id); // data field fillup ! 
-
-            $data->user_id = $request->userId;
+            $data = User::where('id','=',$request->user_id)->first(); // data field fillup ! 
             $data->beneficiary_id = $request->beneficiary_id;
-            $data ->email = $request->email;
-
             $data->save();
         
         return response()->json([
@@ -46,10 +42,13 @@ class BeneficiaryUserController extends BaseController
 
     public function changeStatus(Request $request)
     {
-        $data = BeneficiaryUser::find($request->user_id);
+        $data = User::where('id','=',$request->user_id)->first();
         $data->active = $request->active;
         $data->save();
   
-        return response()->json(['success'=>'Status change successfully.']);
+        return response()->json([
+            'status'=>'success',
+            'success'=>'Status change successfully.'
+            ]);
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use App\NewsletterSubscription;
+use App\Mail\ContactUsMail;
 use Mail;
 
 
@@ -53,6 +54,27 @@ class WebController extends BaseController
         }
                 
             
-    }   
+    }  
+    
+    public function send_contactus_message(Request $rs){
+
+        try{
+            Mail::to('thisheartmailer@gmail.com')->send(new ContactUsMail($rs));
+            Mail::to($rs->userEmail)->send(new ContactUsMail($rs));
+            if(true){
+                return response()->json([
+                    'status'=>'success',
+                    'data' => $rs->all(),
+                ], 200);
+            } 
+        }catch(Exception $ex){
+            return response()->json([
+                'status'=>'error',
+                'message' => $ex->getMessage(),
+                 
+            ], 500);
+        }
+       
+    }
      
 }

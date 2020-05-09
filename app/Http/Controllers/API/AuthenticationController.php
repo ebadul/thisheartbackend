@@ -11,6 +11,9 @@ use App\EmailVerification;
 use App\UserActivity;
 use App\OtpSetting;
 use App\InactiveUserNotify;
+use App\PackageInfo;
+use App\UserPackage;
+use App\Mail\MailNotifyFifteenDaysMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Lcobucci\JWT\Parser;
@@ -53,16 +56,31 @@ class AuthenticationController extends BaseController
                 'code'=>'email'
             ], 401);
         }else{
+
+            if($user->email_verified===0){
+                return response()->json([
+                    'status'=>'error',
+                    'message' => "Sorry, this email isn't verified",
+                    'code'=>'email'
+                ], 401);
+            }
+
+            if($user->active===0){
+                return response()->json([
+                    'status'=>'error',
+                    'message' => "Sorry, user isn't actived",
+                    'code'=>'email'
+                ], 401);
+            }
+
             
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
 
-                if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+                if(Auth::attempt(['email' => $request->email, 'password' => $request->password,'email_verified'=>1])){
                     $user = Auth::user();
                     $tokenResult = $user->createToken('ThisHeartAccessToken');
                     $accountProgressStatus = true;
-                    //Check all account progress data.
-                    //$user->forceFill(['token'=>$tokenResult->accessToken])->save();
                     $accountProgressStatus = $this->checkAccountProgressData($user->id);
                     $checkAccountWizard = $this->checkAccountWizard($user->id);
                    
@@ -93,9 +111,40 @@ class AuthenticationController extends BaseController
                     $user->last_login=Carbon::now();
                     $user->save();
 
-                    $user_pkg = $user->user_package->last();
+                    $user_pkg = $user->user_package;
                     if(!empty( $user_pkg)){
+                        $now = Carbon::now();
+                        $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
+                        $diff = $expire_date->diffInDays($now);
                         $user_pkg->push('package_info',$user_pkg->package_info);
+                        $user_pkg->access_url = $this->access_url;
+                        $user_pkg->remaining_days = $diff;
+                        $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
+                        if($now > $expire_date){
+                            return response()->json([
+                                'status'=>'error',
+                                'message' => 'This user package subscription is expired!',
+                                'code'=>'user_type',
+                            ], 400);
+                        }else{
+                            if($diff<16){
+                                if(!$inactive_user_notify->package_expire_notify){
+                                    $inactive_user_notify->package_expire_notify = 1;
+                                    $inactive_user_notify->save();
+                                    Mail::to($user->email)->send(new MailNotifyFifteenDaysMail($user, $user_pkg));
+                                }
+                            }
+                        }
+                        
+                        //$user_pkg->push('package_info',$user_pkg->package_info);
+                    }
+
+                    $user_type = $user->user_types->user_type;
+                    if($user_type==="beneficiary"){
+                        $primary_user = $user->primary_user ;
+                        if($primary_user){
+                            $primary_user->name = Crypt::decryptString($primary_user->name);
+                        } 
                     }
 
                     return response()->json([
@@ -110,13 +159,17 @@ class AuthenticationController extends BaseController
                         'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
                         'data'=>$user,
                         'sub_plan'=>$user_pkg,
+                        'primary_user'=>$user->primary_user,
                         'primary_user_id'=>$user->beneficiary_id,
                         'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
                         'profile_image'=>!empty($user->image_list[0]->image_url)?$user->image_list[0]->image_url:''
                     ], 200);
                 }
                 else{
-                    return response()->json(['error'=>'Unauthorised'], 401);
+                    return response()->json([
+                        'error'=>'Unauthorised',
+                        'message' => 'Sorry, that didn’t work. Please try again',
+                    ], 401);
                 }
             
             }else{
@@ -201,6 +254,21 @@ class AuthenticationController extends BaseController
             $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
         });
 
+        $sub_plan = PackageInfo::where('package','=','Trial Package')->first();
+        
+        if(!empty($sub_plan)){
+            $user_id = $user->id;
+            $pkgData = [
+                'user_id'=>$user_id,
+                'package_id'=>$sub_plan->id
+            ];
+            $user_package = new UserPackage;
+            $user_pkg = $user_package->saveUserPackage($pkgData);
+            $user_pkg->push('package_info',$user_pkg->package_info);
+            
+        }
+        
+
         return response()->json([
             'status' => 'success',
             'message' => 'User registered successfully!',
@@ -211,7 +279,9 @@ class AuthenticationController extends BaseController
             'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
             'data'=>$user,
             'primary_user_id'=>$user->beneficiary_id,
-            'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:''
+            'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
+            'package_info'=>$user_pkg->package_info,
+            'sub_plan'=>$user_pkg,
         ], 200);
     }
 
@@ -393,8 +463,6 @@ class AuthenticationController extends BaseController
     public function loginBeneficiaryUser(Request $request){
 
         $user = BeneficiaryUser::where('email', '=', $request->email)->first();
-        //Log::info("Email = ".$request->email);
-        //Log::info("Password = ".$request->password);
 
         if($user === null){
             return response()->json([

@@ -13,6 +13,8 @@ use App\ImageList;
 use App\EmailVerification;
 use App\UserPackage;
 use App\InactiveUserNotify;
+use App\PackageEntitiesInfo;
+use App\PackageEntity;
 
 class User extends Authenticatable
 {
@@ -85,10 +87,18 @@ class User extends Authenticatable
     }
 
     public function user_package(){
-        return $this->hasMany(UserPackage::class);
+        return $this->hasOne(UserPackage::class);
+    }
+
+    public function user_entities(){
+        return $this->hasMany(PackageEntity::class,'package_id',UserPackage::class,'user_id');
     }
 
     public function inactive_user_notify(){
         return $this->hasOne(InactiveUserNotify::class);
+    }
+
+    public function primary_user(){
+        return $this->belongsTo(User::class,'beneficiary_id');
     }
 }

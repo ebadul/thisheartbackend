@@ -3,61 +3,7 @@
 @section('content')
 
 <div class="wrapper">
-<header class="main-header">
-    <!-- Logo -->
-    <a href="dashboard" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>A</b>LT</span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>Admin</b>This Heart</span>
-    </a>
-    <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Toggle navigation</span>
-      </a>
-
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <!-- Messages: style can be found in dropdown.less-->
-          <!-- Notifications: style can be found in dropdown.less -->
-
-          <!-- Tasks: style can be found in dropdown.less -->
-
-          <!-- User Account: style can be found in dropdown.less -->
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="AdminLTE/dist/img/userphoto.jpg" class="user-image" alt="User Image">
-            <span class="hidden-xs">{{$user->email}}</span>
-            </a>
-            <ul class="dropdown-menu">
-              <!-- User image -->
-              <li class="user-header">
-                <img src="AdminLTE/dist/img/userphoto.jpg" class="img-circle" alt="User Image">
-
-                <p>
-                  Admin This Heart - Web Developer
-                  <small>Member since Nov. 2012</small>
-                </p>
-              </li>
-              <!-- Menu Body -->
-              <!-- Menu Footer-->
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="#" class="btn btn-default btn-flat">Profile</a>
-                </div>
-                <div class="pull-right">
-                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-          <!-- Control Sidebar Toggle Button -->
-        </ul>
-      </div>
-    </nav>
-  </header>
+  @include('admin/header')
   <!-- Left side column. contains the logo and sidebar -->
   @include('admin/left-sidebar')
 
@@ -66,7 +12,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Inactive Users
+        Inactive Primary Users
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -80,16 +26,7 @@
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                 <div class="row">
                   <div class="col-sm-2">
-                    <div class="dataTables_length" id="example1_length">
-                      <label>Show 
-                      <select name="example1_length" aria-controls="example1" class="form-control input-sm">
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      </select> 
-                      </label>
-                    </div>
+                    
                   </div>
 
                 <div class="col-sm-5">
@@ -151,10 +88,7 @@
                 </div>
 
                 <div class="col-sm-2">
-                    <div id="example1_filter" class="dataTables_filter">
-                        <label>Search:<input type="search" class="form-control input-sm" 
-                            placeholder="" aria-controls="example1"></label>
-                    </div>
+                   
                 </div>
               </div>
               <div class="row">
@@ -172,6 +106,7 @@
                   <th  tabindex="0" aria-controls="example1" >Email Beneficiary</th>
                   <th  tabindex="0" aria-controls="example1" >SMS Beneficiary</th>
                   <th  tabindex="0" aria-controls="example1" >Phone Call</th>
+                  <th  tabindex="0" aria-controls="example1" >Notes</th>
                   <th  tabindex="0" aria-controls="example1" >Delete</th>
                 </tr>
                 </thead>
@@ -324,11 +259,9 @@
                     </td>
                     
                      
-                    <!--td class="text-center"  >
-                      <button type="button" class="btn btn-block btn-info" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-envelope"></i></span> Notify</button>
-                    </td-->
+                   
                     <td class="text-center"  >
-                      <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
+                      <button type="button" class="btn btn-success editBtn" user-data="{{$row}} "><span><i class="fa fa-pencil"></i></span> Edit</button>
                     </td>
                 </tr>
                 @endforeach
@@ -346,6 +279,7 @@
                   <th  tabindex="0" aria-controls="example1" >Email Beneficiary</th>
                   <th  tabindex="0" aria-controls="example1" >SMS Beneficiary</th>
                   <th  tabindex="0" aria-controls="example1" >Phone Call</th>
+                  <th  tabindex="0" aria-controls="example1" >Notes</th>
                   <th  tabindex="0" aria-controls="example1" >Delete</th>
                 </tr>
                 </tfoot>
@@ -369,26 +303,30 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Info Modal</h4>
+                <h4 class="modal-title">In Active User</h4>
               </div>
               <div class="modal-body">
-              <form role="form" id="editForm" name="edit">
+              
               {{csrf_field()}}
-              <input type="hidden" name="editBtn" id="editUserId" value="" />
+              <input type="hidden" name="id" id="id" value="" />
 
               <div class="form-group">
-                  <label for="uname">User Name</label>
-                  <input type="text" class="form-control" id="username" value="" placeholder="User Name">
+                  <label for="user_id">User ID</label>
+                  <input type="text" class="form-control" id="user_id" value="" placeholder="User ID" readonly required>
                 </div>
                 <div class="form-group">
-                  <label for="email">Email Address</label>
-                  <input type="email" class="form-control" id="email" value="" placeholder="Enter email">
+                  <label for="user_email">Email Address</label>
+                  <input type="email" class="form-control" id="user_email" value="" placeholder="Enter email" readonly required>
                 </div>
                 <div class="form-group">
-                  <label for="mobile">Mobile</label>
-                  <input type="text" class="form-control" id="mobile" value="" placeholder="Mobile">
+                  <label for="last_login">Last Login</label>
+                  <input type="text" class="form-control" id="last_login" value="" placeholder="Last Login">
                 </div>
-            </form>
+                <div class="form-group">
+                  <label for="notes">Notes</label>
+                  <textarea class="form-control" id="notes" value="" placeholder="Notes"></textarea>
+                </div>
+ 
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
@@ -431,7 +369,7 @@
         $.ajax({
             type: "post",
             dataType: "json",
-            url: "http://127.0.0.1:8000/user_status", 
+            url: "./user_status", 
             data: {'active': status, 'user_id': userid},
             beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
@@ -575,36 +513,34 @@
  <!---------------------------------- Edit Item Ajax Request  Start  ------------------------------------------->
 <script>
  
- $(document).ready( function(){
-     //console.log("Event triggered");
-   });
+ 
 
    $(document).on('click', '.editBtn', function(){
-     var userdata = $(this).attr('user-data') ;
+     var userdata = JSON.parse($(this).attr('user-data')) ;
      console.log("Edit item on Id :::", userdata);
-     var user_edit= userdata.split('=');
-     $('#editUserId').val(user_edit[0]);
-     $('#username').val(user_edit[1]);
-     $('#email').val(user_edit[2]);
-     $('#mobile').val(user_edit[3]);
+     $('#id').val(userdata.inactive_user_notify?userdata.inactive_user_notify.id:'');
+     $('#user_id').val(userdata.id);
+     $('#user_email').val(userdata.email);
+     $('#last_login').val(userdata.inactive_user_notify?userdata.inactive_user_notify.last_login:'');
+     $('#notes').val(userdata.inactive_user_notify?userdata.inactive_user_notify.notes:'');
+     
      $('#modal-edit').modal('show');
      
    });
 
    $('#edit_btn').click(function(data){
-     var user_id = $('#editUserId').val();
-     console.log("user id edit:>>>>", user_id);
+     
      var data = {
-       user_id:$('#editUserId').val(),
-       user_name:$('#username').val(),
-       email:$('#email').val(),
-       mobile:$('#mobile').val()
+       id:$('#id').val(),
+       user_id:$('#user_id').val(),
+       last_login:$('#last_login').val(),
+       notes:$('#notes').val()
      }
         
-         console.log("Item edit data on:::", data);
+        
 
      $.ajax({
-       url:"http://127.0.0.1:8000/primary_user_edit", 
+       url:"./inactive_user_notify_edit", 
        dataType: "json",
        data:data,
        method:"post",
@@ -616,11 +552,9 @@
     },
        success:function(){
          setTimeout(function(){
-          console.log(user_id);
           $('#modal-edit').modal('hide');
           $('#example1').dataTable();
-
-          location.reload();
+          location.reload(true);
          }, 2000)
        },
       error:function(error){
@@ -635,8 +569,8 @@
   $(function () {
     $('#example1').dataTable({
       'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
+      'lengthChange': true,
+      'searching'   : true,
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false

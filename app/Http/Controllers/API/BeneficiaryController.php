@@ -10,6 +10,7 @@ use App\User;
 use App\Beneficiary;
 use App\BeneficiaryUser;
 use App\WizardStep;
+use App\UserPackage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -44,8 +45,19 @@ class BeneficiaryController extends BaseController
             return response()->json([
                 'message' => 'Validation error,please check input field.',
             ], 400);
-
+             
         }else{
+            $user_package = new UserPackage;
+            $package_storage_action = $user_package->checkPkgEntityActionStop("beneficiaries");
+            if($package_storage_action){
+                return response()->json([
+                    'status'=>'error',
+                    'code'=>'exceeds-beneficiaries',
+                    'message' => "Sorry, your package exceeds the beneficiaries saved limit",
+                    'storage'=>$package_storage_action
+                ], 500); 
+            }
+
 
             if(is_null($request->mail_address2)){
                 $request->mail_address2 = "";
@@ -379,12 +391,20 @@ class BeneficiaryController extends BaseController
 
         }else{
             $user = Auth::user();
+            $beneficiary_count = Beneficiary::where('user_id','=',$user->id)->count();
+            if($beneficiary_count>1){
+                return response()->json([
+                    'status'=>'error',
+                    'message' => "Sorry, To more than 2 beneficiary users isn't allowed for current package.",
+                ], 500);
+    
+            }
             $beneficiaryInfo = new Beneficiary();
             $beneficiaryInfo->first_name = Crypt::encryptString($rs->first_name);
             $beneficiaryInfo->last_name = Crypt::encryptString($rs->last_name);
             $beneficiaryInfo->user_id = $user->id;
             $beneficiaryInfo->email = Crypt::encryptString($rs->email);
-            $beneficiaryInfo->mail_address = '';
+            $beneficiaryInfo->mail_address = Crypt::encryptString($rs->mail_address);
             $beneficiaryInfo->mail_address2 = '';
             $beneficiaryInfo->city = '';
             $beneficiaryInfo->state = '';

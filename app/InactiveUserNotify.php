@@ -173,8 +173,10 @@ class InactiveUserNotify extends Model
             Mail::to($user->email)->send(new InactiveUserBeneficiaryMail($user));
             $users[]= $user->email;
             $inactive_user_notify = $user->inactive_user_notify;
-            $inactive_user_notify->send_email_beneficiary_user = Carbon::now();
-            $inactive_user_notify->save();
+            if(!empty($inactive_user_notify)){
+                $inactive_user_notify->send_email_beneficiary_user = Carbon::now();
+                $inactive_user_notify->save();
+            }
         }
         return $users;
     }

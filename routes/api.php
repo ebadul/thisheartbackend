@@ -25,6 +25,8 @@ Route::get('web/newsletter/{email}', 'API\WebController@newsletter_subscription'
 Route::post('beneficiary/login', 'API\AuthenticationController@loginBeneficiaryUser');
 Route::post('beneficiary/register', 'API\AuthenticationController@registerBeneficiaryUser');
 
+//websites
+Route::post('/contactus/send_message', 'API\WebController@send_contactus_message');
 
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('logout', 'API\AuthenticationController@logout');
@@ -56,6 +58,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('memories/getAllMemoriesData', 'API\MemoriesController@getAllMemoriesData');
 
 	Route::post('social_image/delete/{id}', 'API\MemoriesController@deleteSocialImageById');
+	Route::post('/search/all', 'API\MemoriesController@searchAll');
 });
 
 //Medical Info
@@ -118,13 +121,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');//user_id, verify_code
 	Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//user_id, password
 
-	//implement api url
-	//Route::post('/isTwoFaEnable','API\PasswordSecurityController@isTwoFaEnable');
-	//Route::post('/showQRCode','API\PasswordSecurityController@showQRCode');
-	//Route::post('/verifyCode','API\PasswordSecurityController@verifyCode');//verify code
-	//Route::post('/enable2fa','API\PasswordSecurityController@enable2fa');//verify code
-	//Route::post('/disable2fa','API\PasswordSecurityController@disable2fa');//password
-
+ 
 	Route::post('/isExistsOTP','API\OTPController@isExistsOTP');
 	Route::post('/generateOTP','API\OTPController@generateOTP');
 	Route::post('/resetGenerateOTP','API\OTPController@resetGenerateOTP');
@@ -155,11 +152,19 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 	//packages info
 	Route::post('/getPackages', 'API\PackagesController@getPackages');
+	Route::post('/getPackageByUser', 'API\PackagesController@getPackageByUser');
 	Route::post('/savePackageInfo', 'API\PackagesController@savePackageInfo');
 	Route::post('/savePaymentInfo', 'API\PackagesController@savePaymentInfo');
- 
+	Route::post('/package/paymentInit', 'API\PackagesController@paymentInit');
+	Route::post('/package/payment/create-session', 'API\PackagesController@paymentCreateSession');
+	Route::post('/package/payment/session-success', 'API\PackagesController@paymentSessionSuccess');
+	Route::post('/content-dashboard', 'API\MemoriesController@content_dashboard');
+	
+	
 		
 });
+
+
 
 
 

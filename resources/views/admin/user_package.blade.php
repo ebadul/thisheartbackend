@@ -3,61 +3,7 @@
 @section('content')
 
 <div class="wrapper">
-<header class="main-header">
-    <!-- Logo -->
-    <a href="dashboard" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>A</b>LT</span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>Admin</b>This Heart</span>
-    </a>
-    <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Toggle navigation</span>
-      </a>
-
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <!-- Messages: style can be found in dropdown.less-->
-          <!-- Notifications: style can be found in dropdown.less -->
-
-          <!-- Tasks: style can be found in dropdown.less -->
-
-          <!-- User Account: style can be found in dropdown.less -->
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="{{asset('AdminLTE/dist/img/userphoto.jpg')}}" class="user-image" alt="User Image">
-            <span class="hidden-xs">{{$user->email}}</span>
-            </a>
-            <ul class="dropdown-menu">
-              <!-- User image -->
-              <li class="user-header">
-                <img src="{{asset('AdminLTE/dist/img/userphoto.jpg')}}" class="img-circle" alt="User Image">
-
-                <p>
-                  Admin This Heart - Web Developer
-                  <small>Member since Nov. 2012</small>
-                </p>
-              </li>
-              <!-- Menu Body -->
-              <!-- Menu Footer-->
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="#" class="btn btn-default btn-flat">Profile</a>
-                </div>
-                <div class="pull-right">
-                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-          <!-- Control Sidebar Toggle Button -->
-        </ul>
-      </div>
-    </nav>
-  </header>
+  @include('admin/header')
   <!-- Left side column. contains the logo and sidebar -->
   @include('admin/left-sidebar')
 
@@ -77,25 +23,23 @@
 
     <!-- Main content -->
     <div class="box-body">
+      
+            @if ($message = Session::get('warning'))
+            <div class="alert alert-warning alert-block">
+              <button type="button" class="close" data-dismiss="alert">×</button>	
+                    <strong>{{ $message }}</strong>
+            </div>
+            @endif
+            @if ($message = Session::get('success'))
+            <div class="alert alert-success alert-block">
+              <button type="button" class="close" data-dismiss="alert">×</button>	
+                    <strong>{{ $message }}</strong>
+            </div>
+            @endif
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                 <div class="row">
-                  <div class="col-sm-6">
-                    <div class="dataTables_length" id="example1_length">
-                      <label>Show 
-                      <select name="example1_length" aria-controls="example1" class="form-control input-sm">
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      </select> entries
-                      </label>
-                    </div>
-                  </div>
-              <div class="col-sm-6">
-              <div id="example1_filter" class="dataTables_filter">
-                <label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="example1"></label>
-              </div>
-              </div>
+                  
+              
               </div>
               <div class="row">
               <div class="col-sm-12">
@@ -117,23 +61,22 @@
                 <tr role="row" class="odd">
                   
  
-                   <td>{{ $row['user_id']}}</td>
-                   <td>
-                        
+                   <td title="{{$row->user_id}}">{{$row->user['email']}} </td>
+                   <td>  
                        {{ $row->package_info->package}}
-                       
                     </td>
                    <td>{{ $row['subscription_date']}}</td>
                    <td>{{ $row['subscription_expire_date']}}</td>
-                   <td>{{ $row['subscription_status']}}</td>
-          
-                   
-                   
-                   <td>
-                    <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
+                   <td class="text-center">{{ $row['subscription_status']?'Actived':'Inactived'}}</td>
+                   <td class="text-center">
+                    <button type="button" class="btn btn-info editBtn" user-data="{{$row}} ">
+                      <span><i class="fa fa-edit"></i></span> Edit</button>
                   </td>
                   <td class="text-center"  >
-                    <button type="button" class="btn btn-block btn-warning editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-remove"></i></span> Delete</button>
+                    <a href="/user_package_delete/{{$row['id']}}" 
+                      class="btn btn-warning editBtn" 
+                      onclick="return confirm('Do you want to delete use package id: {{$row['id']}}')">
+                      <span><i class="fa fa-remove"></i></span> Delete</a>
                   </td>
                 </tr>
                 @endforeach
@@ -165,23 +108,41 @@
                 <h4 class="modal-title">Info Modal</h4>
               </div>
               <div class="modal-body">
-              <form role="form" id="editForm" name="edit">
+              
               {{csrf_field()}}
-              <input type="hidden" name="editBtn" id="editUserId" value="" />
+              
 
               <div class="form-group">
-                  <label for="uname">User Name</label>
-                  <input type="text" class="form-control" id="username" value="" placeholder="User Name">
+                  <label for="user_id">User ID</label>
+                  <input type="hidden" class="form-control" id="user_package_id" value="" placeholder="User ID" readonly required>
+                  <input type="text" class="form-control" id="user_id" value="" placeholder="User ID" readonly required>
                 </div>
                 <div class="form-group">
-                  <label for="email">Email Address</label>
-                  <input type="email" class="form-control" id="email" value="" placeholder="Enter email">
+                  <label for="package_id">Package</label>
+                  <select class="form-control" id="package_id" required>
+                    <option>:: Select Package ::</option>
+                    @foreach($package_list as $package)
+                      <option value="{{$package->id}}">{{$package->package}}</option>
+                    @endforeach
+                  </select>
+               
                 </div>
                 <div class="form-group">
-                  <label for="mobile">Mobile</label>
-                  <input type="text" class="form-control" id="mobile" value="" placeholder="Mobile">
+                  <label for="subscription_date">Subscription Date</label>
+                  <input type="text" class="form-control" id="subscription_date" value="" placeholder="Subscription Date" required>
                 </div>
-            </form>
+                <div class="form-group">
+                  <label for="subscription_expire_date">Subscription Expire</label>
+                  <input type="text" class="form-control" id="subscription_expire_date" value="" placeholder="Expire Subscription" required>
+                </div>
+                <div class="form-group">
+                  <label for="subscription_status">Subscription Status</label>
+                  <select class="form-control" id="subscription_status" required>
+                      <option value="1">Active</option>
+                      <option value="0">In-active</option>
+                  </select>
+                </div>
+           
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
@@ -210,8 +171,8 @@
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
-</div>
-
+  </div>
+ 
 
  <!-- -----------------------------  Active/Deactive Item Ajax Request Start ------------------------------- ---->
  <script>
@@ -224,7 +185,7 @@
         $.ajax({
             type: "post",
             dataType: "json",
-            url: "http://127.0.0.1:8000/user_status", 
+            url: "./user_status", 
             data: {'active': status, 'user_id': userid},
             beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
@@ -253,31 +214,32 @@
    });
 
    $(document).on('click', '.editBtn', function(){
-     var userdata = $(this).attr('user-data') ;
-     console.log("Edit item on Id :::", userdata);
-     var user_edit= userdata.split('=');
-     $('#editUserId').val(user_edit[0]);
-     $('#username').val(user_edit[1]);
-     $('#email').val(user_edit[2]);
-     $('#mobile').val(user_edit[3]);
+     var user_package = JSON.parse($(this).attr('user-data')) ;
+ 
+     $('#user_package_id').val(user_package.id);
+     $('#user_id').val(user_package.user_id);
+     $('#package_id').val(user_package.package_id);
+     $('#subscription_date').val(user_package.subscription_date);
+     $('#subscription_expire_date').val(user_package.subscription_expire_date);
+     $('#subscription_status').val(user_package.subscription_status);
      $('#modal-edit').modal('show');
      
    });
 
    $('#edit_btn').click(function(data){
-     var user_id = $('#editUserId').val();
-     console.log("user id edit:>>>>", user_id);
+ 
      var data = {
-       user_id:$('#editUserId').val(),
-       user_name:$('#username').val(),
-       email:$('#email').val(),
-       mobile:$('#mobile').val()
+      user_package_id:$('#user_package_id').val(),
+      user_id:$('#user_id').val(),
+      package_id:$('#package_id').val(),
+      subscription_date:$('#subscription_date').val(),
+      subscription_expire_date:$('#subscription_expire_date').val(),
+      subscription_status:$('#subscription_status').val()
      }
-        
-         console.log("Item edit data on:::", data);
+
 
      $.ajax({
-       url:"http://127.0.0.1:8000/primary_user_edit", 
+       url:"./user_package_edit", 
        dataType: "json",
        data:data,
        method:"post",
@@ -288,12 +250,20 @@
         }
     },
        success:function(){
+        $.toast({
+                            heading: 'Information',
+                            text: 'Successfully, user package updated!',
+                            icon: 'info',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#088'  // To change the background
+                        })
          setTimeout(function(){
-          console.log(user_id);
+         
           $('#modal-edit').modal('hide');
           $('#example1').dataTable();
 
-          location.reload();
+          location.reload(true);
          }, 2000)
        },
       error:function(error){
@@ -308,8 +278,8 @@
   $(function () {
     $('#example1').dataTable({
       'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
+      'lengthChange': true,
+      'searching'   : true,
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false

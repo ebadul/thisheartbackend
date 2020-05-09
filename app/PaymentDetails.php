@@ -11,8 +11,8 @@ class PaymentDetails extends Model
         $user = Auth::user();
         $payment_details = new PaymentDetails;
         $payment_details->user_id=$user->id;
-        $payment_details->package_id=$user->user_package->last()->package_id;
-        $payment_details->cost=$user->user_package->last()->package_info->price;
+        $payment_details->package_id=$user->user_package->package_id;
+        $payment_details->cost=$user->user_package->package_info->price;
         $payment_details->card_type=$rs->card_type;
         $payment_details->card_number=$rs->card_number;
         $payment_details->card_expire=$rs->card_expire;
