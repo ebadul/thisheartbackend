@@ -394,6 +394,17 @@
     
     $('#btnEmail').on('click',function(e){
           var status = $('#selectAction').val();
+          if(!status){
+            $.toast({
+                            heading: 'Information',
+                            text: 'Sorry, select an action to send notification',
+                            icon: 'error',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#FF6A4D'  // To change the background
+                        })
+                        return 0;
+          }
           $('.fa-spin-email').css('visibility','visible');
           var userList = [];
           $('.selectChk').each((index,value)=>{
@@ -417,10 +428,26 @@
             },
                 success: function(data){
                   console.log(data)
+                  $.toast({
+                            heading: 'Information',
+                            text: 'Successfully, notification was sent to beneficiary user! ',
+                            icon: 'info',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#B0BF1A'  // To change the background
+                        })
                   $('.fa-spin-email').css('visibility','hidden');
                 },
                 error:function(error){
-                console.log("error :", error);
+                  console.log(error.response);
+                  $.toast({
+                            heading: 'Information',
+                            text: 'Sorry, notification error! '+error.data,
+                            icon: 'error',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#FF6A4D'  // To change the background
+                        })
                 $('.fa-spin-email').css('visibility','hidden');
             }  
         });

@@ -123,10 +123,12 @@
                       <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['name'] .'='. $row['email'] .'='. $row['mobile']}} "><span><i class="fa fa-edit"></i></span> Edit</button>
                     </td>  --}}
                     <td class="text-center"  >
-                      <input class="activeSts" user-id="{{$row['id']}}"  
+                      <input class="activeSts checkbox" user-id="{{$row['id']}}"  
                       type="checkbox" {{$row["active"] ? "checked" : ""}} 
-                      data-toggle="toggle" data-onstyle="success" data-offstyle="danger" 
+                      data-toggle="toggle" data-onstyle="success" 
+                      data-offstyle="danger" 
                       data-on="Active" data-off="InActive"/> 
+                    </td>
                     <td class="text-center"  >
                       <a href="/delete_primary_user/{{$row['id']}}" 
                       class="btn btn-danger" user-id="{{$row['id']}}"  
@@ -231,8 +233,24 @@
         },
             success: function(data){
               console.log(data.success)
+              $.toast({
+                            heading: 'Information',
+                            text: 'Successfully, primary user status changed!',
+                            icon: 'info',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#B0BF1A'  // To change the background
+                        })
             },
             error:function(error){
+              $.toast({
+                            heading: 'Information',
+                            text: 'Sorry, user status not changed!',
+                            icon: 'error',
+                            position: 'bottom-right',
+                            loader: true,        // Change it to false to disable loader
+                            bgColor: '#FF6A4D'  // To change the background
+                        })
             console.log("error from server :", error.response.message);
       }  
         });
