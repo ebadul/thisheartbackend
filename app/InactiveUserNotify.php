@@ -184,6 +184,7 @@ class InactiveUserNotify extends Model
             
     public function sendEmailBeneficiary($userid_list){ 
         $beneficiary_user_list = User::whereIn('beneficiary_id',$userid_list)->get();
+        $users = [];
         foreach($beneficiary_user_list as $user){
             Mail::to($user->email)->send(new InactiveUserBeneficiaryMail($user));
             $users[]= $user->email;
