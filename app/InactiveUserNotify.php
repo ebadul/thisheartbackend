@@ -129,6 +129,11 @@ class InactiveUserNotify extends Model
             Mail::to($user->email)->send(new InactiveUserFirstMail($user));
             $users[]= $user->email;
             $inactive_user_notify = $user->inactive_user_notify;
+            if(empty($inactive_user_notify)){
+                $inactive_user_notify = new InactiveUserNotify;
+                $inactive_user_notify->user_id = $user->id;
+                $inactive_user_notify->last_login = Carbon::now();
+            }
             $inactive_user_notify->first_send_email = Carbon::now();
             $inactive_user_notify->save();
         }
@@ -141,6 +146,11 @@ class InactiveUserNotify extends Model
             Mail::to($user->email)->send(new InactiveUserSecondMail($user));
             $users[]= $user->email;
             $inactive_user_notify = $user->inactive_user_notify;
+            if(empty($inactive_user_notify)){
+                $inactive_user_notify = new InactiveUserNotify;
+                $inactive_user_notify->user_id = $user->id;
+                $inactive_user_notify->last_login = Carbon::now();
+            }
             $inactive_user_notify->second_send_email = Carbon::now();
             $inactive_user_notify->save();
         }
@@ -160,6 +170,11 @@ class InactiveUserNotify extends Model
 
             $users[$user->id]= $statusSMS ;
             $inactive_user_notify = $user->inactive_user_notify;
+            if(empty($inactive_user_notify)){
+                $inactive_user_notify = new InactiveUserNotify;
+                $inactive_user_notify->user_id = $user->id;
+                $inactive_user_notify->last_login = Carbon::now();
+            }
             $inactive_user_notify->send_sms = Carbon::now();
             $inactive_user_notify->save();
         }
@@ -194,6 +209,11 @@ class InactiveUserNotify extends Model
             }
             $users[$user->id]= $statusSMS ;
             $inactive_user_notify = $user->inactive_user_notify;
+            if(empty($inactive_user_notify)){
+                $inactive_user_notify = new InactiveUserNotify;
+                $inactive_user_notify->user_id = $user->id;
+                $inactive_user_notify->last_login = Carbon::now();
+            }
             $inactive_user_notify->send_sms_beneficiary_user = Carbon::now();
             $inactive_user_notify->save();
         }
@@ -206,6 +226,11 @@ class InactiveUserNotify extends Model
             Mail::to($user->email)->send(new InactiveUserFirstMail($user));
             $users[]= $user->email;
             $inactive_user_notify = $user->inactive_user_notify;
+            if(empty($inactive_user_notify)){
+                $inactive_user_notify = new InactiveUserNotify;
+                $inactive_user_notify->user_id = $user->id;
+                $inactive_user_notify->last_login = Carbon::now();
+            }
             $inactive_user_notify->final_make_call = Carbon::now();
             $inactive_user_notify->save();
         } 

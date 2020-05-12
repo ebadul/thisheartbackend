@@ -66,14 +66,13 @@ class PrimaryUserController extends BaseController
         ]);
         
         if($validate->fails()){
-            return redirect('/login')->withErrors([
-                'message'=>"User or password doesn't match"
-            ]);
+            return redirect('/login')->with(
+                'warning',"User or password doesn't match"
+            );
         }
         $userTmp = new User;
         $user_type_id = $userTmp->getUserTypeID('admin');
         try{
-               
              if(Auth::attempt([
                     'email'=>$request->email, 
                     'password'=>$request->password,
@@ -82,13 +81,16 @@ class PrimaryUserController extends BaseController
                 return redirect('/dashboard');
              }else{
                 Auth::logout();
-                return redirect('/login')->withErrors([
-                    'message'=>"User or password doesn't match"
-                ]);
+                return redirect('/login')->with(
+                    'warning',"User or password doesn't match"
+                );
              }
            
         }catch(Exception $ex){
-            throw new \Exception($ex->getMessage());
+            //throw new \Exception($ex->getMessage());
+            return redirect('/login')->with(
+                'warning',$ex->getMessage()
+            );
         }
         
     }
