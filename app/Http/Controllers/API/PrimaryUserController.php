@@ -29,6 +29,7 @@ class PrimaryUserController extends BaseController
      * @return \Illuminate\Http\Response
      */
     public function loginAdmin (Request $request) {
+       
         return view('admin.login');
     }
 
@@ -38,6 +39,7 @@ class PrimaryUserController extends BaseController
     }
 
     public function adminUser (Request $request) {
+      
         if(Auth::check()){
             return redirect('/dashboard');
         }else{

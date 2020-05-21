@@ -5,7 +5,7 @@
 <div class="login-box">
   <div class="login-logo">
       <img src="{{asset('images/logo.png')}}">
-    <a href="AdminLTE/index2.html"><b>Admin</b>Login</a>
+    <a href="/login"><b>Admin</b>Login</a>
   </div>
   <!-- /.login-logo -->
 
