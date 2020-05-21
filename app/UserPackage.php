@@ -9,6 +9,7 @@ use App\User;
 use App\Beneficiary;
 use App\Account;
 use App\Letters;
+use Stripe\Stripe;
 use Auth;
 use File;
 use Crypt;
@@ -19,7 +20,7 @@ class UserPackage extends Model
     //
     protected $access_url = "";
     public function __construct(){
-        \Stripe\Stripe::setApiKey('sk_test_9DkPWEVGZrgEo6q9EeZBDXlC00rgoKMYML');
+        Stripe::setApiKey('sk_test_9DkPWEVGZrgEo6q9EeZBDXlC00rgoKMYML');
         $this->access_url = Request()->headers->get('origin').'/';
     }
 
