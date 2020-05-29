@@ -442,7 +442,7 @@
                             icon: 'warning',
                             position: 'bottom-right',
                             loader: true,        // Change it to false to disable loader
-                            bgColor: 'darkred'  // To change the background
+                            bgColor: '#FF6A4D'   // To change the background
                         })
             }  
         });
