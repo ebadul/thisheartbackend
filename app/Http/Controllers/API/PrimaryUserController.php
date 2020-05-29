@@ -20,6 +20,7 @@ use Auth;
 use Mail;
 use Carbon\Carbon;
 use App\Mail\InactiveUserMail;
+use Illuminate\Support\Facades\Crypt;
 
 class PrimaryUserController extends BaseController
 {
@@ -95,6 +96,35 @@ class PrimaryUserController extends BaseController
             );
         }
         
+    }
+
+    public function emailTest(){
+        $user = Auth::user();
+        $url_token= str_random(16);
+        $email_str = Crypt::encryptString($user->email);
+        
+        // 'user_id','verified_token','email_verified'
+        $emailVerifiedData = [
+            'name'=>Crypt::encryptString("John Dollar"),
+            'user_id'=>$user->id,
+            'verified_token'=> $url_token,
+            'email_verified'=> 0,
+            'login_url' => 'email_verification/'.$url_token.'/'.$email_str,
+            'email_str' => $email_str,
+        ];
+        
+        $to_name = "Gold Smith";
+        $to_email = "shahin2k5@gmail.com";
+     
+        Mail::send('emails.register-primary-user', $emailVerifiedData, 
+            function($message) use ($to_name, $to_email) {
+            $message->to($to_email, $to_name)
+                    ->subject('[thisheart.co] Activate your account');
+            $message->from('thisheartmailer@gmail.com','This-Heart');
+        });
+
+
+
     }
 
     public function primary_user () {

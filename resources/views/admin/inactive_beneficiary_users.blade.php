@@ -434,7 +434,7 @@
                             icon: 'info',
                             position: 'bottom-right',
                             loader: true,        // Change it to false to disable loader
-                            bgColor: '#B0BF1A'  // To change the background
+                            bgColor: '#088'  // To change the background
                         })
                   $('.fa-spin-email').css('visibility','hidden');
                 },

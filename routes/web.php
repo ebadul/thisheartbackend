@@ -33,6 +33,7 @@ Route::get('/admin', "API\PrimaryUserController@adminUser")->name('admin');
 Auth::routes();
 Route::get('/home', "API\PrimaryUserController@dashboard")->name('home')->middleware('auth');
 Route::get('/dashboard', "API\PrimaryUserController@dashboard")->name('dashboard')->middleware('auth');
+Route::get('/email-test', "API\PrimaryUserController@emailTest")->name('email-test')->middleware('auth');
 Route::post('/primary_user_login', "API\PrimaryUserController@primary_user_login")->name('primary_user_login');
 Route::get('/primary_user', "API\PrimaryUserController@primary_user");
 Route::post('/primary_user_edit', "API\PrimaryUserController@updateUserById")->name("primary_user_edit");

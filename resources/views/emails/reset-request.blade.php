@@ -16,32 +16,30 @@ a.ResetButton:hover {
     background: #000;
     border: 1px solid #fff;
 }
+
+header{
+            text-align: center;
+        }
+		
 </style>
 	<title>Reset Password Mail</title>
 </head>
 
 <body>
     
-	<table cellpadding="10" cellspacing="0" style="width:600px;margin:0px auto">
-		<tr>
-			<td style="text-align: center;padding:20px;">
-                <a style="color:#009ac7;text-decoration:none" href="https://thisheart.co/" 
-                     target="_blank">
-                    <img src="https://thisheart.co/static/media/logo.8cc0788f.png" 
-                    style="vertical-align:middle;width:auto;height:auto;max-width:100%;border-width:0" 
-                    alt="This Heart" data-image-whitelisted="" class="CToWUd">
-				</a>
-			</td>
-		</tr>
-	</table>
-	<table cellpadding="10" cellspacing="0" style="background:#eee;width:600px;margin:0px auto">
-		<tr>
-			<td style="text-align: center;background:lightblue;padding:50px;">
-				<h2>Your Password Reset Link!</h2>
-			</td>
-		</tr>
-			<td>
-				<p><b>Hi User,</b></p>
+	
+ 
+    <div class="container">
+        <header>
+            <h1>{{"Your Password Reset Link!"}}</h1>
+            <p align="center">
+            <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="This Heart" >
+            </p>
+            <h2 align="center">{{"Password reset email"}}</h2>
+        </header>
+        <div class="body">
+            
+			<p><b>Hi User,</b></p>
 				<p>You are receiving this email because we received a 
                     password reset request for your account.</p>					
                     <br>
@@ -60,14 +58,29 @@ a.ResetButton:hover {
                     Thanks again for your requesting password reset and if you have any question, 
                     please write <br> an email to us at info@thisheart.co </p>
 					<br>
-					<br>
-					Best Regards<br>
-                    <b>This Heart Team</b><br>
-                    
-					<a href='https://thisheart.co' target="_blank">www.thisheart.co</a>
-			</td>
-		</tr>
-	</table>
+
+
+            <br>
+            <p>Thanks</p>
+            <p>The ThisHeart Team</p>
+            <br>
+            <br>
+            <p align="center">This email was sent from a notification-only address. Please do not reply</p>
+            <br>
+            <br>
+            <br>
+            <p align="center"><a href="">Terms of use</a> | <a href="">Privacy Policy</a></p>
+            <p align="center">ThisHeart</p>
+            <br>
+            <br>
+            <hr style="border:0px;border-bottom: 1px dashed #ccc;">
+
+        </div>
+        <footer>
+
+        </footer>
+
+    </div>
 
 
 </body>
