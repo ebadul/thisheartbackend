@@ -212,56 +212,49 @@ class MemoriesController extends BaseController
   
             if($request->hasFile('videos')){
                 $user_package = new UserPackage;
-                // $package_action = $user_package->checkPkgEntityActionStop("videos");
-                // if($package_action){
-                //     return response()->json([
-                //         'message' => "Sorry, your package exceeds the store more video",
-                //     ], 500); 
-                // }
 
                 return response()->json([
                     'message' => "Sorry, your package exceeds the storage limit",
-                    'storage'=>$package_storage_action
+                    'storage'=>'hello world'
                 ], 500); 
-                
-                $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
-                if($package_storage_action){
-                    return response()->json([
-                        'message' => "Sorry, your package exceeds the storage limit",
-                        'storage'=>$package_storage_action
-                    ], 500); 
-                }
 
-                $data=$request->all();
-                $rules=['videos' =>'mimes:mpeg,ogg,ogv,mp4,webm,3gp,mov,flv,avi,wmv|max:'.$max_size.'|required'];
-                $validator = Validator($data,$rules);
-                if ($validator->fails()){
-                    return response()->json([
-                        'message' => 'Please select valid video file.',
-                        'data' => $validator->messages(),
-                    ], 500);
+                // $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
+                // if($package_storage_action){
+                //     return response()->json([
+                //         'message' => "Sorry, your package exceeds the storage limit",
+                //         'storage'=>$package_storage_action
+                //     ], 500); 
+                // }
 
-                }
+                // $data=$request->all();
+                // $rules=['videos' =>'mimes:mpeg,ogg,ogv,mp4,webm,3gp,mov,flv,avi,wmv|max:'.$max_size.'|required'];
+                // $validator = Validator($data,$rules);
+                // if ($validator->fails()){
+                //     return response()->json([
+                //         'message' => 'Please select valid video file.',
+                //         'data' => $validator->messages(),
+                //     ], 500);
+                // }
 
 
-                $videos = $request->file('videos');
-                $memoriesTmp = [];
-                foreach($videos as $video){
-                    $videoName = str_random(60);
-                    $name = $videoName.'.'.$video->getClientOriginalExtension();
-                    $path_str = 'uploads/'.$user->id.'/videos';
-                    $path = $video->storeAs($path_str,$name);
-                    $file_name = $video->getClientOriginalName();
-                    $title = pathinfo($file_name, PATHINFO_FILENAME);;
-                    $memories = new Memories();
-                    $memories->title = $title;
-                    //$memories->filename = $path_str.'/'.$name; //filename and full path
-                    $memories->filename = $path;
-                    $memories->filetype = "video";
-                    $memories->user_id = $user->id;
-                    $memories->save();
-                    $memoriesTmp[] = $memories;
-                }
+                // $videos = $request->file('videos');
+                // $memoriesTmp = [];
+                // foreach($videos as $video){
+                //     $videoName = str_random(60);
+                //     $name = $videoName.'.'.$video->getClientOriginalExtension();
+                //     $path_str = 'uploads/'.$user->id.'/videos';
+                //     $path = $video->storeAs($path_str,$name);
+                //     $file_name = $video->getClientOriginalName();
+                //     $title = pathinfo($file_name, PATHINFO_FILENAME);;
+                //     $memories = new Memories();
+                //     $memories->title = $title;
+                //     //$memories->filename = $path_str.'/'.$name; //filename and full path
+                //     $memories->filename = $path;
+                //     $memories->filetype = "video";
+                //     $memories->user_id = $user->id;
+                //     $memories->save();
+                //     $memoriesTmp[] = $memories;
+                // }
 
                 
                 return response()->json([
