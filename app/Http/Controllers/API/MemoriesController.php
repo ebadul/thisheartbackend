@@ -236,6 +236,7 @@ class MemoriesController extends BaseController
                 if ($validator->fails()){
                     return response()->json([
                         'message' => 'Please select valid video file.',
+                        'data' => $validator->messages(),
                     ], 500);
 
                 }
