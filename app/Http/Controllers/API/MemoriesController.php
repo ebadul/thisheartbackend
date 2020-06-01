@@ -219,6 +219,11 @@ class MemoriesController extends BaseController
                 //     ], 500); 
                 // }
 
+                return response()->json([
+                    'message' => "Sorry, your package exceeds the storage limit",
+                    'storage'=>$package_storage_action
+                ], 500); 
+                
                 $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
                 if($package_storage_action){
                     return response()->json([
@@ -227,12 +232,9 @@ class MemoriesController extends BaseController
                     ], 500); 
                 }
 
-
-
                 $data=$request->all();
                 $rules=['videos' =>'mimes:mpeg,ogg,ogv,mp4,webm,3gp,mov,flv,avi,wmv|max:'.$max_size.'|required'];
                 $validator = Validator($data,$rules);
-                
                 if ($validator->fails()){
                     return response()->json([
                         'message' => 'Please select valid video file.',
