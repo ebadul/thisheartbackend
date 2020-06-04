@@ -62,7 +62,7 @@
                   @endforeach
                 <?php endif; ?>
               </tbody>
-              <tfoot>
+              <!-- <tfoot>
                 <tr>
                   <th rowspan="1" colspan="1">User Id</th>
                   <th rowspan="1" colspan="1">IP</th>
@@ -71,7 +71,7 @@
                   <th rowspan="1" colspan="1">Updated at</th>
                   <th>Action</th>
                 </tr>
-              </tfoot>
+              </tfoot> -->
             </table>
           </div>
         </div>

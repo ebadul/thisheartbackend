@@ -80,7 +80,7 @@
                   @endforeach
                 <?php endif; ?>
               </tbody>
-              <tfoot>
+              <!-- <tfoot>
                 <tr>
                   <th rowspan="1" colspan="1">User Id</th>
                   <th rowspan="1" colspan="1">User Name</th>
@@ -89,7 +89,7 @@
                   <th>Action</th>
                   <th>Status</th>
                 </tr>
-              </tfoot>
+              </tfoot> -->
             </table>
           </div>
         </div>

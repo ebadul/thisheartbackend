@@ -78,14 +78,14 @@
                   @endforeach
                 <?php endif; ?>
               </tbody>
-              <tfoot>
+              <!-- <tfoot>
                 <tr>
                   <th rowspan="1" colspan="1">Entity Title</th>
                   <th rowspan="1" colspan="1">Description</th>
                   <th>Edit</th>
                   <th>Delete</th>
                 </tr>
-              </tfoot>
+              </tfoot> -->
             </table>
           </div>
         </div>

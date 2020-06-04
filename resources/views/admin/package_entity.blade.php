@@ -97,7 +97,7 @@
                   @endforeach
                 <?php endif; ?>
               </tbody>
-              <tfoot>
+              <!-- <tfoot>
                 <tr role="row">
                   <th class="sorting_asc" style="width: 182px;">Package Id</th>
                   <th class="sorting" style="width: 224px;">Entity Title</th>
@@ -107,7 +107,7 @@
                   <th style="width: 156px; text-align:center;">Edit</th>
                   <th style="width: 156px; text-align:center;">Delete</th>
                 </tr>
-              </tfoot>
+              </tfoot> -->
             </table>
           </div>
         </div>
