@@ -6,7 +6,7 @@
 
   @include('admin/header')
   <!-- Left side column. contains the logo and sidebar -->
- 
+
   @include('admin/left-sidebar')
 
   <!-- Content Wrapper. Contains page content -->
@@ -92,10 +92,10 @@
       <!-- Main row -->
       <div class="row">
         <!-- Left col -->
-        
+
         <!-- /.Left col -->
         <!-- right col (We are only adding the ID to make the widgets sortable)-->
-         
+
         <!-- right col -->
       </div>
       <!-- /.row (main row) -->
@@ -106,10 +106,12 @@
   <!-- /.content-wrapper -->
   <footer class="main-footer">
     <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.18
+      <b>Version</b> 1.0.0
     </div>
-    <strong>Copyright &copy; 2014-2019 <a href="https://adminlte.io">AdminLTE</a>.</strong> All rights
+
+    <strong>Copyright &copy; 2020 <a href="https://thisheart.co"> This Heart Admin</a>.</strong> All rights
     reserved.
+
   </footer>
 
   <!-- Control Sidebar -->
