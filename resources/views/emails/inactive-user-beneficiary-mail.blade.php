@@ -46,7 +46,7 @@
             <br>
             <br>
             <br>
-            <p align="center"><a href="">Terms of use</a> | <a href="">Privacy Policy</a></p>
+            <p align="center"><a href="https://thisheart.co/termscondition">Terms of use</a> | <a href="https://thisheart.co/privacypolicy">Privacy Policy</a></p>
             <p align="center">ThisHeart</p>
             <br>
             <br>

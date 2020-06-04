@@ -61,10 +61,10 @@
                     <span><i class="fa fa-edit"></i>Edit</button>
                   </td>
                   <td class="text-center">
-                    <input class="activeSts" user-id="{{$row['id']}}" 
+                    <input class="activeSts checkbox" user-id="{{$row['id']}}" 
                       type="checkbox" {{$row["active"] ? "checked" : ""}} 
                       data-toggle="toggle" data-onstyle="success" 
-                      data-offstyle="danger" data-on="Active" data-off="InActive"/> 
+                      data-offstyle="danger" data-on="Active" data-off="Deactive"/> 
                   </td>     
                   <td class="text-center" >
                     <a href="{{url("/delete_beneficiary_user/".$row['id'])}}" 
@@ -115,8 +115,8 @@
                   <input type="text" class="form-control" id="userid" value="" placeholder="user Id" readonly>
                 </div>
                 <div class="form-group">
-                  <label for="beneid">Beneficiary ID</label>
-                  <input type="text" class="form-control" id="bnuserid" value="" placeholder="Beneficiary Id">
+                  <label for="beneid">Beneficiary by (Primary User ID)</label>
+                  <input type="text" class="form-control" id="bnuserid" value="" placeholder="Beneficiary Id" readonly>
                 </div>
                
             </form>

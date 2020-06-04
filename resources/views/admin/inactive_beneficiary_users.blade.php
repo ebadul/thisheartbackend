@@ -99,15 +99,15 @@
                 <th  tabindex="0" aria-controls="example1" >First Email</th>
                 <th  tabindex="0" aria-controls="example1" >Second Email</th>
                 <th  tabindex="0" aria-controls="example1" >Send SMS</th>
-                <th  tabindex="0" aria-controls="example1" >First Beneficiary</th>
-                <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
-                <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
-                <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
+                <th  tabindex="0" aria-controls="example1" >Email Beneficiary</th>
+                <th  tabindex="0" aria-controls="example1" >SMS Beneficiary</th>
+                <th  tabindex="0" aria-controls="example1" >Final Call</th>
+                <th  tabindex="0" aria-controls="example1" >Notes</th>
                 <th  tabindex="0" aria-controls="example1" >Edit</th>
                 </tr>
                 </thead>
                 <tbody>
-               <?php if( $user_activities ):?>
+               <?php if(! empty($user_activities) ):?>
                 @php
                     $i=0;
                 @endphp 
@@ -120,7 +120,7 @@
                    <input type="checkbox" class="selectChk" name="userSelect[{{$i}}]" id="userSelect{{$i}}" value="{{$row['id']}}">
                      {{ $i }}
                     </td>
-                   <td>{{ $row['id'] }}</td>
+                   <td title="{{ $row['user_type'] }}">{{ $row['id'] }}</td>
                    <td>{{ !empty($row->inactive_user_notify->last_login)?$row->inactive_user_notify->last_login:''}}</td>
                    
                    <td>
@@ -270,10 +270,10 @@
                   <th  tabindex="0" aria-controls="example1" >First Email</th>
                   <th  tabindex="0" aria-controls="example1" >Second Email</th>
                   <th  tabindex="0" aria-controls="example1" >Send SMS</th>
-                  <th  tabindex="0" aria-controls="example1" >First Beneficiary</th>
-                  <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
-                  <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
-                  <th  tabindex="0" aria-controls="example1" >Second Beneficiary</th>
+                  <th  tabindex="0" aria-controls="example1" >Email Beneficiary</th>
+                  <th  tabindex="0" aria-controls="example1" >SMS Beneficiary</th>
+                  <th  tabindex="0" aria-controls="example1" >Final Call</th>
+                  <th  tabindex="0" aria-controls="example1" >Notes</th>
                   <th  tabindex="0" aria-controls="example1" >Edit</th>
                 </tr>
                 </tfoot>

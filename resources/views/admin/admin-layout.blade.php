@@ -11,7 +11,7 @@
   <!-- Bootstrap 3.3.7 -->
   <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css')}}">
  <!-- Bootstrap 4 -->
-  <link href="{{asset('AdminLTE/bower_components/bootstrap/dist/css/bootstrap4-toggle.min.css')}}" rel="stylesheet">
+  
   <!-- Font Awesome -->
   <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/font-awesome/css/font-awesome.min.css')}}">
   <!-- Ionicons -->
@@ -48,6 +48,10 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 <!-- jQuery 3 -->
   <script src="{{asset('AdminLTE/bower_components/jquery/dist/jquery-3.4.1.min.js')}}"></script>
+
+  <link href="{{asset('AdminLTE/bower_components/bootstrap-toggle/bootstrap-toggle.min.css')}}" rel="stylesheet">
+  <script src="{{asset('AdminLTE/bower_components/bootstrap-toggle/bootstrap-toggle.min.js')}}"></script>
+
 </head>
 <body class="hold-transition login-page">
 @yield('content')
@@ -64,7 +68,7 @@
 <!-- Bootstrap 3.3.7 -->
 <script src="{{asset('AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js')}}"></script>
 <!-- Bootstrap 4 --->
-<script src="{{asset('AdminLTE/bower_components/bootstrap/dist/js/bootstrap4-toggle.min.js')}}"></script>
+
 <!-- Morris.js')}} charts -->
 <script src="{{asset('AdminLTE/bower_components/raphael/raphael.min.js')}}"></script>
 <!-- <script src="AdminLTE/bower_components/morris.js')}}/morris.min.js')}}"></script> -->

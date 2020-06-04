@@ -189,11 +189,13 @@ class PrimaryUserController extends BaseController
     }
     
     public function inactive_beneficiary_users () {
+        $user = Auth::user();
+        $user_type_id = $user->getUserTypeID("primary");
         $days=isset($_GET['days'])?$_GET['days']:0;
         $user_activities = User::where( 'last_login', '<', Carbon::now()->subDays($days))
+        ->where('user_type',$user_type_id)
         ->get();
          
-        $user = Auth::user();
         return view ('admin.inactive_beneficiary_users', ['user_activities'=>$user_activities,'user'=>$user]);
     }
 

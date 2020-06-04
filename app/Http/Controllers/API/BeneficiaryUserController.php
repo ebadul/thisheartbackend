@@ -21,8 +21,9 @@ class BeneficiaryUserController extends BaseController
      * @return \Illuminate\Http\Response
      */
     public function beneficiary_user (){
-        $beneficiary_accounts =  User::where('user_type','3')-> get ()->toArray();
         $user = Auth::user();
+        $user_type_id = $user->getUserTypeID("beneficiary");
+        $beneficiary_accounts =  User::where('user_type',$user_type_id)-> get ()->toArray();
         return view ('admin.beneficiary_user', ['beneficiary_accounts'=>$beneficiary_accounts,'user'=>$user]);
     }
 

@@ -80,13 +80,13 @@
             @if ($message = Session::get('warning'))
             <div class="alert alert-warning alert-block">
               <button type="button" class="close" data-dismiss="alert">×</button>	
-                    <strong>{{ $message }}</strong>
+              <strong>{{ $message }}</strong>
             </div>
             @endif
             @if ($message = Session::get('success'))
             <div class="alert alert-success alert-block">
               <button type="button" class="close" data-dismiss="alert">×</button>	
-                    <strong>{{ $message }}</strong>
+              <strong>{{ $message }}</strong>
             </div>
             @endif
             <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
@@ -102,14 +102,13 @@
               <div class="col-sm-12">
               <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                 <thead>
-                <tr role="row">
-                
-                <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User Full Name</th>
-                <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Email</th>
-                <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Mobile</th>
-                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Action</th>
-                <th  tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Status</th>
-                </tr>
+                  <tr role="row">
+                      <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User Full Name</th>
+                      <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Email</th>
+                      <th aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Mobile</th>
+                      <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Action</th>
+                      <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Status</th>
+                  </tr>
                 </thead>
                 <tbody>
                <?php if( $primary_accounts ):?>
@@ -127,7 +126,7 @@
                       type="checkbox" {{$row["active"] ? "checked" : ""}} 
                       data-toggle="toggle" data-onstyle="success" 
                       data-offstyle="danger" 
-                      data-on="Active" data-off="InActive"/> 
+                      data-on="Active" data-off="Deactive"/> 
                     </td>
                     <td class="text-center"  >
                       <a href="/delete_primary_user/{{$row['id']}}" 
@@ -140,7 +139,13 @@
               <?php endif;?>
                 </tbody>
                 <tfoot>
-                <tr><th rowspan="1" colspan="1">User Name</th><th rowspan="1" colspan="1">Email</th><th rowspan="1" colspan="1">Mobile</th> <th>Action</th> <th>Status</th></tr>
+                  <tr>
+                    <th rowspan="1" colspan="1">User Name</th>
+                    <th rowspan="1" colspan="1">Email</th>
+                    <th rowspan="1" colspan="1">Mobile</th> 
+                    <th>Action</th> 
+                    <th>Status</th>
+                  </tr>
                 </tfoot>
               </table>
               </div>
@@ -328,7 +333,8 @@
       'searching'   : true,
       'ordering'    : true,
       'info'        : true,
-      'autoWidth'   : false
+      'autoWidth'   : false,
+      
     });
   });
 </script>
