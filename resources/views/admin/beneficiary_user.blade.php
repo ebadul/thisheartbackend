@@ -42,7 +42,7 @@
 
             <th rowspan="1" colspan="1">Beneficiary User Name</th>
             <th rowspan="1" colspan="1">Email</th>
-            <th rowspan="1" colspan="1">Edit</th>
+            
             <th>Action</th>
             <th>Status</th>
           </tr>
@@ -54,11 +54,7 @@
 
               <td>{{ Crypt::decryptString($row['name'])}}</td>
               <td>{{ $row['email']}}</td>
-              <td>
-                {{--  <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['id'] .'='. 
-                    $row['beneficiary_id'] .'='. $row['email']}} ">
-                    <span><i class="fa fa-edit"></i>Edit</button>  --}}
-                  </td>
+              
                   <td class="text-center">
                     <input class="activeSts checkbox" user-id="{{$row['id']}}" 
                       type="checkbox" {{$row["active"] ? "checked" : ""}} 
