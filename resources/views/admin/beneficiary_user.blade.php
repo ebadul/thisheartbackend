@@ -173,10 +173,26 @@
           }
         },
         success: function(data) {
-          console.log(data.success)
+          console.log(data.success);
+          $.toast({
+            heading: 'Information',
+            text: 'Successfully, beneficiary user status changed!',
+            icon: 'info',
+            position: 'bottom-right',
+            loader: true, // Change it to false to disable loader
+            bgColor: '#B0BF1A' // To change the background
+          })
         },
         error: function(error) {
           console.log("error :", error);
+          $.toast({
+            heading: 'Information',
+            text: 'Sorry, beneficiary user status not changed!',
+            icon: 'error',
+            position: 'bottom-right',
+            loader: true, // Change it to false to disable loader
+            bgColor: '#FF6A4D' // To change the background
+          })
         }
       });
     });
