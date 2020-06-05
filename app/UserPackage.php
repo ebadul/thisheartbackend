@@ -234,7 +234,7 @@ class UserPackage extends Model
                 'line_items' => [[
                     'name' => $rs->item,
                     'description' => $rs->description,
-                    'images' => ['http://localhost:8000/uploads/60/images/07sVbQNABRs0Nh6ii34Ko7ofREypd4lpxbkocsJ2Vv4Nnqflu2Coy8CygAjU.jpeg'],
+                    'images' => ['http://thisheart.co:8000/images/package-img.png'],
                     'amount' => $rs->amount*100,
                     'currency' => 'usd',
                     'quantity' => 1,

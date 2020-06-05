@@ -29,7 +29,7 @@ class PackagesController extends Controller
     }
 
     public function getPackages(){
-        $packages = PackageInfo::all();
+        $packages = PackageInfo::orderBy('price')->get();
         return response()->json([
             'status'=>'success',
             'data'=>$packages
@@ -52,7 +52,7 @@ class PackagesController extends Controller
             }
         }
      
-        $all_packages = PackageInfo::all();
+        $all_packages = PackageInfo::orderBy('price')->get();
 
         return response()->json([
             'status'=>'success',
@@ -103,7 +103,7 @@ class PackagesController extends Controller
     }
 
     public function package_info(){
-        $package_info = PackageInfo::orderBy('id')->get();
+        $package_info = PackageInfo::orderBy('price')->get();
         $user = Auth::user();
         return view('admin.package_info',['user'=>$user,'package_info'=>$package_info]);
     }
