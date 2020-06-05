@@ -181,18 +181,25 @@ class OTPService{
             $otp_setting = $user->OTPSetting;
         }
         if(!empty($otp_setting)){
-            $otp_enable = $this->isEnableOTP($otp_setting);
+                $otp_enable = $this->isEnableOTP($otp_setting);
             // if(!$otp_enable){
                 // empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
-                empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
+                empty($request->otp_method)?true:
+                $user->OTPSetting->otp_method=$request->otp_method;
                 $user->OTPSetting->otp_enable=true;
                 $user->OTPSetting->save();
             // }
         }
         
         if($otp_setting->otp_method==="sms"){
-            $user->mobile = $request->mobile;
-            $user->save();
+            if(!empty($request->mobile)){
+                $user->mobile = $request->mobile;
+                $user->save();
+
+            } else{
+               
+            }
+            
             if(empty($user->mobile)){
                 return [
                     'status'=>'error',

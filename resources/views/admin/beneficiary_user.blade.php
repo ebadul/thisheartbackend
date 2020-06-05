@@ -55,9 +55,9 @@
               <td>{{ Crypt::decryptString($row['name'])}}</td>
               <td>{{ $row['email']}}</td>
               <td>
-                <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['id'] .'='. 
+                {{--  <button type="button" class="btn btn-block btn-info editBtn" user-data="{{$row['id'] .'='. $row['id'] .'='. 
                     $row['beneficiary_id'] .'='. $row['email']}} ">
-                    <span><i class="fa fa-edit"></i>Edit</button>
+                    <span><i class="fa fa-edit"></i>Edit</button>  --}}
                   </td>
                   <td class="text-center">
                     <input class="activeSts checkbox" user-id="{{$row['id']}}" 

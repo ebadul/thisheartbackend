@@ -138,6 +138,8 @@ class OTPController extends Controller
         $otp_setting = $otpService->isExistsOTP($user, $request);
         
 
+       
+
         if($otp_setting==="enable"){
             $otp_tmp = $otpService->generateSecondTimeOTP($user, $request);
             if($otp_tmp['method']==="googleauth"){
@@ -153,7 +155,8 @@ class OTPController extends Controller
                     'status'=>'success',
                     'data'=>'enable',
                     'method'=> $otp_tmp['method'] ,
-                    'message'=>'generateSecondTimeOTP'
+                    'message'=>'generateSecondTimeOTP',
+                    'debug'=> $otp_tmp,
                 ]);
             }
         

@@ -63,7 +63,7 @@
 
                     <td title="{{$row->user_id}}">{{$row->user['email']}} </td>
                     <td>
-                      {{ $row->package_info->package}}
+                      {{ !empty($row->package_info)?$row->package_info->package:'No package selected'}}
                     </td>
                     <td>{{ $row['subscription_date']}}</td>
                     <td>{{ $row['subscription_expire_date']}}</td>
