@@ -503,7 +503,7 @@ class MemoriesController extends BaseController
             $accList []= $acc;
         }
 
-        $accountInfo->acc_count = $acc->where('user_id','=',$user->id)->count();
+        //$accountInfo->acc_count = $acc->where('user_id','=',$user->id)->count();
 
         return response()->json([
             'status'=>'success',
