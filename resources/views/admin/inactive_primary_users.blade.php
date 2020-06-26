@@ -117,8 +117,10 @@
                   @endphp
                   <tr role="row" class="odd">
                     <td>
-                      <input type="checkbox" class="selectChk" name="userSelect[{{$i}}]" id="userSelect{{$i}}" value="{{$row['id']}}">
-                      {{ $i }}
+                      <div class="form-check">
+                        <input type="checkbox" class="selectChk form-check-input" id="userSelect{{$i}}" name="userSelect[{{$i}}]" id="userSelect{{$i}}" value="{{$row['id']}}">
+                        <label class="form-check-label" for="userSelect{{$i}}">{{ $i }}</label>
+                      </div>
                     </td>
                     <td>{{ $row['id'] }}</td>
                     <td>{{ !empty($row->inactive_user_notify->last_login)?$row->inactive_user_notify->last_login:''}}</td>
@@ -263,8 +265,8 @@
                   @endforeach
                 <?php endif; ?>
               </tbody>
-              <!-- <tfoot>
-                <tr>
+              <tfoot>
+                {{-- <tr>
                   <th class="sorting_asc" tabindex="0" aria-controls="example1" >S/L</th>
                   <th class="sorting_asc" tabindex="0" aria-controls="example1" >User Id</th>
                   <th  tabindex="0" aria-controls="example1" >Last Login</th>
@@ -277,8 +279,8 @@
                   <th  tabindex="0" aria-controls="example1" >Phone Call</th>
                   <th  tabindex="0" aria-controls="example1" >Notes</th>
                   <th  tabindex="0" aria-controls="example1" >Delete</th>
-                </tr>
-                </tfoot> -->
+                </tr> --}}
+                </tfoot>
             </table>
           </div>
         </div>
@@ -408,8 +410,8 @@
           $(value).prop('checked', true);
           userList.push($(value).val());
         }
-
       })
+      console.log('users list:', userList)
 
       $.ajax({
         type: "post",
@@ -573,10 +575,10 @@
     $('#example1').dataTable({
       'paging': true,
       'lengthChange': true,
-      'searching': true,
-      'ordering': true,
-      'info': true,
-      'autoWidth': false
+      'searching'   : true,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false,
     });
   });
 </script>

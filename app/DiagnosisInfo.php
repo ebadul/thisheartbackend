@@ -15,4 +15,8 @@ class DiagnosisInfo extends Model
         $medical_history = $this->all();
         return $medical_history;
     }
+    public function diagnosis_info(){
+        $medical_history = $this->all();
+        return $medical_history;
+    }
 }

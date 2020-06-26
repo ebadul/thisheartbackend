@@ -13,9 +13,9 @@
     </style>
     <div class="container">
         <header>
-            <h1>{{"Email Registration Email"}}</h1>
+         
             <p align="center">
-            <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="This Heart" >
+            <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="ThisHeart" >
             </p>
             <h2 align="center">{{"Verify your email"}}</h2>
         </header>

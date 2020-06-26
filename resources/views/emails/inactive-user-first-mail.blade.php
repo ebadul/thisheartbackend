@@ -13,7 +13,7 @@
     </style>
     <div class="container">
         <header>
-            <h1>{{"Inactivity user notification"}}</h1>
+           
             <p align="center">
             <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="This Heart" >
             </p>
@@ -28,7 +28,7 @@
 				we are notifying you that your account will be considered as inactive soon. <br>
 				<br>
 				<br>
-				Hope you will back and continuing with thisheart. Stay tuned and it will be good !! </p>
+				Hope you will back and continuing with ThisHeart. Stay tuned and it will be good !! </p>
 				<br>
 				<a href='https://thisheart.co/login' target="_blank">
 					<span style="padding:7px 25px 7px 25px;background:lightgreen;border-radius:3px;border:1px solid #ddd">Login</span>

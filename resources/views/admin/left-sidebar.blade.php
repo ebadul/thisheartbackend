@@ -38,6 +38,7 @@
           <!-- <li class="active"><a href="dashboard"><i class="fa fa-circle-o"></i> Dashboard</a></li> -->
             <li ><a href="/primary_user"><i class="fa fa-circle-o"></i> Primary Users</a></li>
             <li><a href="/beneficiary_user"><i class="fa fa-circle-o"></i> Benefiicary Users</a></li>
+            <li><a href="/diagnosis_info"><i class="fa fa-circle-o"></i> Diagnosis Info</a></li>
             <li><a href="/package_info"><i class="fa fa-circle-o"></i> Package Info</a></li>
             <li><a href="/package_entities_info"><i class="fa fa-circle-o"></i> Entity Infos</a></li>
             <li><a href="/package_entities"><i class="fa fa-circle-o"></i> Package Entity</a></li>

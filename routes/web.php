@@ -47,6 +47,9 @@ Route::post('/beneficiary_user_edit', "API\BeneficiaryUserController@updateBnUse
 Route::post('/bnuser_status', "API\BeneficiaryUserController@changeStatus")->name("bnuser_status");
 
 //package list
+Route::get('/diagnosis_info', "API\MedicalHistoryController@diagnosis_info");
+Route::post('/diagnosis_info_edit', "API\MedicalHistoryController@diagnosis_info_edit");
+Route::get('/delete_diagnosis_info/{diagnosis_id}', "API\MedicalHistoryController@delete_diagnosis_info");
 Route::get('/package_info', "API\PackagesController@package_info");
 Route::get('/delete_package_info/{user_id}', "API\PackagesController@delete_package_info");
 Route::post('/package_info_edit', "API\PackagesController@package_info_edit");

@@ -236,4 +236,55 @@ class MedicalHistoryController extends BaseController
             'status'=>'success',
             'data'=>$diagnosis_infos], 200);
     }
+
+     
+    public function diagnosis_info(){
+        $diagnosis_infos = DiagnosisInfo::orderBy('diagnosis_name')->get();
+        $user = Auth::user();
+        return view('admin.diagnosis_infos',['user'=>$user,'diagnosis_info'=>$diagnosis_infos]);
+    }
+
+    public function diagnosis_info_edit(Request $rs){
+        $user = Auth::user();
+        $id = $rs->id;
+        $diagnosis_name = $rs->diagnosis_name;
+        $description = $rs->description;
+    
+
+        $diagnosis_infos = DiagnosisInfo::where('id','=',$id)->first();
+        if(!empty($diagnosis_infos)){
+            $diagnosis_infos->diagnosis_name = $diagnosis_name;
+            $diagnosis_infos->description = $description;
+            if($diagnosis_infos->save()){
+                return response()->json([
+                    'status'=>'success',
+                    'diagnosis_infos'=>$diagnosis_infos,
+                ], 200);
+            }else{
+                return response()->json([
+                    'status'=>'error',
+                    'diagnosis_infos'=>$rs->all(),
+                ], 200);
+            }
+        }
+       
+        //return view('admin.package_info',['user'=>$user,'package_info'=>$package_info]);
+    }
+
+    public function delete_diagnosis_info($diagnosis_id){
+        $diagnosis_info = diagnosisInfo::where('id','=',$diagnosis_id)->first();
+        if(!empty($diagnosis_info)){
+            if($diagnosis_info->delete()){
+                return redirect('/diagnosis_info')->with('success','diagnosis deleted successfully');
+            }else{
+                return redirect('/diagnosis_info')->with('warning','Sorry, diagnosis not deleted'); 
+            }
+        }else{
+            return redirect('/diagnosis_info')->with('warning','Sorry, diagnosis not deleted');
+        }
+    
+        
+    }
+
+   
 }

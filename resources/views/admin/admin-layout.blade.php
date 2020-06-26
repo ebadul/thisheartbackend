@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="{{asset('AdminLTE/dist/css/skins/_all-skins.min.css')}}">
    <!-- DataTables -->
    <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')}}">
+   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
   <!-- Morris chart -->
   <link rel="stylesheet" href="{{asset('AdminLTE/bower_components/morris.js/morris.css')}}">
    <!-- jvectormap -->

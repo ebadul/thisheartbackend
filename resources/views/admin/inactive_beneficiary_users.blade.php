@@ -114,8 +114,9 @@
                 @endphp
                 <tr role="row" class="odd">
                    <td>
-                   <input type="checkbox" class="selectChk" name="userSelect[{{$i}}]" id="userSelect{{$i}}" value="{{$row['id']}}">
-                     {{ $i }}
+                    <input type="checkbox" class="selectChk" 
+                    name="userSelect[{{$i}}]" id="userSelect{{$i}}" value="{{$row['id']}}">
+                      {{ $i }}
                     </td>
                    <td title="{{ $row['user_type'] }}">{{ $row['id'] }}</td>
                    <td>{{ !empty($row->inactive_user_notify->last_login)?$row->inactive_user_notify->last_login:''}}</td>

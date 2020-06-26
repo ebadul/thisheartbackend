@@ -35,25 +35,30 @@ header{
             <p align="center">
             <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="ThisHeart" >
             </p>
-            <h2 align="center">{{"Forgot your password"}}</h2>
+            <h2 align="center">{{"Password reset email"}}</h2>
         </header>
         <div class="body">
             
-			<p>Oops, forgot your password, huh? No worries. We’re here to help.</p>
+			<p><b>Hi User,</b></p>
+				<p>You are receiving this email because we received a 
+                    password reset request for your account.</p>					
+                    <br>
+					<br>
+					<br>
+                    
+                    <p>This is your seceret token: <br><b>{{$reset_token}}</b><br>
+                        Please use while reset password.</p><br>
+                     <p>Please click the below Reset Password button for further action.</p><br>
+                     <a href={{ $url }} class="ResetButton">Reset Password</a><br>
+                     <p>If you did not request a password reset, no further action is required.</p>
+                 
+				 
+					<br>
+                    <br>
+                    Thanks again for your requesting password reset and if you have any question, 
+                    please write <br> an email to us at info@thisheart.co </p>
+					<br>
 
-            <p> You’ll need this token to reset your password. Go ahead and copy it now. <br>
-                <b>{{$reset_token}}</b> </p>
-
-            <p>Now, let’s head back to ThisHeart and complete the process.<br> 
-
-            <br>
-            <a href={{ $url }} class="ResetButton">Click here to get back.</a>    
-            <br>
-
-            <p>If you did not request a password reset, dont worry about it. 
-                Just take no further action. Our security features will keep you covered.</p>
-
-            <br>
 
             <br>
             <p>Thanks</p>
