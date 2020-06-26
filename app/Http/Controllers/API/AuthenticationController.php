@@ -371,18 +371,6 @@ class AuthenticationController extends BaseController
             ], 400);
         }
 
-        $otpSetting = new OtpSetting;
-        $otpSettingStatus = $otpSetting->sendWelcomeSMS($request->mobile);
-        if($otpSettingStatus!="success")
-        {
-            return response()->json([
-                'data'=>'Unable to send sms to your mobile number!',
-                'code'=>'mobile'
-            ]);
-        }
-        
-
-
         $userData = BeneficiaryUser::where('email', '=', $request->email)->first();
         if($userData){
             return response()->json([
@@ -392,6 +380,16 @@ class AuthenticationController extends BaseController
             ], 400);
         }
 
+        // $otpSetting = new OtpSetting;
+        // $otpSettingStatus = $otpSetting->sendWelcomeSMS($request->mobile);
+        // if($otpSettingStatus!="success")
+        // {
+        //     return response()->json([
+        //         'data'=>'Unable to send sms to your mobile number!',
+        //         'code'=>'mobile'
+        //     ]);
+        // }
+        
         $userData = BeneficiaryUser::where('beneficiary_id', '=', $request->beneficiary_id)->first();
         if($userData){
             return response()->json([

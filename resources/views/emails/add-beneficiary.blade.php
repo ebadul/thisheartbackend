@@ -29,18 +29,13 @@
                 To access the account, simply 
                 click here and use your unique access code: <br>
                 {{ $beneficiary_code }}</p>
-                
+            
+                <p>To access the account, <a href={{$url}} >Go Access Code Page</a> </p>
             <p>ThisHeart is an application that helps people leave behind the things 
                 that matter most<br>
                 to the people who matter most. </p>
                 
             <p>See what {{ $user_first_name }} left behind for you by clicking here.</p>
-                
-
-
-
-
-
 
             <br>
             <p>Thanks</p>
