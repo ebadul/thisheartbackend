@@ -102,7 +102,7 @@ class BeneficiaryController extends BaseController
             Mail::send('emails.add-beneficiary', $data, function($message) use ($to_name, $to_email) {
                 $message->to($to_email, $to_name)
                         ->subject('Beneficiary Email');
-                $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
+                $message->from('thisheartmailer@gmail.com','ThisHeart Mail Server');
             });
 
             return response()->json([

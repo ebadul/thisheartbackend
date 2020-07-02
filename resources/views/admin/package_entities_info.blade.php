@@ -143,7 +143,7 @@
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <strong>Copyright &copy; 2020 <a href="https://thisheart.co"> This Heart Admin</a>.</strong> All rights
+    <strong>Copyright &copy; 2020 <a href="https://thisheart.co"> ThisHeart Admin</a>.</strong> All rights
     reserved.
   </footer>
 

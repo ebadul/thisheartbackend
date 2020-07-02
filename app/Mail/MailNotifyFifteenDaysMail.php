@@ -29,7 +29,7 @@ class MailNotifyFifteenDaysMail extends Mailable
      */
     public function build()
     {
-        return $this->from('info@thisheart.com','This Heart')->
+        return $this->from('info@thisheart.com','ThisHeart')->
         view('emails.mail-notify-fifteen-days-mail',[
                 'user'=>$this->user,
                 'user_pkg'=>$this->user_pkg

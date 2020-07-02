@@ -109,7 +109,7 @@
       <b>Version</b> 1.0.0
     </div>
 
-    <strong>Copyright &copy; 2020 <a href="https://thisheart.co"> This Heart Admin</a>.</strong> All rights
+    <strong>Copyright &copy; 2020 <a href="https://thisheart.co"> ThisHeart Admin</a>.</strong> All rights
     reserved.
 
   </footer>

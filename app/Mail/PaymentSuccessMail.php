@@ -29,7 +29,7 @@ class PaymentSuccessMail extends Mailable
      */
     public function build()
     {
-        return $this->from('info@thisheart.com','This Heart')->
+        return $this->from('info@thisheart.com','ThisHeart')->
         view('emails.payment-success',[
                 'user'=>$this->user,
                 'payment_session'=>$this->payment_session

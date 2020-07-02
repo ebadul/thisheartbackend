@@ -17,25 +17,17 @@
             <p align="center">
             <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="ThisHeart" >
             </p>
-            <h2 align="center">{{"You’ve been made a beneficiary"}}</h2>
+            <h2 align="center">{{"Beneficiary Email"}}</h2>
 		</header>
 		
         <div class="body">
 
             <p>Hi {{ $b_first_name }},</p>
+			<p><b> {{ $user_first_name }}</b> just made you a beneficiary of their ThisHeart account.</p>
+			<p>To access the account, <a href={{$url}} >Go Access Code Page</a> and use your access code: {{ $beneficiary_code }}</p>
+			<p>ThisHeart helps you leave behind the things that matter.</p><br>
 
-            <p><b> {{ $user_first_name }} </b> just made you a beneficiary 
-                of their ThisHeart account.<br>
-                To access the account, simply 
-                click here and use your unique access code: <br>
-                {{ $beneficiary_code }}</p>
-            
-                <p>To access the account, <a href={{$url}} >Go Access Code Page</a> </p>
-            <p>ThisHeart is an application that helps people leave behind the things 
-                that matter most<br>
-                to the people who matter most. </p>
-                
-            <p>See what {{ $user_first_name }} left behind for you by clicking here.</p>
+			<p>This is your login URL, click <a href={{$login_url}} > LogIn </a>
 
             <br>
             <p>Thanks</p>

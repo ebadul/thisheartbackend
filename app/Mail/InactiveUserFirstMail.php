@@ -28,7 +28,7 @@ class InactiveUserFirstMail extends Mailable
      */
     public function build()
     {
-        return $this->from('info@thisheart.com','This Heart')->view('emails.inactive-user-first-mail',['user'=>$this->user]);
+        return $this->from('info@thisheart.com','ThisHeart')->view('emails.inactive-user-first-mail',['user'=>$this->user]);
  
     }
 }

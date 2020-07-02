@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Admin - This Heart</title>
+        <title>Admin - ThisHeart</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet" type="text/css">
@@ -83,7 +83,7 @@
                 <div class="title m-b-md">
                     <img src="{{asset('images/logo.png')}}">
                     <br>
-                    This Heart
+                    ThisHeart
                 </div>
 
                 <div class="links">

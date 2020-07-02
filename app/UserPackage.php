@@ -38,7 +38,7 @@ class UserPackage extends Model
     }
 
     
-    public function checkPkgEntityActionStop($action_type){
+    public function checkPkgEntityActionStop($action_type, $file_size = 0 ){
         $user = Auth::user();
         $user_id = $user->id;
         switch($action_type){
@@ -102,17 +102,21 @@ class UserPackage extends Model
                             $user_storage_size = File::size($user_path);
                             $getAllDirs = File::directories($user_path);
                             $fileSize =[];
-                            $totalFileSizeGB=0;
+                            $totalFileSizeGB=$file_size;
                             foreach( $getAllDirs as $dir ) {
                                 $dirNames[] = basename($dir);
                                 $fileList=File::files($user_path.'/'.basename($dir));
                                 foreach($fileList as $fileTmp){
-                                    $fileSize[] = ($fileTmp->getSize()/1024)/1027;
-                                    $totalFileSizeGB+=(($fileTmp->getSize()/1024)/1024)/1024;
+                                    $fileSize[] = ($fileTmp->getSize()/1024/1024);
+                                    $totalFileSizeGB+=(($fileTmp->getSize()/1024)/1024);
                                 }
                             }
 
-                            if($totalFileSizeGB>=$entity_value){
+                            // return response()->json([
+                            //     'filesize'=>$totalFileSizeGB,
+                            //     'entity size'=>$entity_value*1024 
+                            // ]);
+                            if($totalFileSizeGB>=($entity_value*1024)){
                                 return true;
                             }else{
                                 return false;

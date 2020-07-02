@@ -29,6 +29,6 @@ class OTPMail extends Mailable
      */
     public function build()
     {
-        return $this->from('info@thisheart.com','This Heart')->view('emails.otp-mail',['user'=>$this->user,'otp'=>$this->otp]);
+        return $this->from('info@thisheart.com','ThisHeart')->view('emails.otp-mail',['user'=>$this->user,'otp'=>$this->otp]);
     }
 }

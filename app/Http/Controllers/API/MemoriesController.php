@@ -11,6 +11,7 @@ use App\UserPackage;
 use App\Account;
 use App\Beneficiary;
 use App\MedicalHistory;
+use App\Letters;
 use Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,12 @@ class MemoriesController extends BaseController
         
         if ($request->hasFile('imagesFiles')) {
             $user_package = new UserPackage;
+            $imageFile = $request->file('imagesFiles');
+            $fileSize = 0;
+            foreach($imageFile as $img){
+                $fileSize+= $img->getSize()/1024/1024;
+            }
+           
             // $package_count_action = $user_package->checkPkgEntityActionStop("images");
            
             // if($package_count_action){
@@ -38,7 +45,7 @@ class MemoriesController extends BaseController
             //     ], 500); 
             // }
 
-            $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
+            $package_storage_action = $user_package->checkPkgEntityActionStop("storages",  $fileSize);
             if($package_storage_action){
                 return response()->json([
                     'message' => "Sorry, your package exceeds the storage limit",
@@ -46,7 +53,7 @@ class MemoriesController extends BaseController
                 ], 500); 
             }
 
-            $imageFile = $request->file('imagesFiles');
+           
             foreach($imageFile as $image){
                 $imageName = str_random(60);
            
@@ -213,7 +220,13 @@ class MemoriesController extends BaseController
             if($request->hasFile('videos')){
                 $user_package = new UserPackage;
 
-                $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
+                $videos = $request->file('videos');
+                $fileSize = 0;
+                foreach($videos as $video){
+                    $fileSize+= $video->getSize()/1024/1024;
+                }
+
+                $package_storage_action = $user_package->checkPkgEntityActionStop("storages",  $fileSize);
                 if($package_storage_action){
                     return response()->json([
                         'message' => "Sorry, your package exceeds the storage limit",
@@ -232,7 +245,7 @@ class MemoriesController extends BaseController
                 // }
 
 
-                $videos = $request->file('videos');
+                
                 $memoriesTmp = [];
                 foreach($videos as $video){
                     $videoName = str_random(60);
@@ -341,8 +354,14 @@ class MemoriesController extends BaseController
                 //         'message' => "Sorry, your package exceeds the store more record",
                 //     ], 500); 
                 // }
+                $audios = $request->file('audios');
+                $fileSize = 0;
+                foreach($audios as $audio){
+                    $fileSize+= $audio->getSize()/1024/1024;
+                }
 
-                $package_storage_action = $user_package->checkPkgEntityActionStop("storages");
+
+                $package_storage_action = $user_package->checkPkgEntityActionStop("storages", $fileSize);
                 if($package_storage_action){
                     return response()->json([
                         'message' => "Sorry, your package exceeds the storage limit",
@@ -350,7 +369,7 @@ class MemoriesController extends BaseController
                     ], 500); 
                 }
 
-                $audios = $request->file('audios');
+               
                 $memoriesTmp = [];
                 foreach($audios as $audio){
                     $audioName = str_random(60);
@@ -433,6 +452,7 @@ class MemoriesController extends BaseController
             $memoriesInfo = Memories::where('user_id','=',$user->id)->get();
             $search_text_str = Crypt::encryptString($search_text);
             $accountInfo = Account::where('user_id','=',$user->id)->get();
+            $letterInfo = Letters::where('user_id','=',$user->id)->get();
             $accList = [];
             foreach($accountInfo as $acc){
                 $acc->acc_type = Crypt::decryptString($acc->acc_type);
@@ -473,6 +493,7 @@ class MemoriesController extends BaseController
                     'accounts' => $accList,
                     'beneficiaries' => $beneList,
                     'medicals' => $medicalHistory,
+                    'letters' => $letterInfo,
                 ],200);
             }else{
                 return response()->json([

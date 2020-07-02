@@ -533,7 +533,7 @@ class OTPService{
             $otpSetting->save();
         }
         $google2fa_url = $google2fa->getQRCodeGoogleUrl(
-                'This Heart',
+                'ThisHeart',
                 $user->email,
                 $google_key);
         
@@ -567,7 +567,26 @@ class OTPService{
                 ]
             );    
         } catch (TwilioException $e) {
-            return new \Exception($e->getMessage().'- This Hearts');
+            return new \Exception($e->getMessage().'- ThisHearts');
+        }
+        return true;
+    }
+    public function sendWelcomeSMS($to,$otp)
+    {
+        $accountSid = env('TWILIO_SID');
+        $authToken = env('TWILIO_TOKEN');
+        $twilioNumber = env('TWILIO_NUMBER');
+
+        try {         
+            $this->twilio->messages->create(
+                $to,
+                [
+                    "body" => $otp,
+                    "from" => $twilioNumber
+                ]
+            );    
+        } catch (TwilioException $e) {
+            return new \Exception($e->getMessage().'- ThisHearts');
         }
         return true;
     }

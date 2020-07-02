@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Welcome to This Heart</title>
+	<title>Welcome to ThisHeart</title>
 </head>
 
 <body>
@@ -15,7 +15,7 @@
         <header>
            
             <p align="center">
-            <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="This Heart" >
+            <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="ThisHeart" >
             </p>
             <h2 align="center">{{"User notification email"}}</h2>
         </header>
