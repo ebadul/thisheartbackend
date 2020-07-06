@@ -165,7 +165,8 @@ return [
         /*
          * Package Service Providers...
          */
-
+        Spatie\LaravelImageOptimizer\ImageOptimizerServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -225,6 +226,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
+        'ImageOptimizer' => Spatie\LaravelImageOptimizer\ImageOptimizerFacade::class,
+        'Image' => Intervention\Image\Facades\Image::class,
     ],
 
 ];

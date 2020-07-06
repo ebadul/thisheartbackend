@@ -16,10 +16,14 @@ use Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use ImageOptimizer;
+use Spatie\ImageOptimizer\OptimizerChain;
+use Spatie\ImageOptimizer\OptimizerChainFactory;
 use File;
 use Storage;
 use Auth;
 use Crypt;
+use Image;
 
 class MemoriesController extends BaseController
 {
@@ -35,6 +39,7 @@ class MemoriesController extends BaseController
             $fileSize = 0;
             foreach($imageFile as $img){
                 $fileSize+= $img->getSize()/1024/1024;
+
             }
            
             // $package_count_action = $user_package->checkPkgEntityActionStop("images");
@@ -59,13 +64,19 @@ class MemoriesController extends BaseController
            
                 $name = $imageName.'.'.$image->extension();
                 $path_str = 'uploads/'.$user->id.'/images';
-                
+                $name_thumbnail = $path_str."/".'thumbnail_'.$imageName.'.'.$image->extension();
+
                 $path = $image->storeAs($path_str,$name);
+                $thumbnail_img = Image::make($path)->heighten(200, function ($constraint) {
+                    $constraint->upsize();
+                })->crop(285,200);
+                $thumbnail_img->save($name_thumbnail,35);
                 $file_name = $image->getClientOriginalName();
                 $title = pathinfo($file_name, PATHINFO_FILENAME);;
                 $memories = new Memories();
                 $memories->title = $title;
                 $memories->filename = $path;
+                $memories->thumbnail_url =$name_thumbnail;
                 $memories->filetype = "image";
                 $memories->user_id = $user->id;
     
