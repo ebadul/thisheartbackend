@@ -69,7 +69,8 @@ class MemoriesController extends BaseController
                 $path = $image->storeAs($path_str,$name);
                 $thumbnail_img = Image::make($path)->heighten(200, function ($constraint) {
                     $constraint->upsize();
-                })->crop(285,200);
+                });
+                // $thumbnail_img = $thumbnail_img->crop(285,null);
                 $thumbnail_img->save($name_thumbnail,35);
                 $file_name = $image->getClientOriginalName();
                 $title = pathinfo($file_name, PATHINFO_FILENAME);;
