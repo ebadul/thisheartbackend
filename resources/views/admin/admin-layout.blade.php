@@ -55,6 +55,7 @@
 
 </head>
 <body class="hold-transition login-page">
+  <?php  empty(Auth::user())?redirect('/login'):''?>
 @yield('content')
 <!-- /.login-box -->
 

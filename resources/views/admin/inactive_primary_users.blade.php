@@ -439,11 +439,11 @@
           })
         },
         error: function(error) {
-          console.log("error :", error);
+          console.log("error :", error.responseText);
           $('.fa-spin-email').css('visibility', 'hidden');
           $.toast({
             heading: 'Error',
-            text: 'Sorry,' + error.responseText,
+            text: 'Sorry,' + JSON.parse(error.responseText).message.split(':')[1],
             icon: 'warning',
             position: 'bottom-right',
             loader: true, // Change it to false to disable loader

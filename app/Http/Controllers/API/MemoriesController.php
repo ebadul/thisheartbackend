@@ -67,11 +67,12 @@ class MemoriesController extends BaseController
                 $name_thumbnail = $path_str."/".'thumbnail_'.$imageName.'.'.$image->extension();
 
                 $path = $image->storeAs($path_str,$name);
-                $thumbnail_img = Image::make($path)->heighten(200, function ($constraint) {
+                $thumbnail_img = Image::make($path)->heighten(150, function ($constraint) {
                     $constraint->upsize();
                 });
                 // $thumbnail_img = $thumbnail_img->crop(285,null);
                 $thumbnail_img->save($name_thumbnail,35);
+
                 $file_name = $image->getClientOriginalName();
                 $title = pathinfo($file_name, PATHINFO_FILENAME);;
                 $memories = new Memories();
@@ -461,7 +462,7 @@ class MemoriesController extends BaseController
         try{
             $user = Auth::user();
             $search_text = $rs->search_text;
-            $memoriesInfo = Memories::where('user_id','=',$user->id)->get();
+            $memoriesInfo = Memories::where('user_id','=',$user->id)->orderBy('filetype')->get();
             $search_text_str = Crypt::encryptString($search_text);
             $accountInfo = Account::where('user_id','=',$user->id)->get();
             $letterInfo = Letters::where('user_id','=',$user->id)->get();
