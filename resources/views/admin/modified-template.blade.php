@@ -1,6 +1,12 @@
 @extends('admin.admin-layout')
 
 @section('content')
+@if(Auth::user())
+
+@else 
+<script>window.location = "{{ route('login') }}";</script>
+<?php exit; ?>
+@endif
 
 <div class="wrapper">
 

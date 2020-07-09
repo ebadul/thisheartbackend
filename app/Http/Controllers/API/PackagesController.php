@@ -267,7 +267,8 @@ class PackagesController extends Controller
              $save_pkg_info = $package_info->save();
              if( $save_pkg_info){
                 $package_info = PackageInfo::all();
-                return view('admin.package_info',['user'=>$user,'package_info'=>$package_info]);
+                //return view('admin.package_info',['user'=>$user,'package_info'=>$package_info]);
+                return redirect('/package_info');
             }
         }
         
@@ -283,7 +284,8 @@ class PackagesController extends Controller
              $save_pkg_entity = $package_entities_info->save();
              if( $save_pkg_entity){
                 $package_entities_info = PackageEntitiesInfo::all();
-                return view('admin.package_entities_info',['user'=>$user,'package_entities_info'=>$package_entities_info]);
+                //return view('admin.package_entities_info',['user'=>$user,'package_entities_info'=>$package_entities_info]);
+                return redirect("/package_entities_info");
             }
         }
         
@@ -338,11 +340,12 @@ class PackagesController extends Controller
              $save_pkg_entity = $package_entity->save();
              if( $save_pkg_entity){
                 return redirect('/package_entity'.'/'.$package_entity->package_id);
+
             }
         }
          
             return view('admin.package_entities_add',['user'=>$user,'package_list'=>$package_list, 'entity_list'=>$entity_list]);
-         
+         return redirect('/package_entities_info');
     }
 
     public function package_entities_info_delete($entity_id){

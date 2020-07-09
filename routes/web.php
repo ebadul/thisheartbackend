@@ -27,7 +27,8 @@ Route::get('/', function () {
 
  
 
-Route::get('/login', "API\PrimaryUserController@loginAdmin")->name('login');
+// Route::get('/login', "API\PrimaryUserController@loginAdmin")->name('login');
+Route::get('/login', [ 'as' => 'login', 'uses' => 'API\PrimaryUserController@loginAdmin'])->name('login');
 Route::get('/logout', "API\PrimaryUserController@adminLogout")->name('logout')->middleware('auth');
 Route::get('/admin', "API\PrimaryUserController@adminUser")->name('admin');
 Auth::routes();

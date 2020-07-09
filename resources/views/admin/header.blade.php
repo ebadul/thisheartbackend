@@ -1,3 +1,11 @@
+
+@if(Auth::user())
+
+@else 
+<script>window.location = "{{ route('login') }}";</script>
+<?php exit; ?>
+@endif
+
 <header class="main-header">
     <!-- Logo -->
     <a href="/" class="logo">

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
   <meta charset="utf-8">
@@ -54,8 +55,10 @@
   <script src="{{asset('AdminLTE/bower_components/bootstrap-toggle/bootstrap-toggle.min.js')}}"></script>
 
 </head>
+
+
 <body class="hold-transition login-page">
-  <?php  empty(Auth::user())?redirect('/login'):''?>
+
 @yield('content')
 <!-- /.login-box -->
 
@@ -115,5 +118,6 @@
 </script>
 <script src="{{asset('js/jquery.toast.min.js')}}"></script>
 <link rel="stylesheet" href="{{asset('css/jquery.toast.min.css')}}">
+
 </body>
 </html>

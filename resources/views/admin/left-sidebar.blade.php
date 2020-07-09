@@ -1,3 +1,9 @@
+@if(Auth::user())
+
+@else 
+<script>window.location = "{{ route('login') }}";</script>
+<?php exit; ?>
+@endif
 
 
   <aside class="main-sidebar">

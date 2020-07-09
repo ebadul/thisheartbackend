@@ -1,6 +1,12 @@
 @extends('admin.admin-layout')
 
 @section('content')
+@if(Auth::user())
+
+@else 
+<script>window.location = "{{ route('login') }}";</script>
+<?php exit; ?>
+@endif
 
 <div class="wrapper">
   @include('admin/header')
@@ -60,7 +66,7 @@
           <div class="modal-body">
             <form role="form" id="editForm" name="edit">
               {{csrf_field()}}
-              <input type="hidden" name="editBtn" id="editUserId" value="" />
+              <input type="hidden" name="editBtn" id="entity_id" value="" />
 
               <div class="form-group">
                 <label for="uname">User Name</label>
@@ -148,31 +154,29 @@
   });
 
   $(document).on('click', '.editBtn', function() {
-    var userdata = $(this).attr('user-data');
-    console.log("Edit item on Id :::", userdata);
-    var user_edit = userdata.split('=');
-    $('#editUserId').val(user_edit[0]);
-    $('#username').val(user_edit[1]);
-    $('#email').val(user_edit[2]);
-    $('#mobile').val(user_edit[3]);
+    var entity_info = JSON.parse($(this).attr('user-data'));
+    console.log("Edit item on Id :::", entity_info);
+
+    $('#entity_id').val(entity_info.id);
+    $('#entity_title').val(entity_info.package_entity_title);
+    $('#description').val(entity_info.package_entity_description);
     $('#modal-edit').modal('show');
 
   });
 
   $('#edit_btn').click(function(data) {
-    var user_id = $('#editUserId').val();
-    console.log("user id edit:>>>>", user_id);
+
     var data = {
-      user_id: $('#editUserId').val(),
-      user_name: $('#username').val(),
-      email: $('#email').val(),
-      mobile: $('#mobile').val()
+      entity_id: $('#entity_id').val(),
+      entity_title: $('#entity_title').val(),
+      description: $('#description').val(),
+
     }
 
     console.log("Item edit data on:::", data);
 
     $.ajax({
-      url: "http://127.0.0.1:8000/primary_user_edit",
+      url: "./package_entities_info_edit",
       dataType: "json",
       data: data,
       method: "post",
@@ -183,12 +187,20 @@
         }
       },
       success: function() {
+        $.toast({
+          heading: 'Information',
+          text: 'Successfully, entity updated!',
+          icon: 'info',
+          position: 'bottom-right',
+          loader: true, // Change it to false to disable loader
+          bgColor: '#088' // To change the background
+        })
         setTimeout(function() {
-          console.log(user_id);
+
           $('#modal-edit').modal('hide');
           $('#example1').dataTable();
 
-          location.reload();
+          location.reload(true);
         }, 2000)
       },
       error: function(error) {

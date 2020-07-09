@@ -287,7 +287,6 @@ class MedicalHistoryController extends BaseController
     }
 
     public function diagnosis_info_add(Request $rs){
-        //$package_info = PackageEntitiesInfo::all();
         $user = Auth::user();
         if($rs->isMethod('post')){
              $diagnosis_info = new DiagnosisInfo;
@@ -297,7 +296,8 @@ class MedicalHistoryController extends BaseController
              $save_diag_info = $diagnosis_info->save();
              if( $save_diag_info){
                 $diagnosis_info = DiagnosisInfo::all();
-                return view('admin.diagnosis_infos',['user'=>$user,'diagnosis_info'=>$diagnosis_info]);
+                //return view('admin.diagnosis_infos',['user'=>$user,'diagnosis_info'=>$diagnosis_info]);
+                return redirect('/diagnosis_info');
             }
         }
         
