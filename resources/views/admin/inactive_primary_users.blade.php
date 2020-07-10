@@ -109,7 +109,7 @@
                   <th tabindex="0" aria-controls="example1">SMS Beneficiary</th>
                   <th tabindex="0" aria-controls="example1">Phone Call</th>
                   <th tabindex="0" aria-controls="example1">Notes</th>
-                  <th tabindex="0" aria-controls="example1">Delete</th>
+                  <th tabindex="0" aria-controls="example1">Edit</th>
                 </tr>
               </thead>
               <tbody>

@@ -143,18 +143,14 @@ class MedicalHistoryController extends BaseController
                 $historyInfo->save();
 
                 array_push($addedDiagnosisList,$diagnosisId);
-            }
-                
+            }       
         }
-
         //Log::info("diagnosisCSV = ".$diagnosisCSV);
         $historyInfoNew = DB::table('medical_histories')->join('diagnosis_infos','diagnosis_id','=','diagnosis_infos.id')
                 ->where('user_id','=',$request->user_id)
                 ->whereIn('diagnosis_id',$addedDiagnosisList)
                 ->where('member_type','=',$request->member_type)
                 ->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
-
-         Log::info("historyInfoNew = ".$historyInfoNew);
          
         return response()->json([
             'message' => 'Diagnosis name added successfully!',
@@ -214,7 +210,7 @@ class MedicalHistoryController extends BaseController
         $medical_history = new MedicalHistory;
         $medical_history->user_id = $user_id;
         $medical_history->diagnosis_id = $diagnosis_id;
-        $medical_history->member_type = '';
+        $medical_history->member_type = $rs->member_type;
         $medical_history->save();
 
         $rsStep = (Object) [

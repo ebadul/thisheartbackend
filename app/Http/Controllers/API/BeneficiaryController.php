@@ -97,6 +97,14 @@ class BeneficiaryController extends BaseController
                 'login_url' => $beneficiaryLoginUrl
             );
  
+            $rsStep = (Object) [
+                'step' => 'step-05',
+                'info' => 'onboardbenefi_select'
+            ];
+
+            $wizStep = new WizardStep;
+            $wizStep->setSteps($rsStep);
+            
             //Log::info("Before sending... ". $to_name ." to_email ".$to_email." user first_name ".$user->first_name);    
             
             Mail::send('emails.add-beneficiary', $data, function($message) use ($to_name, $to_email) {

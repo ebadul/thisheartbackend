@@ -108,6 +108,7 @@
               <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                 <thead>
                   <tr role="row">
+                      <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User ID</th>
                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">User Full Name</th>
                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Email</th>
                       <th aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Mobile</th>
@@ -119,7 +120,7 @@
                <?php if( $primary_accounts ):?>
                 @foreach ( $primary_accounts  as $row )
                 <tr role="row" class="odd">
-                   
+                    <td>{{ $row['id']}}</td>
                     <td>{{ Crypt::decryptString($row['name'])}}</td>
                     <td>{{ $row['email']}}</td>
                     <td>{{ $row['mobile']}}</td>

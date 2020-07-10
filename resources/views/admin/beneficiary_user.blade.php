@@ -46,6 +46,7 @@
         <thead>
           <tr>
 
+            <th rowspan="1" colspan="1">Beneficiary User ID</th>
             <th rowspan="1" colspan="1">Beneficiary User Name</th>
             <th rowspan="1" colspan="1">Email</th>
             
@@ -57,7 +58,7 @@
           <?php if ($beneficiary_accounts) : ?>
             @foreach ( $beneficiary_accounts as $row )
             <tr role="row" class="odd">
-
+              <td>{{ $row['id']}}</td>
               <td>{{ Crypt::decryptString($row['name'])}}</td>
               <td>{{ $row['email']}}</td>
               

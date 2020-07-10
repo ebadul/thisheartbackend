@@ -44,7 +44,7 @@
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Platform</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Login Time</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Update Time</th>
-                  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Delete</th>
+                  {{-- <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Delete</th> --}}
                 </tr>
               </thead>
               <tbody>
@@ -60,10 +60,10 @@
                     <td>{{ $row['platform']}}</td>
                     <td>{{ $row['created_at']}}</td>
                     <td>{{ $row['updated_at']}}</td>
-                    <td class="text-center">
+                    {{-- <td class="text-center">
                       <a href="/user_activities_delete/{{$row['id']}}" class="btn btn-warning editBtn" onclick="return confirm('Do you want to delete use activities id: {{$row['id']}}')">
                         <span><i class="fa fa-remove"></i></span> Delete</a>
-                    </td>
+                    </td> --}}
                   </tr>
                   @endforeach
                 <?php endif; ?>
