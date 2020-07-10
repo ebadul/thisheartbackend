@@ -131,8 +131,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/enableOTP','API\OTPController@enableOTP');
 	Route::post('/checkPasswordOTP','API\OTPController@checkPasswordOTP');
 
-	Route::post('/isOTPEnable','API\TwoFaSmsController@isOTPEnable');
-	Route::post('/sendOTP','API\TwoFaSmsController@sendOTP');
+	// Route::post('/isOTPEnable','API\TwoFaSmsController@isOTPEnable');
+	// Route::post('/sendOTP','API\TwoFaSmsController@sendOTP');
 
 
 	//OTP 

@@ -21,6 +21,8 @@ use Mail;
 use Carbon\Carbon;
 use App\Mail\InactiveUserMail;
 use Illuminate\Support\Facades\Crypt;
+use Session;
+
 
 class PrimaryUserController extends BaseController
 {
@@ -34,9 +36,12 @@ class PrimaryUserController extends BaseController
         return view('admin.login');
     }
 
-    public function adminLogout (Request $request) {
-        Auth::logout();
-        return view('admin.login');
+    public function adminLogout () {
+        if(Auth::check()){
+            Auth::logout();
+        }
+        Session::flush();
+        return redirect('/login');
     }
 
     public function adminUser (Request $request) {

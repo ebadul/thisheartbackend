@@ -1,11 +1,4 @@
 
-@if(Auth::user())
-
-@else 
-<script>window.location = "{{ route('login') }}";</script>
-<?php exit; ?>
-@endif
-
 <header class="main-header">
     <!-- Logo -->
     <a href="/" class="logo">
@@ -48,10 +41,10 @@
               <!-- Menu Footer-->
               <li class="user-footer">
                 <div class="pull-left">
-                  {{-- <a href="#" class="btn btn-default btn-flat">Profile</a> --}}
+               
                 </div>
                 <div class="pull-right">
-                <a href="{{route('logout')}}" class="btn btn-default btn-flat">Sign out</a>
+                <a href="{{url('logout')}}" class="btn btn-default btn-flat">Sign out</a>
                 </div>
               </li>
             </ul>

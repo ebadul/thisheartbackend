@@ -58,7 +58,7 @@ class PasswordResetController extends BaseController
         Mail::send('emails.reset-request', $data, function($message) use ($to_name, $to_email) {
             $message->to($to_email, $to_name)
                     ->subject('Reset Password Request Mail');
-            $message->from('thisheartmailer@gmail.com','This-Heart Mailer');
+            $message->from('thisheartmailer@gmail.com','ThisHeart Mailer');
         });
       
         return response()->json([

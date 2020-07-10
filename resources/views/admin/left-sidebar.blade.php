@@ -1,4 +1,4 @@
-@if(Auth::user())
+@if(Auth::check())
 
 @else 
 <script>window.location = "{{ route('login') }}";</script>

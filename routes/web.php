@@ -29,13 +29,15 @@ Route::get('/', function () {
 
 // Route::get('/login', "API\PrimaryUserController@loginAdmin")->name('login');
 Route::get('/login', [ 'as' => 'login', 'uses' => 'API\PrimaryUserController@loginAdmin'])->name('login');
-Route::get('/logout', "API\PrimaryUserController@adminLogout")->name('logout')->middleware('auth');
+Route::get('/logout', ['as'=>'logout','uses'=>"API\PrimaryUserController@adminLogout"])->name('logout')->middleware('auth');
 Route::get('/admin', "API\PrimaryUserController@adminUser")->name('admin');
+Route::post('/primary_user_login',[ 'as'=>'primary_user_login',
+        "uses"=> "API\PrimaryUserController@primary_user_login"]);
 Auth::routes();
 Route::get('/home', "API\PrimaryUserController@dashboard")->name('home')->middleware('auth');
 Route::get('/dashboard', "API\PrimaryUserController@dashboard")->name('dashboard')->middleware('auth');
 Route::get('/email-test', "API\PrimaryUserController@emailTest")->name('email-test')->middleware('auth');
-Route::post('/primary_user_login', "API\PrimaryUserController@primary_user_login")->name('primary_user_login');
+
 Route::get('/primary_user', "API\PrimaryUserController@primary_user");
 Route::post('/primary_user_edit', "API\PrimaryUserController@updateUserById")->name("primary_user_edit");
 Route::post('/user_status', "API\PrimaryUserController@changeStatus")->name("user_status");
