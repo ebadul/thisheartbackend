@@ -71,7 +71,7 @@
             <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
               <thead>
                 <tr role="row">
-                  <th class="sorting_asc" style="width: 182px;">Package Id</th>
+                  <th class="sorting_asc" style="width: 182px;">Package Name</th>
                   <th class="sorting" style="width: 224px;">Entity Title</th>
                   <th class="sorting" style="width: 199px;">Value</th>
                   <th class="sorting" style="width: 199px;">Unit</th>
