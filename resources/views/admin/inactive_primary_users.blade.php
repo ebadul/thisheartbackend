@@ -123,9 +123,12 @@
                   @endphp
                   <tr role="row" class="odd">
                     <td>
+                      
                       <div class="form-check">
-                        <input type="checkbox" class="selectChk form-check-input" id="userSelect{{$i}}" name="userSelect[{{$i}}]" id="userSelect{{$i}}" value="{{$row['id']}}">
+                       
+                        <input type="checkbox" class="selectChk form-check-input checkbox" id="userSelect{{$i}}" name="userSelect[{{$i}}]" value="{{$row['id']}}">
                         <label class="form-check-label" for="userSelect{{$i}}">{{ $i }}</label>
+                  
                       </div>
                     </td>
                     <td>{{ $row['id'] }}</td>
@@ -408,11 +411,22 @@
 
     $('#btnNotify').on('click', function(e) {
       var status = $('#selectAction').val();
+      if(!status){
+        $.toast({
+            heading: 'User Notify Error',
+            text: 'Sorry, select an action send email/sms',
+            icon: 'warning',
+            position: 'bottom-right',
+            loader: true, // Change it to false to disable loader
+            bgColor: '#FF6A4D' // To change the background
+          })
+          return false;
+      }
       $('.fa-spin-email').css('visibility', 'visible');
       var userList = [];
       $('.selectChk').each((index, value) => {
         var selectStatus = $(value).parent().attr('aria-checked');
-        if (selectStatus === "true") {
+        if (selectStatus === "true" || $(value).prop('checked')) {
           $(value).prop('checked', true);
           userList.push($(value).val());
         }
@@ -448,8 +462,8 @@
           console.log("error :", error.responseText);
           $('.fa-spin-email').css('visibility', 'hidden');
           $.toast({
-            heading: 'Error',
-            text: 'Sorry,' + JSON.parse(error.responseText).message.split(':')[1],
+            heading: 'User Notify Error',
+            text: 'Sorry,' + JSON.parse(error.responseText).message,
             icon: 'warning',
             position: 'bottom-right',
             loader: true, // Change it to false to disable loader
@@ -469,6 +483,7 @@
       $('.selectChk').each((index, value) => {
         var selectStatus = $(value).parent().attr('aria-checked');
         if (selectStatus === "true") {
+         
           $(value).prop('checked', true);
           userList.push($(value).val());
         }
@@ -585,6 +600,11 @@
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false,
+      columnDefs: [ {
+						orderable: false,
+						className: 'select-checkbox',
+						targets:   0
+					} ]
     });
   });
 </script>
