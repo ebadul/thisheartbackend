@@ -417,7 +417,7 @@
       var userList = [];
       $('.selectChk').each((index, value) => {
         var selectStatus = $(value).parent().attr('aria-checked');
-        if (selectStatus === "true") {
+        if (selectStatus === "true" || $(value).prop('checked')) {
           $(value).prop('checked', true);
           userList.push($(value).val());
         }
@@ -453,7 +453,7 @@
           console.log(error.response);
           $.toast({
             heading: 'Information',
-            text: 'Sorry, notification error! ' + error.data,
+            text: 'Sorry, notification error! ' + + JSON.parse(error.responseText).message,
             icon: 'error',
             position: 'bottom-right',
             loader: true, // Change it to false to disable loader

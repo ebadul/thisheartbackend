@@ -200,6 +200,7 @@ class InactiveUserNotify extends Model
     public function sendSMSBeneficiary($userid_list){
         $user_list = User::whereIn('beneficiary_id',$userid_list)->get();
         $otpService = new OTPService;
+        $users=[];
         foreach($user_list as $user){
             $user_name = Crypt::decryptString($user->name);
             $sendStatus = $otpService->sendSMSInactiveUserBeneficiary($user->mobile,$user_name);
