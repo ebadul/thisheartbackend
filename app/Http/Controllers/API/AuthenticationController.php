@@ -76,7 +76,7 @@ class AuthenticationController extends BaseController
             
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
-
+                $status = "fail";
                 if(Auth::attempt(['email' => $request->email, 'password' => $request->password,'email_verified'=>1])){
                     $user = Auth::user();
                     $tokenResult = $user->createToken('ThisHeartAccessToken');
@@ -120,12 +120,9 @@ class AuthenticationController extends BaseController
                         $user_pkg->access_url = $this->access_url;
                         $user_pkg->remaining_days = $diff;
                         $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
+                        $status = "status";
                         if($now > $expire_date){
-                            return response()->json([
-                                'status'=>'error',
-                                'message' => 'This user package subscription is expired!',
-                                'code'=>'user_type',
-                            ], 400);
+                            $status = "expired";
                         }else{
                             if($diff<16){
                                 if(!$inactive_user_notify->package_expire_notify){
@@ -137,6 +134,8 @@ class AuthenticationController extends BaseController
                         }
                         
                         //$user_pkg->push('package_info',$user_pkg->package_info);
+                    }else{
+                        $user_pkg = "NA";
                     }
 
                     $user_type = $user->user_types->user_type;
@@ -148,7 +147,7 @@ class AuthenticationController extends BaseController
                     }
 
                     return response()->json([
-                        'status' => 'success',
+                        'status' => $status,
                         'message' => 'User logged in successfully!',
                         'user_id' => $user->id,
                         'user_name' => Crypt::decryptString($user->name),
@@ -254,19 +253,19 @@ class AuthenticationController extends BaseController
             $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
         });
 
-        $sub_plan = PackageInfo::where('package','=','Trial Package')->first();
+        // $sub_plan = PackageInfo::where('package','=','Trial Package')->first();
         
-        if(!empty($sub_plan)){
-            $user_id = $user->id;
-            $pkgData = [
-                'user_id'=>$user_id,
-                'package_id'=>$sub_plan->id
-            ];
-            $user_package = new UserPackage;
-            $user_pkg = $user_package->saveUserPackage($pkgData);
-            $user_pkg->push('package_info',$user_pkg->package_info);
+        // if(!empty($sub_plan)){
+        //     $user_id = $user->id;
+        //     $pkgData = [
+        //         'user_id'=>$user_id,
+        //         'package_id'=>$sub_plan->id
+        //     ];
+        //     $user_package = new UserPackage;
+        //     $user_pkg = $user_package->saveUserPackage($pkgData);
+        //     $user_pkg->push('package_info',$user_pkg->package_info);
             
-        }
+        // }
         
 
         return response()->json([
@@ -280,8 +279,8 @@ class AuthenticationController extends BaseController
             'data'=>$user,
             'primary_user_id'=>$user->beneficiary_id,
             'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
-            'package_info'=>$user_pkg->package_info,
-            'sub_plan'=>$user_pkg,
+            // 'package_info'=>$user_pkg->package_info,
+            // 'sub_plan'=>$user_pkg,
         ], 200);
     }
 

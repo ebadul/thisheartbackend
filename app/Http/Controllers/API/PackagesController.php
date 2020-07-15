@@ -40,6 +40,7 @@ class PackagesController extends Controller
         $user = Auth::user();
         $packages;
         $expire_days;
+        $user_package;
         if(!empty($user->user_package)){
             $user_package = $user->user_package;
             $packages = $user->user_package->package_info;
@@ -69,10 +70,19 @@ class PackagesController extends Controller
         $user = Auth::user();
         if(!empty($sub_plan)){
             $user_id = $user->id;
-            $pkgData = [
-                'user_id'=>$user_id,
-                'package_id'=>$sub_plan
-            ];
+            if(empty($rs->trial_end)){
+                $pkgData = [
+                    'user_id'=>$user_id,
+                    'package_id'=>$sub_plan
+                ];
+            }else{
+                $pkgData = [
+                    'user_id'=>$user_id,
+                    'package_id'=>$sub_plan,
+                    'trial_end'=>$rs->trial_end
+                ];
+            }
+           
             $user_package = new UserPackage;
             $user_pkg = $user_package->saveUserPackage($pkgData);
             $user_pkg->push('package_info',$user_pkg->package_info);

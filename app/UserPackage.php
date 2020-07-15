@@ -206,9 +206,14 @@ class UserPackage extends Model
     public function saveUserPackage($rs){
         $user_id = $rs['user_id'];
         $package_id =  $rs['package_id'];
+       
         $date = date('Y-m-d');
         $package_info = PackageInfo::where('id','=',$package_id)->orderBy('id','desc')->first();
-        $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->days.' days'));
+        if(!empty($rs['trial_end']) && $rs['trial_end'] ==="yes"){
+            $expire_date = $date;
+        }else{
+            $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->days.' days'));
+        }
 
         $user_pkg = UserPackage::where('user_id','=',$user_id)->first();
         if(empty($user_pkg)){
