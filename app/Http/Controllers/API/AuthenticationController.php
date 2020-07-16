@@ -253,19 +253,10 @@ class AuthenticationController extends BaseController
             $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
         });
 
-        // $sub_plan = PackageInfo::where('package','=','Trial Package')->first();
-        
-        // if(!empty($sub_plan)){
-        //     $user_id = $user->id;
-        //     $pkgData = [
-        //         'user_id'=>$user_id,
-        //         'package_id'=>$sub_plan->id
-        //     ];
-        //     $user_package = new UserPackage;
-        //     $user_pkg = $user_package->saveUserPackage($pkgData);
-        //     $user_pkg->push('package_info',$user_pkg->package_info);
-            
-        // }
+        $user_pkg = $user->user_package;
+        if(empty( $user_pkg)){
+            $user_pkg = "NA";
+        }
         
 
         return response()->json([
@@ -279,8 +270,7 @@ class AuthenticationController extends BaseController
             'data'=>$user,
             'primary_user_id'=>$user->beneficiary_id,
             'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
-            // 'package_info'=>$user_pkg->package_info,
-            // 'sub_plan'=>$user_pkg,
+            'sub_plan'=>$user_pkg,
         ], 200);
     }
 
