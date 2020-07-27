@@ -485,10 +485,14 @@ class PackagesController extends Controller
         $user_id = $meta_data->user_id;
         $package_id = $meta_data->package_id;
         $amount = $meta_data->amount;
+        $payment_type = $meta_data->payment_type;
+        $billing_type = $meta_data->billing_type;
     
         $package_rs = [
             'user_id'=>$user->id,
-            'package_id'=>$package_id
+            'package_id'=>$package_id,
+            'payment_type'=>$payment_type,
+            'billing_type'=>$billing_type,
         ];
         $user_pkg = $user_package->saveUserPackage($package_rs);
 

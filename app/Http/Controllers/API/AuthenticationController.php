@@ -77,7 +77,9 @@ class AuthenticationController extends BaseController
             $passwordOK = Hash::check($request->password, $user->password);
             if($passwordOK){
                 $status = "fail";
-                if(Auth::attempt(['email' => $request->email, 'password' => $request->password,'email_verified'=>1])){
+                if(Auth::attempt(['email' => $request->email, 
+                    'password' => $request->password,
+                    'email_verified'=>1])){
                     $user = Auth::user();
                     $tokenResult = $user->createToken('ThisHeartAccessToken');
                     $accountProgressStatus = true;

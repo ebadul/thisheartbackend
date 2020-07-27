@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
+use DB;
 use App\Services\OTPService;
 use App\WizardStep;
 use Illuminate\Support\Facades\Validator;
@@ -224,6 +225,7 @@ class OTPController extends Controller
         $wizStep->info = 'onboard2fa';
         $wizStep->save();
        
+        $checkAccountWizard = $this->checkAccountWizard($user->id);
 
         $otpService = new OTPService;
         $otp_setting = $otpService->verifyCode($user, $request);
@@ -231,12 +233,18 @@ class OTPController extends Controller
             'status'=> $otp_setting['status'],
             'message'=> $otp_setting['message'],
             'otp_method'=>$request->otp_method,
+            'account_wizard' => $checkAccountWizard,
             'data'=> $otp_setting['data'],
             'user'=> $user,
         ]);
     }
 
-
+    function checkAccountWizard($user_id){
+        $accountWizard = DB::table('wizard_steps')->where('user_id','=',$user_id)->
+        orderBy('steps')->
+        get();
+        return $accountWizard;
+    }
     public function generateGoogleQRCode(Request $request){
         $user = Auth::user();
         if(empty($user)){

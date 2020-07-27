@@ -206,13 +206,20 @@ class UserPackage extends Model
     public function saveUserPackage($rs){
         $user_id = $rs['user_id'];
         $package_id =  $rs['package_id'];
+        $billing_type =  empty($rs['billing_type'])?"":$rs['billing_type'];
+        $payment_type =  empty($rs['payment_type'])?"":$rs['payment_type'];
        
         $date = date('Y-m-d');
         $package_info = PackageInfo::where('id','=',$package_id)->orderBy('id','desc')->first();
         if(!empty($rs['trial_end']) && $rs['trial_end'] ==="yes"){
             $expire_date = $date;
         }else{
-            $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->days.' days'));
+            if($payment_type==="yearly"){
+                $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->year_days.' days'));
+            }else{
+                $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->days.' days'));
+            }
+            
         }
 
         $user_pkg = UserPackage::where('user_id','=',$user_id)->first();
@@ -238,20 +245,27 @@ class UserPackage extends Model
                 \Stripe\Stripe::setApiKey('sk_test_9DkPWEVGZrgEo6q9EeZBDXlC00rgoKMYML');
                 $success_url = $this->access_url.'payment-success/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
                 $cancel_url = $this->access_url."payment-cancel/".Crypt::encryptString('payment-cancel');
+                $billing_type = $rs->billing_type;
+                $payment_type = $rs->payment_type;
+                $price = $rs->payment_type==="yearly"?$rs->year_amount:$rs->amount;
+               
+                  
                 $session = \Stripe\Checkout\Session::create([
                 'payment_method_types' => ['card'],
                 'line_items' => [[
                     'name' => $rs->item,
                     'description' => $rs->description,
                     'images' => ['http://thisheart.co:8000/images/package-img.png'],
-                    'amount' => $rs->amount*100,
+                    'amount' => $price*100,
                     'currency' => 'usd',
                     'quantity' => 1,
                 ]],
                 'metadata'=>[
                     'user_id' => $user->id,
                     'package_id' => $rs->item_id,
-                    'amount' => $rs->amount*100
+                    'amount' => $price*100,
+                    'payment_type' => $payment_type,
+                    'billing_type' => $billing_type,
                 ],
                 'success_url' => $success_url,
                 'cancel_url' =>  $cancel_url,
@@ -281,6 +295,65 @@ class UserPackage extends Model
                 'data'=>$exp
             ];
         }
+    }
+
+
+    public function paymentSessionSuccess($rs){
+        $session_id = $rs['id'];
+        $user = Auth::user();
+
+        $payment_session = PaymentSession::where('user_id','=',$user->id)
+                            ->where('payment_session_id','=',$session_id)->first();
+        if(empty($payment_session ) || $payment_session->paid===1){
+            return [
+                'data'=>$session_id,
+                'payment_session'=>$payment_session,
+                'status'=>'error',
+                'message'=> 'Invalid payment request!',
+            ];
+        }   
+
+        $user_package = new UserPackage;
+        $session_status = $user_package->retriveSessionInfo($session_id);
+        $payment_status = $user_package->retrivePaymentInfo($session_status->payment_intent);
+        if($payment_status->amount_received>0 && 
+            $payment_status->status==="succeeded" &&
+            $payment_status->charges->data[0]->amount_refunded === 0
+            ){
+               
+        }else{
+            return [
+                'status'=>'error',
+                'message'=> 'Invalid payment requests!',
+            ];
+        }
+        $session_status->date = date('Y-m-d');
+        $meta_data = $session_status->metadata;
+        $user_id = $meta_data->user_id;
+        $package_id = $meta_data->package_id;
+        $payment_type = $meta_data->payment_type;
+        $billing_type = $meta_data->billing_type;
+        $amount = $meta_data->amount;
+    
+        $package_rs = [
+            'user_id'=>$user->id,
+            'package_id'=>$package_id,
+            'payment_type'=>$payment_type,
+            'billing_type'=>$billing_type
+        ];
+        $user_pkg = $user_package->saveUserPackage($package_rs);
+
+        $payment_session->paid = 1;
+        $payment_session->save();
+        Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
+        return [
+            'status'=>'success',
+            'data'=> $payment_session,
+            'session_status'=> $session_status,
+            'payment_status'=> $payment_status,
+            'package_info'=> $user_pkg,
+            'metadata'=> $meta_data,
+        ];
     }
 
     public function retriveSessionInfo($session_id){

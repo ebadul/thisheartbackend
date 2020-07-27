@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class Edit2ndPackageEntitiesTable extends Migration
+class PackageInfoEdit extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class Edit2ndPackageEntitiesTable extends Migration
      */
     public function up()
     {
-        Schema::table('package_entities', function (Blueprint $table) {
-            $table->string('entity_unit')->nullable()->after('id');
-        });
+        Schema::table('package_infos', function (Blueprint $table) {
+            $table->integer('year_days')->default('365')->after('days');
+            $table->float('year_price')->nullable()->default('0')->after('days');
+         });
     }
 
     /**
@@ -25,6 +26,6 @@ class Edit2ndPackageEntitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('package_entities');
+        //
     }
 }
