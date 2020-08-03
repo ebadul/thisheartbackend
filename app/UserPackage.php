@@ -20,7 +20,7 @@ class UserPackage extends Model
     //
     protected $access_url = "";
     public function __construct(){
-        Stripe::setApiKey('sk_test_9DkPWEVGZrgEo6q9EeZBDXlC00rgoKMYML');
+        Stripe::setApiKey('sk_test_AVSEgKpyoxellFyvMtrGrIww00nRnsyvaP');
         $this->access_url = Request()->headers->get('origin').'/';
     }
 
@@ -242,24 +242,44 @@ class UserPackage extends Model
     public function paymentCreateSession($rs){
         try{
                 $user = Auth::user();
-                \Stripe\Stripe::setApiKey('sk_test_9DkPWEVGZrgEo6q9EeZBDXlC00rgoKMYML');
+                \Stripe\Stripe::setApiKey('sk_test_AVSEgKpyoxellFyvMtrGrIww00nRnsyvaP');
                 $success_url = $this->access_url.'payment-success/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
                 $cancel_url = $this->access_url."payment-cancel/".Crypt::encryptString('payment-cancel');
                 $billing_type = $rs->billing_type;
                 $payment_type = $rs->payment_type;
+                $stripe_month_price_plan = $rs->stripe_month_price_plan;
+                $stripe_year_price_plan = $rs->stripe_year_price_plan;
                 $price = $rs->payment_type==="yearly"?$rs->year_amount:$rs->amount;
+                $price_plan = "";
+                $line_items= "";
+                if($billing_type && $payment_type==="yearly"){
+                    $price_plan = $stripe_year_price_plan;
+                }elseif($billing_type && $payment_type==="monthly"){
+                    $price_plan = $stripe_month_price_plan;
+                }
                
-                  
+                if($billing_type){
+                    $mode = "subscription";
+                    $line_items=[ 
+                        'price' => $price_plan,
+                        'quantity' => 1,
+                        ];
+                    
+                }else{
+                    $line_items=[ 
+                        'name' => $rs->item,
+                        'description' => $rs->description,
+                        'images' => ['http://thisheart.co:8000/images/package-img.png'],
+                        'amount' => $price*100,
+                        'currency' => 'usd',
+                        'quantity' => 1,
+                    ];
+                    $mode = "payment";
+                }
+ 
                 $session = \Stripe\Checkout\Session::create([
                 'payment_method_types' => ['card'],
-                'line_items' => [[
-                    'name' => $rs->item,
-                    'description' => $rs->description,
-                    'images' => ['http://thisheart.co:8000/images/package-img.png'],
-                    'amount' => $price*100,
-                    'currency' => 'usd',
-                    'quantity' => 1,
-                ]],
+                'line_items' => [$line_items],
                 'metadata'=>[
                     'user_id' => $user->id,
                     'package_id' => $rs->item_id,
@@ -267,6 +287,7 @@ class UserPackage extends Model
                     'payment_type' => $payment_type,
                     'billing_type' => $billing_type,
                 ],
+                'mode'=>$mode,
                 'success_url' => $success_url,
                 'cancel_url' =>  $cancel_url,
                 ]);
@@ -278,9 +299,10 @@ class UserPackage extends Model
                 'package_id'=>$rs->item_id,
                 'payment_session_id' => $session->id,
                 'paid' => 0,
-                'amount' => $session->display_items[0]->amount,
+                'amount' => $price*100,
                 'user_package_id' => '0',
                 'payment_details_id' => '0',
+                'session' => $session,
             ];
             $payment_session = new PaymentSession;
             $payment_session->savePaymentSession($session_rs);
@@ -315,18 +337,33 @@ class UserPackage extends Model
 
         $user_package = new UserPackage;
         $session_status = $user_package->retriveSessionInfo($session_id);
-        $payment_status = $user_package->retrivePaymentInfo($session_status->payment_intent);
-        if($payment_status->amount_received>0 && 
+        $payment_status = "";
+        if($session_status->mode==='payment'){
+            $payment_status = $user_package->retrivePaymentInfo($session_status->payment_intent);
+            if($payment_status->amount_received>0 && 
             $payment_status->status==="succeeded" &&
             $payment_status->charges->data[0]->amount_refunded === 0
             ){
                
-        }else{
-            return [
-                'status'=>'error',
-                'message'=> 'Invalid payment requests!',
-            ];
+            }else{
+                return [
+                    'status'=>'error',
+                    'message'=> 'Invalid payment requests!',
+                ];
+            }
+        }elseif($session_status->mode==='subscription'){
+            if($session_status->amount_total>0 && 
+            !empty($session_status->subscription)
+            ){
+               
+            }else{
+                return [
+                    'status'=>'error',
+                    'message'=> 'Invalid payment requests!',
+                ];
+            }
         }
+       
         $session_status->date = date('Y-m-d');
         $meta_data = $session_status->metadata;
         $user_id = $meta_data->user_id;

@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 //Normal User
 Route::get('login', 'API\AuthenticationController@login');
 Route::post('login', 'API\AuthenticationController@login');
+Route::post('adminlogin', 'API\AuthenticationController@adminlogin');
+Route::post('approvedFreeAccount', 'API\PrimaryUserController@approvedFreeAccount');
 
 Route::post('register', 'API\AuthenticationController@register');
 Route::get('email_verification/{url_token}/{email}', 'API\AuthenticationController@email_verification');

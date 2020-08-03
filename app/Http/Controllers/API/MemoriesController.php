@@ -32,7 +32,25 @@ class MemoriesController extends BaseController
     {
         $user = Auth::user();
         $tmpMemories =[];
-        
+
+        $memories_thumb = Memories::where('user_id',$user->id)->where('thumbnail_url','')->get();
+        foreach($memories_thumb as $thumb){
+            $imageName = str_random(60);
+           
+            $name = $imageName.'.'.$image->extension();
+            $path_str = 'uploads/'.$user->id.'/images';
+            $name_thumbnail = $path_str."/".'thumbnail_'.$imageName.'.'.$image->extension();
+
+            $main_image = $thumb->filename;
+            $thumbnail_img = Image::make($main_image)->heighten(150, function ($constraint) {
+                $constraint->upsize();
+            });
+            // $thumbnail_img = $thumbnail_img->crop(285,null);
+            $thumbnail_img->save($name_thumbnail,35);
+            $thumb->thumbnail_url = $name_thumbnail;
+            $thumb->save();
+        }
+
         if ($request->hasFile('imagesFiles')) {
             $user_package = new UserPackage;
             $imageFile = $request->file('imagesFiles');

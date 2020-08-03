@@ -71,6 +71,8 @@ Route::any('/package_entities_add', "API\PackagesController@package_entities_add
 Route::post('/package_entities_edit', "API\PackagesController@package_entities_edit");
 Route::any('/package_entities_delete/{id}', "API\PackagesController@package_entities_delete");
 Route::get('/user_activities', "API\PrimaryUserController@user_activities");
+Route::get('/free_account/{free_account_status}', "API\PrimaryUserController@free_account");
+Route::post('/free_user_package_edit', "API\PrimaryUserController@free_user_package_edit");
 Route::get('/user_activities_delete/{id}', "API\PrimaryUserController@user_activities_delete");
 Route::get('/inactive_primary_users', "API\PrimaryUserController@inactive_primary_users")->middleware('auth');
 Route::post('/inactive_user_notify_edit', "API\PrimaryUserController@inactive_user_notify_edit")->middleware('auth');

@@ -468,18 +468,6 @@ class PackagesController extends Controller
 
         $user_package = new UserPackage;
         $session_status = $user_package->retriveSessionInfo($session_id);
-        $payment_status = $user_package->retrivePaymentInfo($session_status->payment_intent);
-        if($payment_status->amount_received>0 && 
-            $payment_status->status==="succeeded" &&
-            $payment_status->charges->data[0]->amount_refunded === 0
-            ){
-               
-        }else{
-            return response()->json([
-                'status'=>'error',
-                'message'=> 'Invalid payment request!',
-            ], 500);
-        }
         $session_status->date = date('Y-m-d');
         $meta_data = $session_status->metadata;
         $user_id = $meta_data->user_id;
@@ -487,7 +475,26 @@ class PackagesController extends Controller
         $amount = $meta_data->amount;
         $payment_type = $meta_data->payment_type;
         $billing_type = $meta_data->billing_type;
-    
+
+        if(!empty($session_status->subscription) && 
+                $session_status->amount_total>0 && 
+                $session_status->mode==="subscription" && $billing_type ==="yes"){
+
+        }else{
+            $payment_status = $user_package->retrivePaymentInfo($session_status->payment_intent);
+            if($payment_status->amount_received>0 && 
+                $payment_status->status==="succeeded" &&
+                $payment_status->charges->data[0]->amount_refunded === 0
+                ){
+                   
+            }else{
+                return response()->json([
+                    'status'=>'error',
+                    'message'=> 'Invalid payment request!',
+                ], 500);
+            }
+        }
+       
         $package_rs = [
             'user_id'=>$user->id,
             'package_id'=>$package_id,
@@ -505,26 +512,12 @@ class PackagesController extends Controller
             'session_status'=> $session_status,
             'payment_status'=> $payment_status,
             'package_info'=> $user_pkg,
+            'user_id'=>$user->id,
+            'package_id'=>$package_id,
+            'payment_type'=>$payment_type,
+            'billing_type'=>$billing_type,
         ], 200);
     }
 
-    // public function setSteps(Request $rs){
-    //     $user = Auth::user();
-    //     $step = $rs->step;
-    //     $info = $rs->info;
-    //     $wizStep = WizardStep::where('user_id','=',$user->id)->where('steps',$rs->step)->first();
-    //     if(empty($wizStep)){
-    //         $wizStep = new WizardStep;
-    //     }
-    //     $wizStep->user_id = $user->id;
-    //     $wizStep->steps = $rs->step;
-    //     $wizStep->status = 1;
-    //     $wizStep->info = $rs->info;
-    //     $wizStep->save();
-
-    //     return response()->json([
-    //         'status'=>'success',
-    //         'data'=>$wizStep
-    //     ]);
-    // }
+     
 }

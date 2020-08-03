@@ -14,12 +14,15 @@ use App\UserActivity;
 use App\InactiveUserNotify;
 use App\BeneficiaryUser;
 use App\Memories;
-use App\Account;
+use App\PackageInfo;
+use App\UserPackage;
+use App\FreeAccount;
 use Validator;
 use Auth;
 use Mail;
 use Carbon\Carbon;
 use App\Mail\InactiveUserMail;
+use App\Mail\FreeAccountMail;
 use Illuminate\Support\Facades\Crypt;
 use Session;
 
@@ -31,6 +34,13 @@ class PrimaryUserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
+
+    protected $access_url = "";
+    public function __construct()
+    {
+        $this->access_url = Request()->headers->get('origin').'/';
+    }
+
     public function loginAdmin (Request $request) {
        
         return view('admin.login');
@@ -386,9 +396,134 @@ class PrimaryUserController extends BaseController
                 ],500);  
             }
             
+        } 
+    }
+
+
+    
+    public function free_account($free_account_status=null){
+        $user = Auth::user();
+        $package_list = PackageInfo::all();
+        if($free_account_status>0){
+            $user_package = UserPackage::where('package_id','=',$free_account_status)->get();
+        }else{
+            $user_package = UserPackage::all();
         }
         
-             
+        $user_list = User::all();
+        return view('admin.free_account',[
+                    'user'=>$user,
+                    'user_list'=>$user_list,
+                    'user_package'=>$user_package,
+                    'package_list'=>$package_list,
+                    'entity_list'=>[]
+                    ]);
+    }
+
+
+    public function free_user_package_edit(Request $rs){
+        $admin_user = Auth::user();
+        $user_id = $rs->user_id;
+        $user = User::where('id','=',$user_id)->first();
+        $user_package_id = $rs->user_package_id;
+        $package_id = $rs->package_id;
+        $subscription_date = $rs->subscription_date;
+        $subscription_expire_date = $rs->subscription_expire_date;
+        $subscription_status = $rs->subscription_status;
+
+        $user_package = UserPackage::where('id','=',$user_package_id)->first();
+        $free_account = FreeAccount::where('user_id','=', $user_id)->first();
+
+        $user_email = $user->email;
+        $activation_code = Crypt::encryptString($user_email);
+        $login_url = "http://45.35.50.179:3000/freeadminlogin/";
+        $data = ['user'=>$user,
+                'user_package'=>$user_package,
+                'activation_code'=>$activation_code, 
+                'login_url'=>$login_url];
+        if(empty($free_account)){
+            $free_account = new FreeAccount;
+        }
+            $free_account->user_id = $user_id;
+            $free_account->activation_code = $activation_code;
+            $free_account->requested_by = $admin_user->id;
+            $free_account->status = 'pending';
+            if($free_account->save()){
+                Mail::to($user->email)->send(new FreeAccountMail($data));
+                return response()->json([
+                    'status'=>'success',
+                    'user_package'=>$user_package,
+                    'user_package'=>$rs->all(),
+                ], 200);
+            }else{
+                return response()->json([
+                    'status'=>'error',
+                    'message'=>'Error was occured',
+                    'user_package'=>$rs->all(),
+                ], 500);
+            }
+       
+        return response()->json([
+            'status'=>'error',
+            'message'=>'Errors was occured',
+            'user_package'=>$rs->all(),
+        ], 500);  
+    }
+
+    public function approvedFreeAccount(Request $rs){
+        $validator = Validator::make($rs->all(), [
+            'freeAccountRequested' => 'required',
+            'activationCode' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status'=>'fail',
+                'message' => 'Sorry, free account setup is failed!',
+                'data'=>$validator->errors(),
+                'tmp'=>$rs->all()
+            ], 200);    
+        }
+
+        $free_requested = $rs->freeAccountRequested;
+        $activation_code = $rs->activationCode;
+        $free_account = FreeAccount::where('activation_code','=', $activation_code)->
+                        where('verified','=','0')->
+                        where('status','=','pending')->first();
+        if(empty($free_account)){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Sorry, free account setup is already processed',
+                'data'=>$rs->all(),
+            ], 500); 
+        }
+        $user_id = $free_account->user_id;
+        $package_info = PackageInfo::where('package','free account')->first();
+        $user_package = UserPackage::where('user_id','=',$user_id)->first();
+      
+        $free_account->verified = 1;
+        if($free_requested ==="approved"){
+            $free_account->status = 'actived';
+        }elseif($free_requested ==="rejected"){
+            $free_account->status = 'denied';
+        }
+       
+        if($free_account->save()){
+            $user_package->package_id = $package_info->id;
+            $user_package->save();
+            return response()->json([
+                'status'=>'success',
+                'data'=>$rs->all(),
+            ], 200);
+
+        }else{
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Errors was occured',
+                'data'=>$rs->all(),
+            ], 500); 
+        }
         
     }
+
 }

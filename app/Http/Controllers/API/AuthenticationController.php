@@ -13,6 +13,7 @@ use App\OtpSetting;
 use App\InactiveUserNotify;
 use App\PackageInfo;
 use App\UserPackage;
+use App\AdminUser;
 use App\Mail\MailNotifyFifteenDaysMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -34,8 +35,50 @@ class AuthenticationController extends BaseController
         $this->access_url = Request()->headers->get('origin').'/';
     }
 
-    public function login(Request $request){
+    public function adminlogin(Request $request){
+        $validator = Validator::make($request->all(), [
+            'user_name' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status'=>'fail',
+                'message' => 'Sorry, user registration is failed!',
+                'data'=>$validator->errors()
+            ], 200);    
+        }
+        $password =$request->password;
+        $user = AdminUser::where('user_name', '=', $request->user_name)->
+                      where('password','=', $password )->first();
+        if($user === null){
+            return response()->json([
+                'status'=>'error',
+                'message' => 'Sorry, that didn’t work. Please try again',
+                'code'=>'email'
+            ], 500);
+        } 
+    
+        if(!empty($user)){
+            return response()->json([
+                'status'=>'success',
+                'code'=>'email'
+            ], 200);   
+          
+        }else{
+            return response()->json([
+                'status'=>'error',
+                'message' => 'This user type has no permission!',
+                'code'=>'user_type'
+            ], 500);
+        }
         
+      
+    }
+
+
+    public function login(Request $request){
+      
         $user = User::where('email', '=', $request->email)->first();
         if(!empty($user)){
             $user_type = $user->user_types->user_type;
@@ -115,27 +158,31 @@ class AuthenticationController extends BaseController
 
                     $user_pkg = $user->user_package;
                     if(!empty( $user_pkg)){
-                        $now = Carbon::now();
-                        $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
-                        $diff = $expire_date->diffInDays($now);
-                        $user_pkg->push('package_info',$user_pkg->package_info);
-                        $user_pkg->access_url = $this->access_url;
-                        $user_pkg->remaining_days = $diff;
-                        $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
-                        $status = "status";
-                        if($now > $expire_date){
-                            $status = "expired";
+                        $package_info = PackageInfo::where('package','free account')->first();
+                        if($package_info->id===$user_pkg->package_id){
+                            $user_pkg = "free account"; 
                         }else{
-                            if($diff<16){
-                                if(!$inactive_user_notify->package_expire_notify){
-                                    $inactive_user_notify->package_expire_notify = 1;
-                                    $inactive_user_notify->save();
-                                    Mail::to($user->email)->send(new MailNotifyFifteenDaysMail($user, $user_pkg));
+                            $now = Carbon::now();
+                            $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
+                            $diff = $expire_date->diffInDays($now);
+                            $user_pkg->push('package_info',$user_pkg->package_info);
+                            $user_pkg->access_url = $this->access_url;
+                            $user_pkg->remaining_days = $diff;
+                            $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
+                            $status = "status";
+                            if($now > $expire_date){
+                                $status = "expired";
+                            }else{
+                                if($diff<16){
+                                    if(!$inactive_user_notify->package_expire_notify){
+                                        $inactive_user_notify->package_expire_notify = 1;
+                                        $inactive_user_notify->save();
+                                        Mail::to($user->email)->send(new MailNotifyFifteenDaysMail($user, $user_pkg));
+                                    }
                                 }
                             }
-                        }
-                        
-                        //$user_pkg->push('package_info',$user_pkg->package_info);
+                        } 
+
                     }else{
                         $user_pkg = "NA";
                     }
