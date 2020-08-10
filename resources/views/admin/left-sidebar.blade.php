@@ -55,6 +55,9 @@
             <li><a href="/inactive_beneficiary_users"><i class="fa fa-circle-o"></i> Beneficiary of Inactive</a></li>
           </ul>
         </li>
+        <li class="header">Payments</li>
+        <li><a href="/billing_details"><i class="fa fa-circle-o text-red"></i> <span>Billing Details</span></a></li>
+        <li><a href="/unsubscribed_user/0"><i class="fa fa-circle-o text-red"></i> <span>Unsubscribed users</span></a></li>
 
         <li class="header">Settings</li>
         {{-- <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Forgot Password</span></a></li> --}}

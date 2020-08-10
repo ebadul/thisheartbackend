@@ -206,20 +206,25 @@ class UserPackage extends Model
     public function saveUserPackage($rs){
         $user_id = $rs['user_id'];
         $package_id =  $rs['package_id'];
+        $paid =  $rs['paid'];
         $billing_type =  empty($rs['billing_type'])?"":$rs['billing_type'];
         $payment_type =  empty($rs['payment_type'])?"":$rs['payment_type'];
        
         $date = date('Y-m-d');
         $package_info = PackageInfo::where('id','=',$package_id)->orderBy('id','desc')->first();
-        if(!empty($rs['trial_end']) && $rs['trial_end'] ==="yes"){
-            $expire_date = $date;
-        }else{
-            if($payment_type==="yearly"){
-                $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->year_days.' days'));
+        if($paid==="paid"){
+            if(!empty($rs['trial_end']) && $rs['trial_end'] ==="yes"){
+                $expire_date = $date;
             }else{
-                $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->days.' days'));
+                if($payment_type==="yearly"){
+                    $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->year_days.' days'));
+                }else{
+                    $expire_date = date('Y-m-d', strtotime($date.' + '.$package_info->days.' days'));
+                }
             }
-            
+        }elseif($paid==="unpaid"){
+            $expire_days = 30;
+            $expire_date = date('Y-m-d', strtotime($date.' + '.$expire_days.' days'));
         }
 
         $user_pkg = UserPackage::where('user_id','=',$user_id)->first();
@@ -394,17 +399,107 @@ class UserPackage extends Model
     }
 
     public function retriveSessionInfo($session_id){
-        $session_status = \Stripe\Checkout\Session::retrieve(
-            $session_id
-          );
-        return $session_status;
+        if(!empty($session_id)){
+            $session_status = \Stripe\Checkout\Session::retrieve(
+                $session_id
+              );
+            return $session_status;
+        }else{
+            return null;
+        }
+        
     }
     
     public function retrivePaymentInfo($payment_intent_id){
-        $payment_intent = \Stripe\PaymentIntent::retrieve(
-            $payment_intent_id
-          );
-        return $payment_intent;
+        if(!empty($payment_intent_id)){
+            $payment_intent = \Stripe\PaymentIntent::retrieve(
+                $payment_intent_id
+              );
+            return $payment_intent;
+        }else{
+            return null;
+        }
+    }
+
+
+    public function paymentCreateSessionProfile($rs){
+        try{
+                $user = Auth::user();
+                \Stripe\Stripe::setApiKey('sk_test_AVSEgKpyoxellFyvMtrGrIww00nRnsyvaP');
+                $success_url = $this->access_url.'payment-success-profile/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
+                $cancel_url = $this->access_url."payment-cancel/".Crypt::encryptString('payment-cancel');
+                $billing_type = $rs->billing_type;
+                $payment_type = $rs->payment_type;
+                $stripe_month_price_plan = $rs->stripe_month_price_plan;
+                $stripe_year_price_plan = $rs->stripe_year_price_plan;
+                $price = $rs->payment_type==="yearly"?$rs->year_amount:$rs->amount;
+                $price_plan = "";
+                $line_items= "";
+                if($billing_type && $payment_type==="yearly"){
+                    $price_plan = $stripe_year_price_plan;
+                }elseif($billing_type && $payment_type==="monthly"){
+                    $price_plan = $stripe_month_price_plan;
+                }
+               
+                if($billing_type){
+                    $mode = "subscription";
+                    $line_items=[ 
+                        'price' => $price_plan,
+                        'quantity' => 1,
+                        ];
+                    
+                }else{
+                    $line_items=[ 
+                        'name' => $rs->item,
+                        'description' => $rs->description,
+                        'images' => ['http://thisheart.co:8000/images/package-img.png'],
+                        'amount' => $price*100,
+                        'currency' => 'usd',
+                        'quantity' => 1,
+                    ];
+                    $mode = "payment";
+                }
+ 
+                $session = \Stripe\Checkout\Session::create([
+                'payment_method_types' => ['card'],
+                'line_items' => [$line_items],
+                'metadata'=>[
+                    'user_id' => $user->id,
+                    'package_id' => $rs->item_id,
+                    'amount' => $price*100,
+                    'payment_type' => $payment_type,
+                    'billing_type' => $billing_type,
+                ],
+                'mode'=>$mode,
+                'success_url' => $success_url,
+                'cancel_url' =>  $cancel_url,
+                ]);
+            }catch(Exception $ex){
+                $exp = $ex->getMessage();
+            }
+        if(!empty($session)){
+            $session_rs = [
+                'package_id'=>$rs->item_id,
+                'payment_session_id' => $session->id,
+                'paid' => 0,
+                'amount' => $price*100,
+                'user_package_id' => '0',
+                'payment_details_id' => '0',
+                'session' => $session,
+            ];
+            $payment_session = new PaymentSession;
+            $payment_session->savePaymentSession($session_rs);
+
+            return [
+                'status'=>'success',
+                'data'=>$session
+            ];
+        }else{
+            return [
+                'status'=>'error',
+                'data'=>$exp
+            ];
+        }
     }
 
 }

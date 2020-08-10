@@ -15,6 +15,7 @@ use App\UserPackage;
 use App\InactiveUserNotify;
 use App\PackageEntitiesInfo;
 use App\PackageEntity;
+use App\UserBilling;
 
 class User extends Authenticatable
 {
@@ -100,5 +101,9 @@ class User extends Authenticatable
 
     public function primary_user(){
         return $this->belongsTo(User::class,'beneficiary_id');
+    }
+
+    public function user_billing(){
+        return $this->hasOne(UserBilling::class,'user_id');
     }
 }

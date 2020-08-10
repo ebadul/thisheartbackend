@@ -156,10 +156,13 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/getPackages', 'API\PackagesController@getPackages');
 	Route::post('/getPackageByUser', 'API\PackagesController@getPackageByUser');
 	Route::post('/savePackageInfo', 'API\PackagesController@savePackageInfo');
+	Route::post('/unsubscribePackage', 'API\PackagesController@unsubscribePackage');
 	Route::post('/savePaymentInfo', 'API\PackagesController@savePaymentInfo');
 	Route::post('/package/paymentInit', 'API\PackagesController@paymentInit');
 	Route::post('/package/payment/create-session', 'API\PackagesController@paymentCreateSession');
 	Route::post('/package/payment/session-success', 'API\PackagesController@paymentSessionSuccess');
+	Route::post('/package/payment/create-session-profile', 'API\PackagesController@paymentCreateSessionProfile');
+	Route::post('/package/payment/session-success-profile', 'API\PackagesController@paymentSessionSuccessProfile');
 	Route::post('/content-dashboard', 'API\MemoriesController@content_dashboard');
 	
 	

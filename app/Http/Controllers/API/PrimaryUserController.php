@@ -17,6 +17,8 @@ use App\Memories;
 use App\PackageInfo;
 use App\UserPackage;
 use App\FreeAccount;
+use App\UserBilling;
+use App\BillingDetail;
 use Validator;
 use Auth;
 use Mail;
@@ -524,6 +526,45 @@ class PrimaryUserController extends BaseController
             ], 500); 
         }
         
+    }
+
+
+    public function unsubscribed_user($subscribed_status=0){
+        $user = Auth::user();
+        if($subscribed_status==="1"){
+            $user_list = UserBilling::where('subscribe_status','=','1')->get();
+        }else{
+            $user_list = UserBilling::where('subscribe_status','=','0')->get();
+        }
+        
+        $package_list = PackageInfo::all();
+        $user_package = "";
+        
+        return view('admin.unsubscribed_user',[
+                    'user'=>$user,
+                    'user_list'=>$user_list,
+                    'user_package'=>$user_package,
+                    'package_list'=>$package_list,
+                    ]);
+    }
+
+    public function billing_details($month=null){
+        $user = Auth::user();
+        if(empty($subscribed_status)){
+            $billing_list = BillingDetail::all();
+        }else{
+            $billing_list = BillingDetail::where('subscribe_status','=','0')->get();
+        }
+        
+        $package_list = PackageInfo::all();
+        $user_package = "";
+        
+        return view('admin.billing_details',[
+                    'user'=>$user,
+                    'billing_list'=>$billing_list,
+                    'user_package'=>$user_package,
+                    'package_list'=>$package_list,
+                    ]);
     }
 
 }

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Auth;
 use Mail;
 use App\Mail\PaymentSuccessMail;
+use App\Mail\PaymentChargingMail;
+use App\Mail\UnsubscribePackageMail;
 use App\Services\OTPService;
 use App\WizardStep;
 use App\PackageInfo;
@@ -15,6 +17,8 @@ use App\UserPackage;
 use App\PaymentDetails;
 use App\PackageEntitiesInfo;
 use App\PaymentSession;
+use App\UserBilling;
+use App\BillingDetail;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Crypt;
@@ -92,6 +96,60 @@ class PackagesController extends Controller
                 'sub_plan'=>$user_pkg,
             ], 200);
         }
+    }
+    public function unsubscribePackage(Request $rs){
+            $user = Auth::user();
+            $dt = date("Y-m-d");
+            $expire_date  = date("Y-m-d",strtotime("$dt + 30 Day"));
+            $user_billing = UserBilling::where('user_id','=',$user->id)->
+                            where('subscribe_status','=',1)->first();
+            if(empty($user_billing)){
+                return response()->json([
+                    'status'=>'error',
+                    'code'=>'201',
+                    'package_info'=>"Unable to unsubscribe the package!",
+                ], 500);
+            }
+            $user_billing->expire_date =  $expire_date ;
+            $user_billing->subscribe_status = 0;
+            $user_billing->save();
+
+           
+     
+    
+            $today_date = date("d");
+            $billing_month="";
+      
+            $billing_month = date("F-Y");
+            $billing_date = date("Y-m",strtotime("$dt + 1 Month"))."-01";
+            //$next_billing_date = date("Y-m",strtotime("$dt + 2 Month"))."-01";
+          
+    
+            $billing_details = new BillingDetail;
+            $billing_details->user_id = $user->id;
+            $billing_details->package_id = $user_billing->package_id;
+            $billing_details->billing_month =  $billing_month;
+            $billing_details->package_cost = $user_billing->package_cost;
+            $billing_details->payment_type = $user_billing->payment_type;
+            $billing_details->recurring_type = $user_billing->recurring_type;
+            $billing_details->stripe_session_id = null;
+            $billing_details->billing_date = $billing_date  ;
+            $billing_details->paid_status=0;
+            $billing_details->save();
+            
+
+            
+            $user_package = UserPackage::where('user_id','=',$user->id)->first();
+            $user_package->subscription_expire_date = $expire_date;
+            $user_package->save();
+          
+            Mail::to($user->email)->send(new UnsubscribePackageMail($user,null));
+
+            return response()->json([
+                'status'=>'success',
+                'user_billing'=>$user_billing,
+            ], 200);
+ 
     }
 
     public function savePaymentInfo(Request $rs){
@@ -410,7 +468,7 @@ class PackagesController extends Controller
             'customer'=>$customer->id,
             'amount'=>$rs->amounts,
             'currency'=>'usd',
-            'description'=>'shahin2k5@gmail.com',
+            'description'=> $user->email,
             'metadata'=>[
                 'order_id'=>$rs->id
             ]
@@ -439,6 +497,7 @@ class PackagesController extends Controller
             ], 500);
         }
     }
+    
 
     public function paymentSessionSuccess(Request $rs){
         $this->validate($rs,[
@@ -462,7 +521,7 @@ class PackagesController extends Controller
         if(empty($payment_session ) || $payment_session->paid===1){
             return response()->json([
                 'status'=>'error',
-                'message'=> 'Invalid payment request!',
+                'message'=> 'Invalid payment requests!',
             ], 500);
         }   
 
@@ -505,6 +564,7 @@ class PackagesController extends Controller
 
         $payment_session->paid = 1;
         $payment_session->save();
+        
         Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
         return response()->json([
             'status'=>'success',
@@ -518,6 +578,171 @@ class PackagesController extends Controller
             'billing_type'=>$billing_type,
         ], 200);
     }
+
+
+    public function paymentCreateSessionProfile(Request $rs){
+        $user = Auth::user();
+        $userPackage = new UserPackage;
+        $session_info = $userPackage->paymentCreateSessionProfile($rs);
+        if($session_info['status']==="success"){
+            return response()->json([
+                'status'=>'success',
+                'session'=>$session_info['data'] ,
+            ], 200);
+        }else{
+            return response()->json([
+                'status'=>'error',
+                 'message'=>$session_info['data']
+            ], 500);
+        }
+    }
+
+    public function paymentSessionSuccessProfile(Request $rs){
+        $this->validate($rs,[
+            'id'=>'required',
+            'session_token'=>'required'
+        ]);
+        $session_token = $rs->session_token;
+        $token = explode('&*^',$session_token);
+        if(empty($token[0]) || empty($token[1])){
+            return response()->json([
+                'status'=>'error',
+                'code'=>'101',
+                'message'=> 'Invalid payment request!',
+            ], 500);
+        }
+
+        $session_id = $rs->id;
+        $user = Auth::user();
+
+        $payment_session = PaymentSession::where('user_id','=',$user->id)
+                            ->where('payment_session_id','=',$session_id)->first();
+        if(empty($payment_session ) || $payment_session->paid===1){
+            return response()->json([
+                'status'=>'error',
+                'code'=>'102',
+                'message'=> 'Invalid payment requests!',
+            ], 500);
+        } 
+
+        $user_package = new UserPackage;
+        $session_status = $user_package->retriveSessionInfo($session_id);
+        if(empty($session_status )){
+            return response()->json([
+                'status'=>'error',
+                'code'=>'104',
+                'message'=> 'Invalid payment requests!',
+            ], 500);
+        } 
+
+        $meta_data = $session_status->metadata;
+
+        $user_billing = UserBilling::where('user_id','=',$meta_data->user_id)->first();
+        if(empty($user_billing)){
+            $user_billing = new UserBilling;
+        }
+
+        $user_billing->user_id = $meta_data->user_id;
+        $user_billing->package_id = $meta_data->package_id;
+        $user_billing->package_cost = $meta_data->amount/100;
+        $user_billing->subscribe_date = date('Y-m-d');
+        // $user_billing->expire_date;
+        $user_billing->payment_type = $meta_data->payment_type;
+        $user_billing->recurring_type = $meta_data->billing_type;
+        $user_billing->subscribe_status=1;
+        $user_billing->save();
+
+        $today_date = date("d");
+        $dt = date('Y-m-d');
+        $billing_month="";
+        if($today_date<15){
+            $billing_month = date("F-Y");
+            $billing_date = date("Y-m",strtotime("$dt + 1 Month"))."-01";
+            $next_billing_date = date("Y-m",strtotime("$dt + 2 Month"))."-01";
+        }else{
+           
+            $billing_month = date("F-Y",strtotime("$dt + 1 Month"));
+            $billing_date = date("Y-m",strtotime("$dt + 2 Month"))."-01";
+            $next_billing_date = date("Y-m",strtotime("$dt + 3 Month"))."-01";
+        }
+
+        $billing_details = new BillingDetail;
+        $billing_details->user_id = $meta_data->user_id;
+        $billing_details->package_id = $meta_data->package_id;
+        $billing_details->billing_month =  $billing_month;
+        $billing_details->package_cost = $meta_data->amount;
+        $billing_details->payment_type = $meta_data->payment_type;
+        $billing_details->recurring_type = $meta_data->billing_type;
+        $billing_details->stripe_session_id = $session_id;
+        $billing_details->billing_date = $billing_date  ;
+        $billing_details->next_billing_date = $next_billing_date;
+        $billing_details->paid_status=0;
+        $billing_details->save();
+        
+
+       
+        $session_status->date = date('Y-m-d');
+        
+        $user_id = $meta_data->user_id;
+        $package_id = $meta_data->package_id;
+        $amount = $meta_data->amount;
+        $payment_type = $meta_data->payment_type;
+        $billing_type = $meta_data->billing_type;
+        $paid = "";
+        if(!empty($session_status->subscription) && 
+                $session_status->amount_total>0 && 
+                $session_status->mode==="subscription" && $billing_type ==="yes"){
+                    $paid = "unpaid";
+        }else{
+            $payment_status = $user_package->retrivePaymentInfo($session_status->payment_intent);
+            if(!empty( $payment_status) && $payment_status->amount_received>0 && 
+                $payment_status->status==="succeeded" &&
+                $payment_status->charges->data[0]->amount_refunded === 0
+                ){
+                    $paid = "paid";
+            }else{
+                $paid = "unpaid";
+                // return response()->json([
+                //     'status'=>'error',
+                //     'code'=>'103',
+                //     'message'=> 'Invalid payment request!',
+                // ], 500);
+            }
+        }
+       
+        $package_rs = [
+            'user_id'=>$user->id,
+            'package_id'=>$package_id,
+            'payment_type'=>$payment_type,
+            'billing_type'=>$billing_type,
+            'billing_type'=>$billing_type,
+            'paid'=>$paid
+        ];
+        $user_pkg = $user_package->saveUserPackage($package_rs);
+        if($paid==="paid"){
+            $payment_session->paid = 1;
+            $payment_session->save();
+        }elseif($paid==="unpaid"){
+            $payment_session->paid = 0;
+            $payment_session->save();
+        }
+      
+        Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
+        return response()->json([
+            'status'=>'success',
+            'data'=> $payment_session,
+            'session_status'=> $session_status,
+            'payment_status'=> $payment_status,
+            'package_info'=> $user_pkg,
+            'user_id'=>$user->id,
+            'package_id'=>$package_id,
+            'payment_type'=>$payment_type,
+            'billing_type'=>$billing_type,
+        ], 200);
+    }
+
+
+
 
      
 }

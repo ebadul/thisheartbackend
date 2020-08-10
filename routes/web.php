@@ -79,6 +79,8 @@ Route::post('/inactive_user_notify_edit', "API\PrimaryUserController@inactive_us
 Route::get('/inactive_beneficiary_users', "API\PrimaryUserController@inactive_beneficiary_users")->middleware('auth');
 Route::post('/inactive_user/send_email', "API\PrimaryUserController@inactive_user_send_email")->middleware('auth');
 Route::post('/inactive_user/send_email_automation', "API\PrimaryUserController@inactive_user_send_email_automation")->middleware('auth');
+Route::get('/unsubscribed_user/{subscribed_status}', "API\PrimaryUserController@unsubscribed_user")->middleware('auth');
+Route::get('/billing_details', "API\PrimaryUserController@billing_details")->middleware('auth');
 
 
 

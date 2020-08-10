@@ -86,8 +86,8 @@ class AuthenticationController extends BaseController
             }else{
                 return response()->json([
                     'status'=>'error',
+                    'code'=>'user_type',
                     'message' => 'This user type has no permission!',
-                    'code'=>'user_type'
                 ], 400);
             }
         }
@@ -95,24 +95,24 @@ class AuthenticationController extends BaseController
         if($user === null){
             return response()->json([
                 'status'=>'error',
+                'code'=>'email',
                 'message' => 'Sorry, that didn’t work. Please try again',
-                'code'=>'email'
             ], 401);
         }else{
 
             if($user->email_verified===0){
                 return response()->json([
                     'status'=>'error',
+                    'code'=>'email',
                     'message' => "Sorry, this email isn't verified",
-                    'code'=>'email'
                 ], 401);
             }
 
             if($user->active===0){
                 return response()->json([
                     'status'=>'error',
+                    'code'=>'email',
                     'message' => "Sorry, user isn't actived",
-                    'code'=>'email'
                 ], 401);
             }
 
@@ -157,7 +157,12 @@ class AuthenticationController extends BaseController
                     $user->save();
 
                     $user_pkg = $user->user_package;
+                    $status = "success";
                     if(!empty( $user_pkg)){
+                        $user_billing = $user->user_billing;
+                        if(!empty($user_billing) && $user_billing->subscribe_status===0){
+                            $status = "unsubscribed";
+                        }
                         $package_info = PackageInfo::where('package','free account')->first();
                         if($package_info->id===$user_pkg->package_id){
                             $user_pkg = "free account"; 
@@ -169,7 +174,7 @@ class AuthenticationController extends BaseController
                             $user_pkg->access_url = $this->access_url;
                             $user_pkg->remaining_days = $diff;
                             $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
-                            $status = "status";
+                            
                             if($now > $expire_date){
                                 $status = "expired";
                             }else{
@@ -190,8 +195,26 @@ class AuthenticationController extends BaseController
                     $user_type = $user->user_types->user_type;
                     if($user_type==="beneficiary"){
                         $primary_user = $user->primary_user ;
-                        if($primary_user){
+                        if(!empty($primary_user)){
                             $primary_user->name = Crypt::decryptString($primary_user->name);
+                            $primary_user_package = $primary_user->user_package;
+
+                            $package_info = PackageInfo::where('package','free account')->first();
+                            if($package_info->id===$primary_user_package->package_id){
+                                $user_pkg = "free account"; 
+                                $status = "free_account";
+                            }else{
+                                $now = Carbon::now();
+                                $expire_date = Carbon::parse($primary_user_package->subscription_expire_date);
+                                if($now > $expire_date){
+                                    $status = "expired";
+                                }
+
+                                $primary_user_billing = $primary_user->user_billing;
+                                if(!empty($primary_user_billing) && $primary_user_billing->subscribe_status===0){
+                                    $status = "unsubscribed";
+                                }
+                            }
                         } 
                     }
 
@@ -216,6 +239,7 @@ class AuthenticationController extends BaseController
                 else{
                     return response()->json([
                         'error'=>'Unauthorised',
+                        'code'=>'301',
                         'message' => 'Sorry, that didn’t work. Please try again',
                     ], 401);
                 }
@@ -223,6 +247,7 @@ class AuthenticationController extends BaseController
             }else{
                 return response()->json([
                     'status'=>'error',
+                    'code'=>'302',
                     'message' => 'Sorry, that didn’t work. Try again',
                     'password'=>$passwordOK
                 ], 422);
