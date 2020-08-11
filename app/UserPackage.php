@@ -206,7 +206,7 @@ class UserPackage extends Model
     public function saveUserPackage($rs){
         $user_id = $rs['user_id'];
         $package_id =  $rs['package_id'];
-        $paid =  $rs['paid'];
+        $paid =  empty($rs['paid'])?'unpaid':$rs['paid'];
         $billing_type =  empty($rs['billing_type'])?"":$rs['billing_type'];
         $payment_type =  empty($rs['payment_type'])?"":$rs['payment_type'];
        
