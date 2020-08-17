@@ -19,7 +19,7 @@
     <section class="content-header">
         <div class="row">
           <div class="col-md-4">
-            <span class="h1">Unsubscribed Users</span class="h1">
+            <span class="h1">Billing Details</span class="h1">
           </div>
           <div class="col-md-2">
             
@@ -70,18 +70,18 @@
             <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
               <thead>
                 <tr role="row">
-                  <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 182px;">Trans.Id</th>
-                  <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 182px;">User Id</th>
+                
+                  <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 182px;">Bill Id</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Email</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Package</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Billing Cost</th>
                   
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Billing Month</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Payment Type</th>
-                  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Recurring</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Billing Date</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Next Billing Date</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Status</th>
+                  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Make Payment</th>
                   
                 
                 </tr>
@@ -90,20 +90,29 @@
                 <?php if ($billing_list) : ?>
                   @foreach ( $billing_list as $row )
                   <tr role="row" class="odd">
-                    <td title="{{$row->id}}">{{$row->id}} </td>
-                    <td title="{{$row->user_id}}">{{$row->user_id}}</td>
+                    <td title="{{$row->id}}">{{$row->id}}</td>
                     <td title="{{$row->user_id}}">{{$row->user->email}}</td>
                     <td title="{{$row->user_id}}" class="text-center">
                         {{$row->user->user_package->package_info->package}}</td>
-                    
-                    <td>{{ $row['package_cost']}}</td>
+                    <td class="text-center">$ {{ $row['package_cost']}}</td>
                     <td>{{ $row['billing_month']}}</td>
-                    <td>{{ $row['payment_type']}}</td>
-                    <td>{{ $row['recurring_type']}}</td>
+                    <td title="{{ $row['recurring_type']}}">{{ $row['payment_type']}}</td>
                     <td>{{ $row['billing_date']}}</td>
                     <td>{{ $row['next_billing_date']}}</td>
                     <td class="text-center">
-                        {{ $row['paid_status']?"Paid":"Unpaid"}}
+                        <span title="{{'Bill start : '.$row['billing_start_date'].', '}}
+{{'Bill end : '.$row['billing_end_date'].', '}}
+{{'Process times : '.$row['payment_process_times'].', '}}
+{{'Status : '.($row['paid_status']?"Paid":"Unpaid").', '}}
+{{'Process : '.$row['process_stauts'].', '}}
+{{'Updated : '.$row['updated_at'].', '}}
+{{'Job id : '.$row['cron_payment_charging_id']}}">More...</span>
+                        
+                    </td>
+                    <td class="text-center">
+                    <button type="button" class="btn btn-success btnCharging" billing-details-id="{{$row->id}}" {{ $row['paid_status']?'disabled':'Charging'}}>
+                         <i class="fa fa-spinner fa-spin hidden"></i>
+                        {{ $row['paid_status']?'Charging':'Charging'}}</button>
                     </td>
                     
                  
@@ -200,18 +209,18 @@
 <!-- -----------------------------  Active/Deactive Item Ajax Request Start ------------------------------- ---->
 <script>
   $(document).ready(function() {
-    $('.activeSts').change(function() {
-      var userid = $(this).attr('user-id');
-      //console.log("Active item on Id :::", userid);
-      var status = $(this).prop('checked') == true ? 1 : 0;
+    $('.btnCharging').click(function() {
+      var billing_details_id = $(this).attr('billing-details-id');
+      //console.log("Active item on Id :::", billing_details_id);
       //console.log("Active Status :::", status); 
+      var faspinner = $(this).find('i.fa').removeClass('hidden');
+      faspinner.removeClass('hidden');
       $.ajax({
         type: "post",
         dataType: "json",
-        url: "./user_status",
+        url: "./admin_payment_charging",
         data: {
-          'active': status,
-          'user_id': userid
+          billing_details_id: billing_details_id
         },
         beforeSend: function(xhr, type) {
           if (!type.crossDomain) {
@@ -219,10 +228,30 @@
           }
         },
         success: function(data) {
-          console.log(data.success)
+          console.log('success:',data)
+          $.toast({
+          heading: 'Information',
+          text: 'Successfully, payment is updated!',
+          icon: 'info',
+          position: 'bottom-right',
+          loader: true, // Change it to false to disable loader
+          bgColor: '#088' // To change the background
+        })
+         faspinner.addClass('hidden');
+          location.reload(true);
         },
         error: function(error) {
           console.log("error :", error);
+         faspinner.addClass('hidden');
+          $.toast({
+            heading: 'Information',
+            text: 'Sorry, '+error.responseText,
+            icon: 'error',
+            position: 'bottom-right',
+            loader: true, // Change it to false to disable loader
+            bgColor: '#FF6A4D' // To change the background
+          })
+          
         }
       });
     });
@@ -314,6 +343,8 @@
   $(function() {
     $('#example1').dataTable({
       'paging': true,
+      "lengthMenu": [ 25, 50, 100, 150 ],
+      "pageLength":50,
       'lengthChange': true,
       'searching': true,
       'ordering': true,

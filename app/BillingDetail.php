@@ -11,9 +11,11 @@ class BillingDetail extends Model
         return $this->belongsTo(User::class);
     }
 
-
-    
     public function user_package(){
         return $this->hasOne(User::class, UserPackage::class, "user_id");
+    }
+
+    public function package_info(){
+        return $this->belongsTo(PackageInfo::class, "package_id");
     }
 }

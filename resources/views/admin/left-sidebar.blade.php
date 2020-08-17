@@ -50,15 +50,26 @@
             <li><a href="/package_entities"><i class="fa fa-circle-o"></i> Package Entity</a></li>
             <li><a href="/user_package"><i class="fa fa-circle-o"></i> User Package</a></li>
             <li><a href="/user_activities"><i class="fa fa-circle-o"></i> User Activities</a></li>
-            <li><a href="/free_account/0"><i class="fa fa-circle-o"></i> Free Account</a></li>
+           
             <li><a href="/inactive_primary_users"><i class="fa fa-circle-o"></i> Inactive Primary User</a></li>
             <li><a href="/inactive_beneficiary_users"><i class="fa fa-circle-o"></i> Beneficiary of Inactive</a></li>
           </ul>
         </li>
-        <li class="header">Payments</li>
-        <li><a href="/billing_details"><i class="fa fa-circle-o text-red"></i> <span>Billing Details</span></a></li>
-        <li><a href="/unsubscribed_user/0"><i class="fa fa-circle-o text-red"></i> <span>Unsubscribed users</span></a></li>
 
+        <li class="active treeview">
+          <a href="#">
+            <i class="fa fa-usd"></i> <span>Payments</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li><a href="/billing_details"><i class="fa fa-circle-o"></i> Billing Details</a></li>
+            <li><a href="/free_account/0"><i class="fa fa-circle-o"></i> Free Account</a></li>
+            <li><a href="/unsubscribed_user/0"><i class="fa fa-circle-o"></i> Unsubscribed users</a></li>
+            {{--  <li><a href="/payment_charging/0"><i class="fa fa-circle-o"></i> Payment charging</a></li>  --}}
+          </ul>
+        </li>
         <li class="header">Settings</li>
         {{-- <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Forgot Password</span></a></li> --}}
         <li><a href="{{route('logout')}}"><i class="fa fa-circle-o text-red"></i> <span>Log Out</span></a></li>

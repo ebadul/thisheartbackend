@@ -60,7 +60,7 @@
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px;">Price</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Days</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Edit</th>
-                  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Delete</th>
+                  {{--  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Delete</th>  --}}
                 </tr>
               </thead>
               <tbody>
@@ -80,10 +80,10 @@
                     <td class="text-center">
                       <button type="button" class="btn btn-info editBtn" user-data="{{$row}}"><span><i class="fa fa-edit"></i></span> Edit</button>
                     </td>
-                    <td class="text-center">
+                    {{--  <td class="text-center">
                       <a href="/delete_package_info/{{$row['id']}}" class="btn btn-danger" user-id="{{$row['id']}}" type="button" onclick="return confirm('Do you want to delete package info data')">
                         Delete</a>
-                    </td>
+                    </td>  --}}
                   </tr>
                   @endforeach
                 <?php endif; ?>

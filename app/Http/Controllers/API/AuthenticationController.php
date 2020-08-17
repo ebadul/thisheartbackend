@@ -78,181 +78,190 @@ class AuthenticationController extends BaseController
 
 
     public function login(Request $request){
-      
-        $user = User::where('email', '=', $request->email)->first();
-        if(!empty($user)){
-            $user_type = $user->user_types->user_type;
-            if($user_type==="primary" || $user_type==="beneficiary"){
-            }else{
-                return response()->json([
-                    'status'=>'error',
-                    'code'=>'user_type',
-                    'message' => 'This user type has no permission!',
-                ], 400);
-            }
-        }
-        
-        if($user === null){
-            return response()->json([
-                'status'=>'error',
-                'code'=>'email',
-                'message' => 'Sorry, that didn’t work. Please try again',
-            ], 401);
-        }else{
-
-            if($user->email_verified===0){
-                return response()->json([
-                    'status'=>'error',
-                    'code'=>'email',
-                    'message' => "Sorry, this email isn't verified",
-                ], 401);
-            }
-
-            if($user->active===0){
-                return response()->json([
-                    'status'=>'error',
-                    'code'=>'email',
-                    'message' => "Sorry, user isn't actived",
-                ], 401);
-            }
-
-            
-            $passwordOK = Hash::check($request->password, $user->password);
-            if($passwordOK){
-                $status = "fail";
-                if(Auth::attempt(['email' => $request->email, 
-                    'password' => $request->password,
-                    'email_verified'=>1])){
-                    $user = Auth::user();
-                    $tokenResult = $user->createToken('ThisHeartAccessToken');
-                    $accountProgressStatus = true;
-                    $accountProgressStatus = $this->checkAccountProgressData($user->id);
-                    $checkAccountWizard = $this->checkAccountWizard($user->id);
-                   
-                    $user_id = $user->id;
-                    $ip = $_SERVER['REMOTE_ADDR'];
-                    $platform = $_SERVER['HTTP_USER_AGENT'];
-                    $user_activity = new UserActivity;
-                    $user_activity->user_id = $user_id;
-                    $user_activity->ip = $ip;
-                    $user_activity->platform = json_encode($platform);
-                    $user_activity->save();
-
-                    $inactive_user_notify =  InactiveUserNotify::where('user_id',$user->id)->first();
-                    if(empty($inactive_user_notify)){
-                        $inactive_user_notify = new InactiveUserNotify;
-                        $inactive_user_notify->user_id = $user->id;
-                    }
-                        
-                        $inactive_user_notify->last_login = Carbon::now();
-                        $inactive_user_notify->first_send_email = null;
-                        $inactive_user_notify->second_send_email = null;
-                        $inactive_user_notify->send_sms = null;
-                        $inactive_user_notify->send_email_beneficiary_user = null;
-                        $inactive_user_notify->send_sms_beneficiary_user = null;
-                        $inactive_user_notify->final_make_call = null;
-                        $inactive_user_notify->save();
-                   
-                    $user->last_login=Carbon::now();
-                    $user->save();
-
-                    $user_pkg = $user->user_package;
-                    $status = "success";
-                    if(!empty( $user_pkg)){
-                        $user_billing = $user->user_billing;
-                        if(!empty($user_billing) && $user_billing->subscribe_status===0){
-                            $status = "unsubscribed";
-                        }
-                        $package_info = PackageInfo::where('package','free account')->first();
-                        if($package_info->id===$user_pkg->package_id){
-                            $user_pkg = "free account"; 
-                        }else{
-                            $now = Carbon::now();
-                            $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
-                            $diff = $expire_date->diffInDays($now);
-                            $user_pkg->push('package_info',$user_pkg->package_info);
-                            $user_pkg->access_url = $this->access_url;
-                            $user_pkg->remaining_days = $diff;
-                            $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
-                            
-                            if($now > $expire_date){
-                                $status = "expired";
-                            }else{
-                                if($diff<16){
-                                    if(!$inactive_user_notify->package_expire_notify){
-                                        $inactive_user_notify->package_expire_notify = 1;
-                                        $inactive_user_notify->save();
-                                        Mail::to($user->email)->send(new MailNotifyFifteenDaysMail($user, $user_pkg));
-                                    }
-                                }
-                            }
-                        } 
-
-                    }else{
-                        $user_pkg = "NA";
-                    }
-
+      try{
+                $user = User::where('email', '=', $request->email)->first();
+                if(!empty($user)){
                     $user_type = $user->user_types->user_type;
-                    if($user_type==="beneficiary"){
-                        $primary_user = $user->primary_user ;
-                        if(!empty($primary_user)){
-                            $primary_user->name = Crypt::decryptString($primary_user->name);
-                            $primary_user_package = $primary_user->user_package;
-
-                            $package_info = PackageInfo::where('package','free account')->first();
-                            if($package_info->id===$primary_user_package->package_id){
-                                $user_pkg = "free account"; 
-                                $status = "free_account";
-                            }else{
-                                $now = Carbon::now();
-                                $expire_date = Carbon::parse($primary_user_package->subscription_expire_date);
-                                if($now > $expire_date){
-                                    $status = "expired";
-                                }
-
-                                $primary_user_billing = $primary_user->user_billing;
-                                if(!empty($primary_user_billing) && $primary_user_billing->subscribe_status===0){
-                                    $status = "unsubscribed";
-                                }
-                            }
-                        } 
+                    if($user_type==="primary" || $user_type==="beneficiary"){
+                    }else{
+                        return response()->json([
+                            'status'=>'error',
+                            'code'=>'user_type',
+                            'message' => 'This user type has no permission!',
+                        ], 400);
                     }
-
-                    return response()->json([
-                        'status' => $status,
-                        'message' => 'User logged in successfully!',
-                        'user_id' => $user->id,
-                        'user_name' => Crypt::decryptString($user->name),
-                        'access_token' => $tokenResult->accessToken,
-                        'account_progress_status' => $accountProgressStatus,
-                        'account_wizard' => $checkAccountWizard,
-                        'token_type' => 'Bearer',
-                        'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
-                        'data'=>$user,
-                        'sub_plan'=>$user_pkg,
-                        'primary_user'=>$user->primary_user,
-                        'primary_user_id'=>$user->beneficiary_id,
-                        'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
-                        'profile_image'=>!empty($user->image_list[0]->image_url)?$user->image_list[0]->image_url:''
-                    ], 200);
                 }
-                else{
+                
+                if($user === null){
                     return response()->json([
-                        'error'=>'Unauthorised',
-                        'code'=>'301',
+                        'status'=>'error',
+                        'code'=>'email',
                         'message' => 'Sorry, that didn’t work. Please try again',
                     ], 401);
+                }else{
+
+                    if($user->email_verified===0){
+                        return response()->json([
+                            'status'=>'error',
+                            'code'=>'email',
+                            'message' => "Sorry, this email isn't verified",
+                        ], 401);
+                    }
+
+                    if($user->active===0){
+                        return response()->json([
+                            'status'=>'error',
+                            'code'=>'email',
+                            'message' => "Sorry, user isn't actived",
+                        ], 401);
+                    }
+
+                    
+                    $passwordOK = Hash::check($request->password, $user->password);
+                    if($passwordOK){
+                        $status = "fail";
+                        if(Auth::attempt(['email' => $request->email, 
+                            'password' => $request->password,
+                            'email_verified'=>1])){
+                            $user = Auth::user();
+                            $tokenResult = $user->createToken('ThisHeartAccessToken');
+                            $accountProgressStatus = true;
+                            $accountProgressStatus = $this->checkAccountProgressData($user->id);
+                            $checkAccountWizard = $this->checkAccountWizard($user->id);
+                        
+                            $user_id = $user->id;
+                            $ip = $_SERVER['REMOTE_ADDR'];
+                            $platform = $_SERVER['HTTP_USER_AGENT'];
+                            $user_activity = new UserActivity;
+                            $user_activity->user_id = $user_id;
+                            $user_activity->ip = $ip;
+                            $user_activity->platform = json_encode($platform);
+                            $user_activity->save();
+
+                            $inactive_user_notify =  InactiveUserNotify::where('user_id',$user->id)->first();
+                            if(empty($inactive_user_notify)){
+                                $inactive_user_notify = new InactiveUserNotify;
+                                $inactive_user_notify->user_id = $user->id;
+                            }
+                                
+                                $inactive_user_notify->last_login = Carbon::now();
+                                $inactive_user_notify->first_send_email = null;
+                                $inactive_user_notify->second_send_email = null;
+                                $inactive_user_notify->send_sms = null;
+                                $inactive_user_notify->send_email_beneficiary_user = null;
+                                $inactive_user_notify->send_sms_beneficiary_user = null;
+                                $inactive_user_notify->final_make_call = null;
+                                $inactive_user_notify->save();
+                        
+                            $user->last_login=Carbon::now();
+                            $user->save();
+
+                            $user_pkg = $user->user_package;
+                            $status = "success";
+                            if(!empty( $user_pkg)){
+                                $user_billing = $user->user_billing;
+                                if(!empty($user_billing) && $user_billing->subscribe_status===0){
+                                    $status = "unsubscribed";
+                                }
+                                $package_info = PackageInfo::where('package','free account')->first();
+                                if($package_info->id===$user_pkg->package_id){
+                                    $user_pkg = "free account"; 
+                                }else{
+                                    $now = Carbon::now();
+                                    $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
+                                    $diff = $expire_date->diffInDays($now);
+                                    $user_pkg->push('package_info',$user_pkg->package_info);
+                                    $user_pkg->access_url = $this->access_url;
+                                    $user_pkg->remaining_days = $diff;
+                                    $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
+                                    
+                                    if($now > $expire_date){
+                                        $status = "expired";
+                                    }else{
+                                        if($diff<16){
+                                            if(!$inactive_user_notify->package_expire_notify){
+                                                $inactive_user_notify->package_expire_notify = 1;
+                                                $inactive_user_notify->save();
+                                                Mail::to($user->email)->send(new MailNotifyFifteenDaysMail($user, $user_pkg));
+                                            }
+                                        }
+                                    }
+                                } 
+
+                            }else{
+                                $user_pkg = "NA";
+                            }
+
+                            $user_type = $user->user_types->user_type;
+                            if($user_type==="beneficiary"){
+                                $primary_user = $user->primary_user ;
+                                if(!empty($primary_user)){
+                                    $primary_user->name = Crypt::decryptString($primary_user->name);
+                                    $primary_user_package = $primary_user->user_package;
+
+                                    $package_info = PackageInfo::where('package','free account')->first();
+                                    if($package_info->id===$primary_user_package->package_id){
+                                        $user_pkg = "free account"; 
+                                        $status = "free_account";
+                                    }else{
+                                        $now = Carbon::now();
+                                        $expire_date = Carbon::parse($primary_user_package->subscription_expire_date);
+                                        if($now > $expire_date){
+                                            $status = "expired";
+                                        }
+
+                                        $primary_user_billing = $primary_user->user_billing;
+                                        if(!empty($primary_user_billing) && $primary_user_billing->subscribe_status===0){
+                                            $status = "unsubscribed";
+                                        }
+                                    }
+                                } 
+                            }
+
+                            return response()->json([
+                                'status' => $status,
+                                'message' => 'User logged in successfully!',
+                                'user_id' => $user->id,
+                                'user_name' => Crypt::decryptString($user->name),
+                                'access_token' => $tokenResult->accessToken,
+                                'account_progress_status' => $accountProgressStatus,
+                                'account_wizard' => $checkAccountWizard,
+                                'token_type' => 'Bearer',
+                                'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
+                                'data'=>$user,
+                                'sub_plan'=>$user_pkg,
+                                'primary_user'=>$user->primary_user,
+                                'primary_user_id'=>$user->beneficiary_id,
+                                'user_type'=>!empty($user->user_types->user_type)?$user->user_types->user_type:'',
+                                'profile_image'=>!empty($user->image_list[0]->image_url)?$user->image_list[0]->image_url:''
+                            ], 200);
+                        }
+                        else{
+                            return response()->json([
+                                'error'=>'Unauthorised',
+                                'code'=>'301',
+                                'message' => 'Sorry, that didn’t work. Please try again',
+                            ], 401);
+                        }
+                    
+                    }else{
+                        return response()->json([
+                            'status'=>'error',
+                            'code'=>'302',
+                            'message' => 'Sorry, that didn’t work. Try again',
+                            'password'=>$passwordOK
+                        ], 422);
+                    }
                 }
-            
-            }else{
+
+            }catch(Exception $ex){
                 return response()->json([
                     'status'=>'error',
-                    'code'=>'302',
-                    'message' => 'Sorry, that didn’t work. Try again',
-                    'password'=>$passwordOK
-                ], 422);
+                    'code'=>'501',
+                    'data'=>mysql_errno(),
+                    'message'=>$ex->getMessage()
+                ]);
             }
-        }
     }
      
     public function logout()

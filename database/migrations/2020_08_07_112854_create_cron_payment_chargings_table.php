@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCronPaymentChrgingsTable extends Migration
+class CreateCronPaymentChargingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class CreateCronPaymentChrgingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('cron_payment_chrgings', function (Blueprint $table) {
+        Schema::create('cron_payment_chargings', function (Blueprint $table) {
             $table->increments('id');
+            $table->bigInteger('user_id');
+            $table->bigInteger('billing_detail_id');
+            $table->enum('payment_status',['paid','fail']);
             $table->timestamps();
         });
     }
@@ -26,6 +29,6 @@ class CreateCronPaymentChrgingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cron_payment_chrgings');
+        Schema::dropIfExists('cron_payment_chargings');
     }
 }

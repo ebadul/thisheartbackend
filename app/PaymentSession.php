@@ -20,6 +20,9 @@ class PaymentSession extends Model
         $payment_session->amount = $rs->amount/100;
         $payment_session->user_package_id = $rs->user_package_id;
         $payment_session->payment_details_id = $rs->payment_details_id;
+        $payment_session->mode = $rs->session->mode;
+        $payment_session->customer = $rs->session->customer;
+        $payment_session->setup_intent = $rs->session->setup_intent;
         $payment_session->save();
 
        

@@ -567,4 +567,23 @@ class PrimaryUserController extends BaseController
                     ]);
     }
 
+
+    public function admin_payment_charging(Request $rs){
+        $billing_details = BillingDetail::where('id','=',$rs->billing_details_id)->first();
+        $user_package = new UserPackage;
+        $payment_charging = $user_package->payment_charging($billing_details->user_id);
+        if($payment_charging['status']==="success"){
+            return response()->json([
+                'status'=>'success',
+            ],200);
+        }else{
+            return response()->json([
+                'status'=>'error',
+                'code'=>empty($payment_charging['code'])?null:$payment_charging['code'],
+                'message'=>$payment_charging['message'],
+            ],500);
+        }
+        
+    }
+
 }

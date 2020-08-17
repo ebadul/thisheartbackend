@@ -7,7 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class PaymentChargingMail extends Mailable
+class PaymentChargingPaidMail extends Mailable
 {
     use Queueable, SerializesModels;
     private $user,$payment_session;
@@ -16,10 +16,10 @@ class PaymentChargingMail extends Mailable
      *
      * @return void
      */
-    public function __construct($user,$payment_session)
+    public function __construct($user,$billing)
     {
         $this->user = $user;
-        $this->payment_session = $payment_session;
+        $this->billing = $billing;
     }
 
     /**
@@ -30,9 +30,9 @@ class PaymentChargingMail extends Mailable
     public function build()
     {
         return $this->from('info@thisheart.com','ThisHeart')->
-        view('emails.payment-charging',[
+        view('emails.payment-charging-paid',[
                 'user'=>$this->user,
-                'payment_session'=>$this->payment_session
+                'billing'=>$this->billing
             ]);
     }
 }

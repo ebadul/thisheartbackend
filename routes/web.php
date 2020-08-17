@@ -81,6 +81,8 @@ Route::post('/inactive_user/send_email', "API\PrimaryUserController@inactive_use
 Route::post('/inactive_user/send_email_automation', "API\PrimaryUserController@inactive_user_send_email_automation")->middleware('auth');
 Route::get('/unsubscribed_user/{subscribed_status}', "API\PrimaryUserController@unsubscribed_user")->middleware('auth');
 Route::get('/billing_details', "API\PrimaryUserController@billing_details")->middleware('auth');
+Route::get('/payment_charging/{user_id}', "API\PrimaryUserController@payment_charging")->middleware('auth');
+Route::post('/admin_payment_charging', "API\PrimaryUserController@admin_payment_charging")->middleware('auth');
 
 
 

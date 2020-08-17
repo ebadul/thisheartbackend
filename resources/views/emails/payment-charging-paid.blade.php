@@ -20,12 +20,29 @@
             <h2 align="center">{{"Payment Information"}}</h2>
         </header>
         <div class="body">
+            <br>
+            <br>
             
-			
-                    <br>
-                    Thanks again for your payment and if you have any question, please write <br> 
-                    an email to us at info@thisheart.co </p>
-					<br>
+            Hi  {{Crypt::decryptString($user->name)}},<br>
+            Thank you for using the ThisHeart {{$billing->payment_type}} business plan from {{$billing->created_at}}! <br>
+            We have successfully processed your payment of ${{$billing->package_cost}}. <br>
+            Please find your invoice details to this email.
+            <br><br>
+
+            Payment Information:<br>
+            ------------------------------<br>
+            Date: {{$billing->created_at}} <br>
+            TransactionID: {{$billing->id}} <br>
+            Payment type: card <br>
+            Package: {{$billing->package_info->package}} <br>
+            Subscription: {{$billing->payment_type}} <br>
+            Amount: ${{$billing->package_cost}} <br>
+
+            <br>
+            <br>
+            Thanks again for your payment and if you have any question, please write <br> 
+            an email to us at info@thisheart.co </p>
+            <br>
 
 
             <br>

@@ -17,23 +17,35 @@
             <p align="center">
             <img src="http://thisheart.co:8000/images/logo.png" style="vertical-align:middle;max-width:45px;height:auto;border-width:0;margin:0px auto;" alt="ThisHeart" >
             </p>
-            <h2 align="center">{{"Payment Information"}}</h2>
+            <h2 align="center">{{"Payment failure"}}</h2>
         </header>
         <div class="body">
             
-            Hi {{Crypt::decryptString($user->name)}}!<br><br>
-            Thank you for registering for ThisHeart {{$payment_session->metadata['package_name']}}. We are looking forward <br>
-            to seeing you there and sharing our inbounding application with you. 
-            <br><br>
-            Info Details:<br>
-            --------------<br>
-            Date: {{$payment_session->date}}<br>
-            Subscribed Plan: {{$payment_session->metadata['package_name']}} <br>
-            Payment System: {{ucwords($payment_session->metadata['payment_type'])}}<br><br>
+            Hello From ThisHeart,<br>
+            There is a problem with the card you used to pay up or subscribe to your ThisHeart account. <br>
+            We required a valid card when you pay for access ThisHeart application. 
 
-            We have received your info and your charge will be authorized later. 
+            If you don't update your card information next 30 days, your ThisHeart account <br>
+            will be canceled. To update your payment information and restart your ThisHeart account <br>
+            please follow these steps:
+            <br>
+            <br>
+            1. Go to https://thisheart.co/
+            2. Log in your ThisHeart account
+            3. Click on your update profile
+            4. Click on a change Package plan
+            5. Select your plan 
+            6. Follow the on-screen instructions to update your card or choose a different one. 
+            <br>
+            Thank you for trying ThisHeart and enjoying thisheart.co.
 
             <br>
+            <br>
+            Thanks again for your payment and if you have any question, please write <br> 
+            an email to us at info@thisheart.co </p>
+            <br>
+
+
             <br>
             <p>Thanks</p>
             <p>The ThisHeart Team</p>

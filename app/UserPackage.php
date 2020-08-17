@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Console\Command;
 use App\PackageInfo;
 use App\PaymentSession;
 use App\User;
@@ -10,6 +11,12 @@ use App\Beneficiary;
 use App\Account;
 use App\Letters;
 use Stripe\Stripe;
+use Mail;
+use App\Mail\PaymentSuccessMail;
+use App\Mail\PaymentChargingMail;
+use App\Mail\UnsubscribePackageMail;
+use App\Mail\PaymentChargingPaidMail;
+use App\Mail\PaymentChargingFailMail;
 use Auth;
 use File;
 use Crypt;
@@ -112,10 +119,6 @@ class UserPackage extends Model
                                 }
                             }
 
-                            // return response()->json([
-                            //     'filesize'=>$totalFileSizeGB,
-                            //     'entity size'=>$entity_value*1024 
-                            // ]);
                             if($totalFileSizeGB>=($entity_value*1024)){
                                 return true;
                             }else{
@@ -213,7 +216,7 @@ class UserPackage extends Model
         $date = date('Y-m-d');
         $package_info = PackageInfo::where('id','=',$package_id)->orderBy('id','desc')->first();
         if($paid==="paid"){
-            if(!empty($rs['trial_end']) && $rs['trial_end'] ==="yes"){
+            if(!empty($rs['trial_end']) && $rs['trial_end'] === "yes"){
                 $expire_date = $date;
             }else{
                 if($payment_type==="yearly"){
@@ -223,8 +226,12 @@ class UserPackage extends Model
                 }
             }
         }elseif($paid==="unpaid"){
-            $expire_days = 30;
-            $expire_date = date('Y-m-d', strtotime($date.' + '.$expire_days.' days'));
+            if(!empty($rs['trial_end']) && $rs['trial_end'] === "yes"){
+                $expire_date = $date;
+            }else{
+                $expire_days = 30;
+                $expire_date = date('Y-m-d', strtotime($date.' + '.$expire_days.' days'));
+            }
         }
 
         $user_pkg = UserPackage::where('user_id','=',$user_id)->first();
@@ -245,7 +252,7 @@ class UserPackage extends Model
     }
 
     public function paymentCreateSession($rs){
-        try{
+            try{
                 $user = Auth::user();
                 \Stripe\Stripe::setApiKey('sk_test_AVSEgKpyoxellFyvMtrGrIww00nRnsyvaP');
                 $success_url = $this->access_url.'payment-success/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
@@ -257,20 +264,14 @@ class UserPackage extends Model
                 $price = $rs->payment_type==="yearly"?$rs->year_amount:$rs->amount;
                 $price_plan = "";
                 $line_items= "";
+                $mode = "setup";
                 if($billing_type && $payment_type==="yearly"){
                     $price_plan = $stripe_year_price_plan;
                 }elseif($billing_type && $payment_type==="monthly"){
                     $price_plan = $stripe_month_price_plan;
                 }
-               
-                if($billing_type){
-                    $mode = "subscription";
-                    $line_items=[ 
-                        'price' => $price_plan,
-                        'quantity' => 1,
-                        ];
-                    
-                }else{
+                $customer = \Stripe\Customer::create();
+                
                     $line_items=[ 
                         'name' => $rs->item,
                         'description' => $rs->description,
@@ -279,23 +280,26 @@ class UserPackage extends Model
                         'currency' => 'usd',
                         'quantity' => 1,
                     ];
-                    $mode = "payment";
-                }
- 
-                $session = \Stripe\Checkout\Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [$line_items],
-                'metadata'=>[
-                    'user_id' => $user->id,
-                    'package_id' => $rs->item_id,
-                    'amount' => $price*100,
-                    'payment_type' => $payment_type,
-                    'billing_type' => $billing_type,
-                ],
-                'mode'=>$mode,
-                'success_url' => $success_url,
-                'cancel_url' =>  $cancel_url,
-                ]);
+                    $mode = "setup";
+                    $session_create = [
+                        'payment_method_types' => ['card'],
+                        'customer'=>$customer->id,
+                        'metadata'=>[
+                            'user_id' => $user->id,
+                            'package_id' => $rs->item_id,
+                            'package_name' => $rs->item,
+                            'amount' => $price*100,
+                            'payment_type' => $payment_type,
+                            'billing_type' => $billing_type,
+                        ],
+                        'mode'=>$mode,
+                        'success_url' => $success_url,
+                        'cancel_url' =>  $cancel_url,
+                    ];
+               
+
+                
+                $session = \Stripe\Checkout\Session::create($session_create);
             }catch(Exception $ex){
                 $exp = $ex->getMessage();
             }
@@ -314,7 +318,7 @@ class UserPackage extends Model
 
             return [
                 'status'=>'success',
-                'data'=>$session
+                'data'=>$session,
             ];
         }else{
             return [
@@ -326,8 +330,121 @@ class UserPackage extends Model
 
 
     public function paymentSessionSuccess($rs){
-        $session_id = $rs['id'];
+        $session_token = $rs->session_token;
+        $token = explode('&*^',$session_token);
+        if(empty($token[0]) || empty($token[1])){
+            return  [
+                'status'=>'error',
+                'code'=>'101',
+                'message'=> 'Invalid payment request!',
+            ];
+        }
+
+        $session_id = $rs->id;
         $user = Auth::user();
+
+        $payment_session = PaymentSession::where('user_id','=',$user->id)
+                            ->where('payment_session_id','=',$session_id)->first();
+        if(empty($payment_session ) || $payment_session->paid===1 || 
+                $payment_session->validated===1){
+            return [
+                'status'=>'error',
+                'code'=>'102',
+                'message'=> 'Invalid payment requests!',
+            ];
+        } 
+
+        $user_package = new UserPackage;
+        $session_status = $user_package->retriveSessionInfo($session_id);
+        if(empty($session_status )){
+            return [
+                'status'=>'error',
+                'code'=>'104',
+                'message'=> 'Invalid payment requests!',
+            ];
+        } 
+
+        // if($rs['session_type']==='expired'){
+        //     $session_type = "expired";
+            $next_billing = $this->make_next_billing($session_id,$rs['session_type']);
+        // }
+        
+        $session_status->date = date('Y-m-d');
+        $meta_data = $session_status->metadata;
+        $user_id = $meta_data->user_id;
+        $package_id = $meta_data->package_id;
+        $amount = $meta_data->amount;
+        $payment_type = $meta_data->payment_type;
+        $billing_type = $meta_data->billing_type;
+        $paid = "";
+        if(!empty($session_status->subscription) && 
+                $session_status->amount_total>0 && 
+                $session_status->mode==="subscription" && $billing_type ==="yes"){
+                    $paid = "unpaid";
+        }else{
+            $payment_status = $user_package->retrivePaymentInfo($session_status->payment_intent);
+            if(!empty( $payment_status) && $payment_status->amount_received>0 && 
+                $payment_status->status==="succeeded" &&
+                $payment_status->charges->data[0]->amount_refunded === 0
+                ){
+                    $paid = "paid";
+            }else{
+                $paid = "unpaid";
+            }
+        }
+       
+        // $package_rs = [
+        //     'user_id'=>$user->id,
+        //     'package_id'=>$package_id,
+        //     'payment_type'=>$payment_type,
+        //     'billing_type'=>$billing_type,
+        //     'paid'=>$paid
+        // ];
+        // $user_pkg = $user_package->saveUserPackage($package_rs);
+        $payment_session->validated = 1;
+        if($paid==="paid"){
+            $payment_session->paid = 1;
+            $payment_session->save();
+        }elseif($paid==="unpaid"){
+            $payment_session->paid = 0;
+            $payment_session->save();
+        }
+        $payment_charging = 'NA';
+        if($rs['session_type']==='expired'){
+            $payment_charging = $this->payment_charging($user->id);
+        }elseif($rs['session_type']==='profile'){
+            $payment_charging = null;
+              $package_rs = [
+                'user_id'=>$user->id,
+                'package_id'=>$package_id,
+                'payment_type'=>$payment_type,
+                'billing_type'=>$billing_type,
+                'paid'=>$paid
+            ];
+            $user_pkg = $user_package->saveUserPackage($package_rs);
+
+        }
+      
+        Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
+        return [
+            'status'=>'success',
+            'data'=> $payment_session,
+            'session_status'=> $session_status,
+            'payment_status'=> $payment_status,
+            'package_info'=> null,
+            'user_id'=>$user->id,
+            'package_id'=>$package_id,
+            'payment_type'=>$payment_type,
+            'billing_type'=>$billing_type,
+            'payment_charging'=>$payment_charging,
+            'rs'=>$rs->all(),
+        ];
+    }
+
+
+    public function cronPaymentProcessSuccess($rs){
+        $session_id = $rs['id'];
+        $user = User::where('id','=',$rs['user_id'])->first();
 
         $payment_session = PaymentSession::where('user_id','=',$user->id)
                             ->where('payment_session_id','=',$session_id)->first();
@@ -336,6 +453,7 @@ class UserPackage extends Model
                 'data'=>$session_id,
                 'payment_session'=>$payment_session,
                 'status'=>'error',
+                'code'=>'601',
                 'message'=> 'Invalid payment request!',
             ];
         }   
@@ -353,6 +471,7 @@ class UserPackage extends Model
             }else{
                 return [
                     'status'=>'error',
+                    'code'=>'602',
                     'message'=> 'Invalid payment requests!',
                 ];
             }
@@ -364,6 +483,7 @@ class UserPackage extends Model
             }else{
                 return [
                     'status'=>'error',
+                    'code'=>'603',
                     'message'=> 'Invalid payment requests!',
                 ];
             }
@@ -381,22 +501,33 @@ class UserPackage extends Model
             'user_id'=>$user->id,
             'package_id'=>$package_id,
             'payment_type'=>$payment_type,
-            'billing_type'=>$billing_type
+            'billing_type'=>$billing_type,
+            'paid'=>'paid',
         ];
         $user_pkg = $user_package->saveUserPackage($package_rs);
-
         $payment_session->paid = 1;
         $payment_session->save();
-        Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
+        if($billing_type==="yes" || $payment_type ==="yearly"){
+            $session_type = "profile";
+            $next_billing = $this->make_next_billing($session_id, $session_type);
+        }
+
+        $user_billing = UserBilling::where('user_id','=',$user->id)->first();
+        $user_billing->subscribe_status = 1;
+        $user_billing->save();
+
+        //Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
         return [
             'status'=>'success',
             'data'=> $payment_session,
             'session_status'=> $session_status,
             'payment_status'=> $payment_status,
-            'package_info'=> $user_pkg,
+            'user_package'=> $user_pkg,
             'metadata'=> $meta_data,
+            'next_billing'=> $next_billing,
         ];
     }
+
 
     public function retriveSessionInfo($session_id){
         if(!empty($session_id)){
@@ -435,20 +566,14 @@ class UserPackage extends Model
                 $price = $rs->payment_type==="yearly"?$rs->year_amount:$rs->amount;
                 $price_plan = "";
                 $line_items= "";
+                $mode = "setup";
                 if($billing_type && $payment_type==="yearly"){
                     $price_plan = $stripe_year_price_plan;
                 }elseif($billing_type && $payment_type==="monthly"){
                     $price_plan = $stripe_month_price_plan;
                 }
-               
-                if($billing_type){
-                    $mode = "subscription";
-                    $line_items=[ 
-                        'price' => $price_plan,
-                        'quantity' => 1,
-                        ];
-                    
-                }else{
+                $customer = \Stripe\Customer::create();
+              
                     $line_items=[ 
                         'name' => $rs->item,
                         'description' => $rs->description,
@@ -457,23 +582,26 @@ class UserPackage extends Model
                         'currency' => 'usd',
                         'quantity' => 1,
                     ];
-                    $mode = "payment";
-                }
+                    $mode = "setup";
+                    $session_create = [
+                        'payment_method_types' => ['card'],
+                        'customer'=>$customer->id,
+                        'metadata'=>[
+                            'user_id' => $user->id,
+                            'package_id' => $rs->item_id,
+                            'package_name' => $rs->item,
+                            'amount' => $price*100,
+                            'payment_type' => $payment_type,
+                            'billing_type' => $billing_type,
+                        ],
+                        'mode'=>$mode,
+                        'success_url' => $success_url,
+                        'cancel_url' =>  $cancel_url,
+                    ];
+                
  
-                $session = \Stripe\Checkout\Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [$line_items],
-                'metadata'=>[
-                    'user_id' => $user->id,
-                    'package_id' => $rs->item_id,
-                    'amount' => $price*100,
-                    'payment_type' => $payment_type,
-                    'billing_type' => $billing_type,
-                ],
-                'mode'=>$mode,
-                'success_url' => $success_url,
-                'cancel_url' =>  $cancel_url,
-                ]);
+                
+                $session = \Stripe\Checkout\Session::create($session_create);
             }catch(Exception $ex){
                 $exp = $ex->getMessage();
             }
@@ -489,16 +617,346 @@ class UserPackage extends Model
             ];
             $payment_session = new PaymentSession;
             $payment_session->savePaymentSession($session_rs);
-
             return [
                 'status'=>'success',
-                'data'=>$session
+                'data'=>$session,
             ];
         }else{
             return [
                 'status'=>'error',
                 'data'=>$exp
             ];
+        }
+    }
+
+    public function payment_charging($user_id){
+        if(is_array($user_id)){
+            $billing_details = BillingDetail::where('paid_status','=',0)->get();
+        }else{
+            $billing_details = BillingDetail::where('paid_status','=',0)->
+            where('user_id','=',$user_id)->orderBy('id','desc')->limit(1)->get();
+        }
+        $package_info = null;
+        foreach( $billing_details as $billing){
+            
+            $user = User::where('id','=',$billing->user_id)->first();
+            $payment_session = PaymentSession::where('payment_session_id','=',
+                                $billing->stripe_session_id)->first();
+            if(empty($payment_session)){
+                return [
+                    'status'=>'error',
+                    'code'=>'008',
+                    'message'=>'payment session intent not found!'
+                ];
+            }
+           
+            $setup_intent = $payment_session->setup_intent;
+            $intent = \Stripe\SetupIntent::retrieve($setup_intent);
+            $customer = $intent->customer;
+            $payment_method = $intent->payment_method;
+            $amount = $billing->package_cost*100;
+            $payment_status = "pending";
+            try {
+                $payment_intent = \Stripe\PaymentIntent::create([
+                'amount' => $amount,
+                'currency' => 'usd',
+                'customer' =>  $customer,
+                'payment_method' => $payment_method,
+                'off_session' => true,
+                'confirm' => true,
+                ]);
+               
+                $cron_payment_charging = new CronPaymentCharging;
+                $cron_payment_charging->user_id = $billing->id;
+                $cron_payment_charging->billing_detail_id = $billing->id;
+                $billing->payment_process_times = $billing->payment_process_times+1;
+                if($payment_intent->amount_received==$amount && 
+                    $payment_intent->charges->data[0]->amount_refunded===0 &&
+                    $payment_intent->status==="succeeded"){
+                        $cron_payment_charging->payment_status = 'paid';
+                        $cron_payment_charging->save();
+
+                        $billing->cron_payment_charging_id = $cron_payment_charging->id;
+                        $billing->process_stauts = 'success';
+                        $billing->paid_status = 1;
+                        $billing->process_date = date('Y-m-d');
+                        $billing->save();
+
+                        $user_package = new UserPackage;
+                        $user_package_update = $user_package->cronPaymentProcessSuccess([
+                                                'id'=>$billing->stripe_session_id,
+                                                'user_id'=>$billing->user_id,
+                                                ]);
+                        $payment_status = "paid";
+                        $status = "paid";
+                        
+                    }else{
+                        $cron_payment_charging->payment_status = 'fail';
+                        $cron_payment_charging->save();
+                        $payment_status = "fail";
+                        $status = "failed";
+                        if($billing->payment_process_times>1){
+                           //do something to block
+                           $user_billing = UserBilling::where('user_id','=',$billing->user_id)->first();
+                           $user_billing->subscribe_status = 0;
+                           $user_billing->notes = "Payment failed";
+                           $user_billing->save();
+                           $user_package_block = UserPackage::where('user_id','=',$billing->user_id)->first();
+                           $user_package_block->subscription_status = 0;
+                           $user_package_block->save();
+                        }
+                    }
+            } catch (\Stripe\Exception\CardException $e) {
+                $cron_payment_charging = new CronPaymentCharging;
+                $cron_payment_charging->user_id = $billing->user_id;
+                $cron_payment_charging->billing_detail_id = $billing->id;
+                $cron_payment_charging->payment_status = 'fail';
+                $cron_payment_charging->notes = $e->getMessage();
+                $cron_payment_charging->save();
+
+                $billing->payment_process_times = $billing->payment_process_times+1;
+                $billing->cron_payment_charging_id = $cron_payment_charging->id;
+                $billing->process_stauts = 'fail';
+                $billing->paid_status = 0;
+                $billing->process_date = date('Y-m-d');
+                $billing->save();
+                
+                if($billing->payment_process_times>1){
+                   //do something to block
+                   $user_billing = UserBilling::where('user_id','=',$billing->user_id)->first();
+                   $user_billing->subscribe_status = 0;
+                   $user_billing->notes = "Payment failed";
+                   $user_billing->save();
+                   $user_package_block = UserPackage::where('user_id','=',$billing->user_id)->first();
+                   $user_package_block->subscription_status = 0;
+                   $user_package_block->save();
+                }
+
+                echo 'Error code is:' . $e->getError()->code;
+                $errorMessage = $e->getMessage();
+                $payment_intent_id = $e->getError()->payment_intent->id;
+                $payment_intent = \Stripe\PaymentIntent::retrieve($payment_intent_id);
+                $payment_status = "fail";
+                $status = "error";
+            }
+            $package_info = $billing->package_info;
+            if($payment_status === "paid"){
+                Mail::to($user->email)->send(new PaymentChargingPaidMail($user,$billing));
+                return [
+                    'status'=>'success',
+                    'package_info'=>$package_info,
+                    'user_package_update'=>$user_package_update,
+                ];
+            }elseif($payment_status === "fail"){
+                Mail::to($user->email)->send(new PaymentChargingFailMail($user,$billing));
+                return [
+                    'status'=>'fail',
+                    'message'=>$errorMessage
+                ];
+            }//end paid-unpaid 
+        }//end foreach loop
+    }//end function payment charging
+
+
+
+    public function payment_charging_process($billing){
+            $user = User::where('id','=',$billing->user_id)->first();
+            $payment_session = PaymentSession::where('payment_session_id','=',
+                                $billing->stripe_session_id)->first();
+            if(empty($payment_session)){
+                return [
+                    'status'=>'error',
+                    'code'=>'009',
+                    'message'=>'payment session intent not found!'
+                ];
+            }
+            $setup_intent = $payment_session->setup_intent;
+            $intent = \Stripe\SetupIntent::retrieve($setup_intent);
+            $customer = $intent->customer;
+            $payment_method = $intent->payment_method;
+            $amount = $billing->package_cost*100;
+            $payment_status = "pending";
+            try {
+                $payment_intent = \Stripe\PaymentIntent::create([
+                'amount' => $amount,
+                'currency' => 'usd',
+                'customer' =>  $customer,
+                'payment_method' => $payment_method,
+                'off_session' => true,
+                'confirm' => true,
+                ]);
+               
+                $cron_payment_charging = new CronPaymentCharging;
+                $cron_payment_charging->user_id = $billing->id;
+                $cron_payment_charging->billing_detail_id = $billing->id;
+                $billing->payment_process_times = $billing->payment_process_times+1;
+                if($payment_intent->amount_received==$amount && 
+                    $payment_intent->charges->data[0]->amount_refunded===0 &&
+                    $payment_intent->status==="succeeded"){
+                        $cron_payment_charging->payment_status = 'paid';
+                        $cron_payment_charging->save();
+
+                        $billing->cron_payment_charging_id = $cron_payment_charging->id;
+                        $billing->process_stauts = 'success';
+                        $billing->paid_status = 1;
+                        $billing->process_date = date('Y-m-d');
+                        $billing->save();
+
+                        $user_package = new UserPackage;
+                        $user_package_update = $user_package->cronPaymentProcessSuccess([
+                                                'id'=>$billing->stripe_session_id,
+                                                'user_id'=>$billing->user_id,
+                                                ]);
+                        $payment_status = "paid";
+                        $status = "paid";
+                        
+                    }else{
+                        $cron_payment_charging->payment_status = 'fail';
+                        $cron_payment_charging->save();
+                        $payment_status = "fail";
+                        $status = "failed";
+                        if($billing->payment_process_times>1){
+                           //do something to block
+                           $user_billing = UserBilling::where('user_id','=',$billing->user_id)->first();
+                           $user_billing->subscribe_status = 0;
+                           $user_billing->notes = "Payment failed";
+                           $user_billing->save();
+                        }
+                    }
+            } catch (\Stripe\Exception\CardException $e) {
+                $cron_payment_charging = new CronPaymentCharging;
+                $cron_payment_charging->user_id = $billing->user_id;
+                $cron_payment_charging->billing_detail_id = $billing->id;
+                $cron_payment_charging->payment_status = 'fail';
+                $cron_payment_charging->notes = $e->getMessage();
+                $cron_payment_charging->save();
+
+                $billing->payment_process_times = $billing->payment_process_times+1;
+                $billing->cron_payment_charging_id = $cron_payment_charging->id;
+                $billing->process_stauts = 'fail';
+                $billing->paid_status = 0;
+                $billing->process_date = date('Y-m-d');
+                $billing->save();
+                
+                if($billing->payment_process_times>1){
+                   //do something to block
+                   $user_billing = UserBilling::where('user_id','=',$billing->user_id)->first();
+                   $user_billing->subscribe_status = 0;
+                   $user_billing->notes = "Payment failed";
+                   $user_billing->save();
+                }
+
+                echo 'Error code is:' . $e->getError()->code;
+                $errorMessage = $e->getMessage();
+                $payment_intent_id = $e->getError()->payment_intent->id;
+                $payment_intent = \Stripe\PaymentIntent::retrieve($payment_intent_id);
+                $payment_status = "fail";
+                $status = "error";
+            }
+            $package_info = $billing->package_info;
+            if($payment_status === "paid"){
+                Mail::to($user->email)->send(new PaymentChargingPaidMail($user,$billing));
+                return [
+                    'status'=>'success',
+                    'package_info'=>$package_info,
+                    'user_package_update'=>$user_package_update,
+                ];
+            }elseif($payment_status === "fail"){
+                Mail::to($user->email)->send(new PaymentChargingFailMail($user,$billing));
+                return [
+                    'status'=>'fail',
+                    'message'=>$errorMessage
+                ];
+            }//end paid-unpaid 
+    }//end function payment charging
+
+
+    //generate bill for next coming month
+    public function make_next_billing($session_id, $session_type=null){
+        $user_package_billing = new UserPackage;
+        $session_status_billing = $user_package_billing->retriveSessionInfo($session_id);
+        if(empty($session_status_billing)){
+            return [
+                'status'=>'error',
+                'code'=>'004',
+                'message'=> 'Invalid payment requests with session info!',
+            ];
+        } 
+
+        $meta_data = $session_status_billing->metadata;
+        $user_billing = UserBilling::where('user_id','=',$meta_data->user_id)->first();
+        if(empty($user_billing)){
+            $user_billing = new UserBilling;
+        }
+        $user_billing->user_id = $meta_data->user_id;
+        $user_billing->package_id = $meta_data->package_id;
+        $user_billing->package_cost = $meta_data->amount/100;
+        $user_billing->subscribe_date = date('Y-m-d');
+        // $user_billing->expire_date;
+        $user_billing->payment_type = $meta_data->payment_type;
+        $user_billing->recurring_type = $meta_data->billing_type;
+        $user_billing->subscribe_status=1;
+        $user_billing->save();
+
+        $user_package_data = UserPackage::where('user_id','=',$meta_data->user_id)->first();
+        $user_expired = date('Y-m-d',strtotime($user_package_data->subscription_expire_date));
+        $billing_start_date = $user_package_data->subscription_date;
+        
+        $today_date = date("d");
+        $dt = date('Y-m-d');
+        $billing_month="";
+        $billing_month = date("F-Y");
+        if($session_type==="expired"){
+            if( $meta_data->payment_type==="monthly" &&  $meta_data->billing_type==="yes"){
+                $billing_end_date = $user_package_data->subscription_expire_date;
+                $billing_date = $dt;
+                $next_billing_date = date("Y-m-d",strtotime("$billing_date + 1 Month"));
+            }elseif($meta_data->payment_type==="yearly" ){
+                $billing_end_date = $user_package_data->subscription_expire_date;
+                $billing_date = $dt;
+                $next_billing_date = date("Y-m-d",strtotime("$billing_date + 12 Month"));
+            }else{
+                $billing_end_date = $user_package_data->subscription_expire_date;
+                $billing_date = $dt;
+                $next_billing_date = date("Y-m-d",strtotime("$billing_date + 1 Month"));
+            }
+           
+        }else{
+            if( $meta_data->payment_type==="monthly" &&  $meta_data->billing_type==="yes"){
+                $billing_date = date("Y-m-d",strtotime($user_expired));
+                $next_billing_date = date("Y-m-d",strtotime("$billing_date + 1 Month"));
+                $billing_end_date = $billing_date;
+            }elseif($meta_data->payment_type==="yearly" ){
+                $billing_date = date("Y-m-d",strtotime($user_expired));
+                $next_billing_date = date("Y-m-d",strtotime("$billing_date + 12 Month"));
+                $billing_end_date = $billing_date;
+            }else{
+                $billing_date = date("Y-m-d",strtotime($user_expired));
+                $next_billing_date = date("Y-m-d",strtotime("$billing_date + 1 Month"));
+                $billing_end_date = $billing_date;
+            }
+           
+        }
+        // $billing_details = BillingDetail::where('user_id','=',$meta_data->user_id)->first();
+        if(empty($billing_details)){
+            $billing_details = new BillingDetail;
+        }
+        $billing_details->user_id = $meta_data->user_id;
+        $billing_details->package_id = $meta_data->package_id;
+        $billing_details->billing_month =  $billing_month;
+        $billing_details->billing_start_date =  $billing_start_date;
+        $billing_details->billing_end_date =  $billing_end_date;
+        $billing_details->package_cost = $meta_data->amount/100;
+        $billing_details->payment_type = $meta_data->payment_type;
+        $billing_details->recurring_type = $meta_data->billing_type;
+        $billing_details->stripe_session_id = $session_id;
+        $billing_details->billing_date = $billing_date  ;
+        $billing_details->next_billing_date = $next_billing_date;
+        $billing_details->paid_status=0;
+        if($billing_details->save()){
+            return ['status'=>'success','billing_details'=>$billing_details];
+        }else{
+            return ['status'=>'error','code'=>'005', 'message'=>'failed on billing details'];
         }
     }
 
