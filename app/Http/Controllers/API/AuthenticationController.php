@@ -161,7 +161,7 @@ class AuthenticationController extends BaseController
                             if(!empty( $user_pkg)){
                                 $user_billing = $user->user_billing;
                                 if(!empty($user_billing) && $user_billing->subscribe_status===0){
-                                    $status = "unsubscribed";
+                                    $status_unsubscribed = "unsubscribed";
                                 }
                                 $package_info = PackageInfo::where('package','free account')->first();
                                 if($package_info->id===$user_pkg->package_id){
@@ -171,6 +171,7 @@ class AuthenticationController extends BaseController
                                     $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
                                     $diff = $expire_date->diffInDays($now);
                                     $user_pkg->push('package_info',$user_pkg->package_info);
+                                    $user_pkg->push('user_billing',$user_pkg->user_billing);
                                     $user_pkg->access_url = $this->access_url;
                                     $user_pkg->remaining_days = $diff;
                                     $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
@@ -212,7 +213,7 @@ class AuthenticationController extends BaseController
 
                                         $primary_user_billing = $primary_user->user_billing;
                                         if(!empty($primary_user_billing) && $primary_user_billing->subscribe_status===0){
-                                            $status = "unsubscribed";
+                                            $status_unsubscribed = "unsubscribed";
                                         }
                                     }
                                 } 
@@ -220,6 +221,7 @@ class AuthenticationController extends BaseController
 
                             return response()->json([
                                 'status' => $status,
+                                'status_unsubscribed' => $status_unsubscribed,
                                 'message' => 'User logged in successfully!',
                                 'user_id' => $user->id,
                                 'user_name' => Crypt::decryptString($user->name),
@@ -333,7 +335,7 @@ class AuthenticationController extends BaseController
         Mail::send('emails.register-primary-user', $userEmail, function($message) use ($to_name, $to_email) {
             $message->to($to_email, $to_name)
                     ->subject('[thisheart.co] Activate your account');
-            $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
+            $message->from('thisheartmailer@gmail.com','ThisHeart Mail Server');
         });
 
         $user_pkg = $user->user_package;
@@ -513,7 +515,7 @@ class AuthenticationController extends BaseController
         Mail::send('emails.register-primary-user', $userEmail, function($message) use ($to_name, $to_email) {
             $message->to($to_email, $to_name)
                     ->subject('[thisheart.co] Activate your account');
-            $message->from('thisheartmailer@gmail.com','This-Heart Mail Server');
+            $message->from('thisheartmailer@gmail.com','ThisHeart Mail Server');
         });
         
         return response()->json([

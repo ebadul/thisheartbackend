@@ -75,30 +75,23 @@
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Package</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Subs. Date</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Status</th>
-                  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Edit</th>
+                  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Action</th>
                 
                 </tr>
               </thead>
               <tbody>
-                <?php if ($user_package) : ?>
-                  @foreach ( $user_package as $row )
+                <?php if ($free_account) : ?>
+                  @foreach ( $free_account as $row )
                   <tr role="row" class="odd">
                     <td title="{{$row->user_id}}">{{$row->user_id}} </td>
                     <td title="{{$row->user_id}}">{{$row->user['email']}}</td>
                     <td>
-                      {{ !empty($row->package_info)?$row->package_info->package:'No package selected'}}
+                      {{ !empty($row->user_pacakge->package_info)?$row->user_pacakge->package_info->package:'No package selected'}}
+                       
                     </td>
-                    <td>{{ $row['subscription_date']}}</td>
+                    <td>{{ $row['created_at']}}</td>
                     <td class="text-center">
-                        <?php
-                            if($row['subscription_status']==="0"){
-                                echo "Inactive";
-                            }elseif($row['subscription_status']==="1"){
-                                echo "Actived";
-                            }elseif($row['subscription_status']==="2"){
-                                echo "Pending";
-                            }
-                        ?>
+                       {{$row['status']}}
                     </td>
                     <td class="text-center">
                       <button type="button" class="btn btn-info editBtn" user-data="{{$row}} ">
@@ -158,7 +151,7 @@
             
               <input type="hidden" class="form-control" id="subscription_expire_date" value="" placeholder="Expire Subscription" required>
         
-            <div class="form-group">
+            <div class="form-group hidden">
               <label for="subscription_status">Subscription Status</label>
               <select class="form-control" id="subscription_status" readonly required>
                 <option selected value="2">Pending</option>
@@ -176,6 +169,7 @@
         <!-- /.modal-content -->
       </div>
       <!-- /.modal-dialog -->
+    </div>
     </div>
 
     <!--------------------------------  Edit Modal End --------------------------------------------->
@@ -273,7 +267,7 @@
       subscription_expire_date: $('#subscription_expire_date').val(),
       subscription_status: $('#subscription_status').val()
     }
-
+    $('#modal-edit').modal('hide');
 
     $.ajax({
       url: "/free_user_package_edit",

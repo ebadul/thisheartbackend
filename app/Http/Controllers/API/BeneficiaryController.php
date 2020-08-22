@@ -332,11 +332,14 @@ class BeneficiaryController extends BaseController
         if($beneficiaryInfo->delete()) {
             try{
                     $beneficiaryUser = BeneficiaryUser::where('beneficiary_id', '=', $id)->first();
-                    $beneficiaryUserEmail = $beneficiaryUser->email;
+                    $beneficiaryUserEmail = !empty($beneficiaryUser)?$beneficiaryUser->email:'';
                     $beneficiaryUserInfo = User::where('email','=',$beneficiaryUserEmail)->first();
-                    if($beneficiaryUser->delete()){
+                    if(!empty($beneficiaryUser) && $beneficiaryUser->delete()){
                         Log::info("beneficiaryUser deleted.");
-                        $beneficiaryUserInfo->delete();
+                        if(!empty($beneficiaryUserInfo)){
+                            $beneficiaryUserInfo->delete();
+                        }
+                        
                     }
             }catch(Exception $ex){
                 return response()->json([

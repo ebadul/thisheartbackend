@@ -75,8 +75,6 @@
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Email</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Package</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Billing Cost</th>
-                  
-                  <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Billing Month</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Payment Type</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Billing Date</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Next Billing Date</th>
@@ -91,30 +89,24 @@
                   @foreach ( $billing_list as $row )
                   <tr role="row" class="odd">
                     <td title="{{$row->id}}">{{$row->id}}</td>
-                    <td title="{{$row->user_id}}">{{$row->user->email}}</td>
-                    <td title="{{$row->user_id}}" class="text-center">
+                    <td title="{{$row->user_id}}" id="lbl-email-{{$row['id']}}">{{$row->user->email}}</td>
+                    <td title="{{$row->user_id}}" id="lbl-package-{{$row['id']}}" class="text-center">
                         {{$row->user->user_package->package_info->package}}</td>
                     <td class="text-center">$ {{ $row['package_cost']}}</td>
-                    <td>{{ $row['billing_month']}}</td>
                     <td title="{{ $row['recurring_type']}}">{{ $row['payment_type']}}</td>
                     <td>{{ $row['billing_date']}}</td>
-                    <td>{{ $row['next_billing_date']}}</td>
+                    <td>{{ empty($row['next_billing_date'])?'Not yet billed':$row['next_billing_date']}}</td>
                     <td class="text-center">
-                        <span title="{{'Bill start : '.$row['billing_start_date'].', '}}
-{{'Bill end : '.$row['billing_end_date'].', '}}
-{{'Process times : '.$row['payment_process_times'].', '}}
-{{'Status : '.($row['paid_status']?"Paid":"Unpaid").', '}}
-{{'Process : '.$row['process_stauts'].', '}}
-{{'Updated : '.$row['updated_at'].', '}}
-{{'Job id : '.$row['cron_payment_charging_id']}}">More...</span>
-                        
+                        <button class="btn btn-info btnMore" billing-details="{{$row}}">
+                          More <i class="fa fa-caret-right" aria-hidden="true"></i>
+                        </button>
+                  
                     </td>
                     <td class="text-center">
-                    <button type="button" class="btn btn-success btnCharging" billing-details-id="{{$row->id}}" {{ $row['paid_status']?'disabled':'Charging'}}>
+                    <button type="button" class="btn btn-success btnCharging" id="btnCharging-{{$row->id}}" billing-details-id="{{$row->id}}" {{ $row['paid_status']?'disabled':'Charging'}}>
                          <i class="fa fa-spinner fa-spin hidden"></i>
                         {{ $row['paid_status']?'Charging':'Charging'}}</button>
-                    </td>
-                    
+                    </td> 
                  
                   </tr>
                   @endforeach
@@ -134,62 +126,129 @@
         </div>
       </div>
     </div>
-    <!-----------------------------------------  Edit Modal start ---------------------------------------------->
+    
 
-    <div class="modal modal-info fade" id="modal-edit">
+    <!-----------------------------------------  More Modal start ---------------------------------------------->
+
+    <div class="modal modal-info fade" id="modal-more">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Unsubscribe User</h4>
+            <h4 class="modal-title">Billing details</h4>
           </div>
           <div class="modal-body">
 
             {{csrf_field()}}
-
-
-            <div class="form-group">
-              <label for="user_id">User ID</label>
-              <input type="hidden" class="form-control" id="user_package_id" value="" placeholder="User ID" readonly required>
-              <input type="text" class="form-control" id="user_id" value="" placeholder="User ID" readonly required>
-            </div>
-            <div class="form-group">
-              <label for="package_id">Package</label>
-              <select class="form-control" id="package_id" readonly required>
-               
-                @foreach($package_list as $package)
-                    <option {{strtolower($package->package)===strtolower("FREE ACCOUNT")?'selected':'disabled'}} value="{{$package->id}}">{{$package->package}}</option>
-                @endforeach
-              </select>
-
-         
-            
-              <input type="hidden" class="form-control" id="subscription_date" value="" placeholder="Subscription Date" required>
-            
-              <input type="hidden" class="form-control" id="subscription_expire_date" value="" placeholder="Expire Subscription" required>
-        
-            <div class="form-group">
-              <label for="subscription_status">Subscription Status</label>
-              <select class="form-control" id="subscription_status" readonly required>
-                <option selected value="2">Pending</option>
-                <option value="1" disabled>Active</option>
-                <option value="0" disabled>In-active</option>
-              </select>
-            </div>
-
+            <table class="table table-bordered">
+              <tr>
+                <td>Bill ID</td>
+                <td id="lbl-srno"></td>
+              </tr>
+              
+              <tr>
+                <td>Email ID</td>
+                <td id="lbl-email"></td>
+              </tr>
+              <tr>
+                <td>Package</td>
+                <td id="lbl-package"></td>
+              </tr>
+              <tr>
+                <td>Billing Cost</td>
+                <td id="lbl-package-cost"></td>
+              </tr>
+              <tr>
+                <td>Bill Start</td>
+                <td id="lbl-billing-start"></td>
+              </tr>
+              <tr>
+                <td>Bill End</td>
+                <td id="lbl-billing-end"></td>
+              </tr>
+              <tr>
+                <td>Billing Date</td>
+                <td id="lbl-billing-date"></td>
+              </tr>
+              <tr>
+                <td>Next Billing Date</td>
+                <td id="lbl-next-billing-date"></td>
+              </tr>
+              <tr>
+                <td>Payment Type</td>
+                <td id="lbl-payment-type"></td>
+              </tr>
+              <tr>
+                <td>Recurring Type</td>
+                <td id="lbl-recurring-type"></td>
+              </tr>
+              <tr>
+                <td>Process Times</td>
+                <td id="lbl-process-times"></td>
+              </tr>
+              <tr>
+                <td>Paid Status</td>
+                <td id="lbl-paid-status"></td>
+              </tr>
+              <tr>
+                <td>Process Status</td>
+                <td id="lbl-process-status"></td>
+              </tr>
+              <tr>
+                <td>Updated</td>
+                <td id="lbl-updated"></td>
+              </tr>
+              <tr>
+                <td>Cron Job ID</td>
+                <td id="lbl-cron-id"></td>
+              </tr>
+            </table>
           </div>
+          
           <div class="modal-footer">
-            <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
-            <button type="submit" name="edit_ok" id="edit_btn" class="btn btn-danger">Confirm Requested</button>
+            <button type="button" class="btn btn-success pull-right" data-dismiss="modal">Cancel</button>
           </div>
         </div>
         <!-- /.modal-content -->
       </div>
       <!-- /.modal-dialog -->
     </div>
+   
 
-    <!--------------------------------  Edit Modal End --------------------------------------------->
+    <!--------------------------------  More Modal End --------------------------------------------->
+
+
+
+     <!-----------------------------------------  Payment Charging Modal start ---------------------------------------------->
+
+     <div class="modal modal-info fade" id="modal-payment-charging">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Payment Charging</h4>
+          </div>
+          <div class="modal-body">
+
+            {{csrf_field()}}
+
+            Do you want to charge the selected billing payment?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
+            <button type="button" name="edit_ok" id="btn-payment-confirm" class="btn btn-danger">Confirm Charging</button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+    </div>
+
+    <!--------------------------------  Payment Charging Modal End --------------------------------------------->
+
 
 
     <!-- /.content -->
@@ -209,12 +268,41 @@
 <!-- -----------------------------  Active/Deactive Item Ajax Request Start ------------------------------- ---->
 <script>
   $(document).ready(function() {
-    $('.btnCharging').click(function() {
+    $('.btnMore').click(function() {
+      var billing_details = JSON.parse($(this).attr('billing-details'));
+      $("#lbl-srno").text(billing_details.id);
+      $("#lbl-email").text($("#lbl-email-"+billing_details.id).text());
+      $("#lbl-package").text($("#lbl-package-"+billing_details.id).text());
+      $("#lbl-package-cost").text('$'+billing_details.package_cost);
+      $("#lbl-billing-start").text(billing_details.billing_start_date);
+      $("#lbl-billing-end").text(billing_details.billing_end_date);
+      $("#lbl-billing-date").text(billing_details.billing_date);
+      $("#lbl-next-billing-date").text(billing_details.next_billing_date);
+      $("#lbl-payment-type").text(billing_details.payment_type);
+      $("#lbl-recurring-type").text(billing_details.recurring_type);
+      $("#lbl-process-times").text(billing_details.payment_process_times);
+      $("#lbl-paid-status").text(billing_details?'Paid':'Unpaid');
+      $("#lbl-process-status").text(billing_details.process_stauts);
+      $("#lbl-updated").text(billing_details.updated_at);
+      $("#lbl-cron-id").text(billing_details.cron_payment_charging_id);
+      $("#modal-more").modal("show");
+    });
+
+    $('.btnCharging').click(function(e) {
+      e.preventDefault();
       var billing_details_id = $(this).attr('billing-details-id');
-      //console.log("Active item on Id :::", billing_details_id);
-      //console.log("Active Status :::", status); 
-      var faspinner = $(this).find('i.fa').removeClass('hidden');
+      $("#btn-payment-confirm").attr('billing-details-id',billing_details_id);
+      $("#modal-payment-charging").modal('show');
+
+    });
+
+    $('#btn-payment-confirm').click(function(e) {
+      e.preventDefault();
+      $("#modal-payment-charging").modal('hide');
+      var billing_details_id = $(this).attr('billing-details-id');
+      var faspinner = $("#btnCharging-"+billing_details_id).find('i.fa').removeClass('hidden');
       faspinner.removeClass('hidden');
+      $("#btnCharging-"+billing_details_id).attr('disabled',true);
       $.ajax({
         type: "post",
         dataType: "json",
@@ -242,6 +330,7 @@
         },
         error: function(error) {
           console.log("error :", error);
+          $("#btnCharging-"+billing_details_id).removeAttr('disabled');
          faspinner.addClass('hidden');
           $.toast({
             heading: 'Information',

@@ -27,7 +27,7 @@ class UserPackage extends Model
     //
     protected $access_url = "";
     public function __construct(){
-        Stripe::setApiKey('sk_test_AVSEgKpyoxellFyvMtrGrIww00nRnsyvaP');
+        Stripe::setApiKey(env("STRIPE_API_KEY"));
         $this->access_url = Request()->headers->get('origin').'/';
     }
 
@@ -241,7 +241,7 @@ class UserPackage extends Model
         $user_pkg->user_id = $user_id;
         $user_pkg->package_id = $package_id;
         $user_pkg->subscription_date = $date;
-        $user_pkg->subscription_expire_date = $expire_date;
+        $user_pkg->subscription_expire_date = !empty($rs['trial_end'])?$user_pkg->subscription_expire_date:$expire_date;
         $user_pkg->subscription_status = 1;
         if($user_pkg->save()){
             return $user_pkg;
@@ -254,7 +254,7 @@ class UserPackage extends Model
     public function paymentCreateSession($rs){
             try{
                 $user = Auth::user();
-                \Stripe\Stripe::setApiKey('sk_test_AVSEgKpyoxellFyvMtrGrIww00nRnsyvaP');
+                \Stripe\Stripe::setApiKey(env("STRIPE_API_KEY"));
                 $success_url = $this->access_url.'payment-success/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
                 $cancel_url = $this->access_url."payment-cancel/".Crypt::encryptString('payment-cancel');
                 $billing_type = $rs->billing_type;
@@ -442,6 +442,114 @@ class UserPackage extends Model
     }
 
 
+
+
+    public function paymentSessionSuccessPayment($rs){
+        $session_token = $rs->session_token;
+        $token = explode('&*^',$session_token);
+        if(empty($token[0]) || empty($token[1])){
+            return  [
+                'status'=>'error',
+                'code'=>'101',
+                'message'=> 'Invalid payment request!',
+            ];
+        }
+
+        $session_id = $rs->id;
+        $user = Auth::user();
+
+        $payment_session = PaymentSession::where('user_id','=',$user->id)
+                            ->where('payment_session_id','=',$session_id)->first();
+        if(empty($payment_session ) || $payment_session->paid===1 || 
+                $payment_session->validated===1){
+            return [
+                'status'=>'error',
+                'code'=>'102',
+                'message'=> 'Invalid payment requests!',
+            ];
+        } 
+
+        $user_package = new UserPackage;
+        $session_status = $user_package->retriveSessionInfo($session_id);
+        if(empty($session_status )){
+            return [
+                'status'=>'error',
+                'code'=>'104',
+                'message'=> 'Invalid payment requests!',
+            ];
+        } 
+
+       
+        $next_billing = $this->make_next_billing($session_id,$rs['session_type']);
+     
+        
+        $session_status->date = date('Y-m-d');
+        $meta_data = $session_status->metadata;
+        $user_id = $meta_data->user_id;
+        $package_id = $meta_data->package_id;
+        $amount = $meta_data->amount;
+        $payment_type = $meta_data->payment_type;
+        $billing_type = $meta_data->billing_type;
+        $billing_details_id = $meta_data->billing_details_id;
+        $paid = "";
+        if(!empty($session_status->subscription) && 
+                $session_status->amount_total>0 && 
+                $session_status->mode==="subscription" && $billing_type ==="yes"){
+                    $paid = "unpaid";
+        }else{
+            $payment_status = $user_package->retrivePaymentInfo($session_status->payment_intent);
+            if(!empty( $payment_status) && $payment_status->amount_received>0 && 
+                $payment_status->status==="succeeded" &&
+                $payment_status->charges->data[0]->amount_refunded === 0
+                ){
+                    $paid = "paid";
+            }else{
+                $paid = "unpaid";
+            }
+        }
+    
+        $payment_session->validated = 1;
+        if($paid==="paid"){
+            $payment_session->paid = 1;
+            $payment_session->save();
+        }elseif($paid==="unpaid"){
+            $payment_session->paid = 0;
+            $payment_session->save();
+        }
+        $payment_charging = 'NA';
+        if($rs['session_type']==='expired'){
+            $payment_charging = $this->payment_charging($user->id);
+        }elseif($rs['session_type']==='profile'){
+            $payment_charging = null;
+              $package_rs = [
+                'user_id'=>$user->id,
+                'package_id'=>$package_id,
+                'payment_type'=>$payment_type,
+                'billing_type'=>$billing_type,
+                'paid'=>$paid
+            ];
+            $user_pkg = $user_package->saveUserPackage($package_rs);
+
+        }
+      
+        Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
+        return [
+            'status'=>'success',
+            'data'=> $payment_session,
+            'session_status'=> $session_status,
+            'payment_status'=> $payment_status,
+            'package_info'=> null,
+            'user_id'=>$user->id,
+            'package_id'=>$package_id,
+            'payment_type'=>$payment_type,
+            'billing_type'=>$billing_type,
+            'payment_charging'=>$payment_charging,
+            'rs'=>$rs->all(),
+        ];
+    }
+
+
+
     public function cronPaymentProcessSuccess($rs){
         $session_id = $rs['id'];
         $user = User::where('id','=',$rs['user_id'])->first();
@@ -556,9 +664,9 @@ class UserPackage extends Model
     public function paymentCreateSessionProfile($rs){
         try{
                 $user = Auth::user();
-                \Stripe\Stripe::setApiKey('sk_test_AVSEgKpyoxellFyvMtrGrIww00nRnsyvaP');
+                \Stripe\Stripe::setApiKey(env("STRIPE_API_KEY"));
                 $success_url = $this->access_url.'payment-success-profile/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
-                $cancel_url = $this->access_url."payment-cancel/".Crypt::encryptString('payment-cancel');
+                $cancel_url = $this->access_url."payment-cancel-profile/".Crypt::encryptString('payment-cancel');
                 $billing_type = $rs->billing_type;
                 $payment_type = $rs->payment_type;
                 $stripe_month_price_plan = $rs->stripe_month_price_plan;
@@ -600,6 +708,82 @@ class UserPackage extends Model
                     ];
                 
  
+                
+                $session = \Stripe\Checkout\Session::create($session_create);
+            }catch(Exception $ex){
+                $exp = $ex->getMessage();
+            }
+        if(!empty($session)){
+            $session_rs = [
+                'package_id'=>$rs->item_id,
+                'payment_session_id' => $session->id,
+                'paid' => 0,
+                'amount' => $price*100,
+                'user_package_id' => '0',
+                'payment_details_id' => '0',
+                'session' => $session,
+            ];
+            $payment_session = new PaymentSession;
+            $payment_session->savePaymentSession($session_rs);
+            return [
+                'status'=>'success',
+                'data'=>$session,
+            ];
+        }else{
+            return [
+                'status'=>'error',
+                'data'=>$exp
+            ];
+        }
+    }
+
+    public function paymentCreateSessionPayment($rs){
+        try{
+                $user = Auth::user();
+                $success_url = $this->access_url.'payment-success-profile/'.Crypt::encryptString('payment-success').'?session_id={CHECKOUT_SESSION_ID}';
+                $cancel_url = $this->access_url."payment-cancel/".Crypt::encryptString('payment-cancel');
+                $billing_type = $rs->billing_type;
+                $payment_type = $rs->payment_type;
+                $billing_details_id = $rs->billing_details_id;
+                $stripe_month_price_plan = $rs->stripe_month_price_plan;
+                $stripe_year_price_plan = $rs->stripe_year_price_plan;
+                $price = $rs->payment_type==="yearly"?$rs->year_amount:$rs->amount;
+                $price_plan = "";
+                $line_items= "";
+                $mode = "setup";
+                if($billing_type && $payment_type==="yearly"){
+                    $price_plan = $stripe_year_price_plan;
+                }elseif($billing_type && $payment_type==="monthly"){
+                    $price_plan = $stripe_month_price_plan;
+                }
+                $customer = \Stripe\Customer::create();
+              
+                    $line_items=[ 
+                        'name' => $rs->item,
+                        'description' => $rs->description,
+                        'images' => ['http://thisheart.co:8000/images/package-img.png'],
+                        'amount' => $price*100,
+                        'currency' => 'usd',
+                        'quantity' => 1,
+                    ];
+                    $mode = "setup";
+                    $session_create = [
+                        'payment_method_types' => ['card'],
+                        'customer'=>$customer->id,
+                        'metadata'=>[
+                            'user_id' => $user->id,
+                            'package_id' => $rs->item_id,
+                            'package_name' => $rs->item,
+                            'amount' => $price*100,
+                            'payment_type' => $payment_type,
+                            'billing_type' => $billing_type,
+                            'billing_type' => $billing_type,
+                            'billing_details_id' => $billing_details_id,
+                        ],
+                        'mode'=>$mode,
+                        'success_url' => $success_url,
+                        'cancel_url' =>  $cancel_url,
+                    ];
                 
                 $session = \Stripe\Checkout\Session::create($session_create);
             }catch(Exception $ex){
@@ -958,6 +1142,11 @@ class UserPackage extends Model
         }else{
             return ['status'=>'error','code'=>'005', 'message'=>'failed on billing details'];
         }
+    }
+
+
+    public function user_billing(){
+        return $this->hasOne(UserBilling::class,'user_id','user_id');
     }
 
 }

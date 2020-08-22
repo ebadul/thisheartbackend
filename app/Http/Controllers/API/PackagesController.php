@@ -58,11 +58,17 @@ class PackagesController extends Controller
         }
      
         $all_packages = PackageInfo::orderBy('price')->get();
+        $billing_details = BillingDetail::where(['user_id'=>$user->id, 'paid_status'=>0])->
+                                          whereNotNull('stripe_session_id')->
+                                          whereNotNull('cron_payment_charging_id')->
+                                          where('payment_process_times','>',0)->
+                                          first();
 
         return response()->json([
             'status'=>'success',
             'user_package'=> $user_package,
             'package_info'=> $packages,
+            'billing_details'=> $billing_details,
             'data'=> $packages,
             'remaining_days'=>$expire_days,
             'all_package_list'=>$all_packages,
@@ -112,6 +118,7 @@ class PackagesController extends Controller
             }
             $user_billing->expire_date =  $expire_date ;
             $user_billing->subscribe_status = 0;
+            $user_billing->notes = "unsubscribed";
             $user_billing->save();
 
            
@@ -507,6 +514,24 @@ class PackagesController extends Controller
         }
     }
 
+
+    public function paymentCreateSessionPayment(Request $rs){
+        $user = Auth::user();
+        $userPackage = new UserPackage;
+        $session_info = $userPackage->paymentCreateSessionPayment($rs);
+        if($session_info['status']==="success"){
+            return response()->json([
+                'status'=>'success',
+                'session'=>$session_info['data'] ,
+            ], 200);
+        }else{
+            return response()->json([
+                'status'=>'error',
+                 'message'=>$session_info['data']
+            ], 500);
+        }
+    }
+
     public function paymentSessionSuccessProfile(Request $rs){
         $this->validate($rs,[
             'id'=>'required',
@@ -514,6 +539,21 @@ class PackagesController extends Controller
         ]);
         $user_package = new UserPackage;
         $payment_session = $user_package->paymentSessionSuccess($rs);
+        
+        if($payment_session['status']==="success"){
+            return response()->json($payment_session, 200);
+        }else{
+            return response()->json($payment_session, 500);
+        }
+    } 
+
+    public function paymentSessionSuccessPayment(Request $rs){
+        $this->validate($rs,[
+            'id'=>'required',
+            'session_token'=>'required',
+        ]);
+        $user_package = new UserPackage;
+        $payment_session = $user_package->paymentSessionSuccessPayment($rs);
         
         if($payment_session['status']==="success"){
             return response()->json($payment_session, 200);

@@ -20,7 +20,7 @@ class CreateFreeAccountsTable extends Migration
             $table->string('requested_by')->nullable();
             $table->string('approved_by')->nullable();
             $table->tinyInteger('verified')->default(0);
-            $table->enum('status',['pending','actived','denied']);
+            $table->enum('status',['pending','activated','denied']);
             $table->timestamps();
         });
     }

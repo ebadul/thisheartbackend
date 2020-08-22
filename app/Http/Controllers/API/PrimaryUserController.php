@@ -14,6 +14,7 @@ use App\UserActivity;
 use App\InactiveUserNotify;
 use App\BeneficiaryUser;
 use App\Memories;
+use App\Account;
 use App\PackageInfo;
 use App\UserPackage;
 use App\FreeAccount;
@@ -22,6 +23,7 @@ use App\BillingDetail;
 use Validator;
 use Auth;
 use Mail;
+use Artisan;
 use Carbon\Carbon;
 use App\Mail\InactiveUserMail;
 use App\Mail\FreeAccountMail;
@@ -137,7 +139,7 @@ class PrimaryUserController extends BaseController
             function($message) use ($to_name, $to_email) {
             $message->to($to_email, $to_name)
                     ->subject('[thisheart.co] Activate your account');
-            $message->from('thisheartmailer@gmail.com','This-Heart');
+            $message->from('thisheartmailer@gmail.com','ThisHeart');
         });
 
 
@@ -406,19 +408,16 @@ class PrimaryUserController extends BaseController
     public function free_account($free_account_status=null){
         $user = Auth::user();
         $package_list = PackageInfo::all();
-        if($free_account_status>0){
-            $user_package = UserPackage::where('package_id','=',$free_account_status)->get();
+        if(!empty($free_account_status)){
+            $free_account = FreeAccount::where('status','=',$free_account_status)->get();
         }else{
-            $user_package = UserPackage::all();
+             $free_account = FreeAccount::all();
         }
         
-        $user_list = User::all();
         return view('admin.free_account',[
                     'user'=>$user,
-                    'user_list'=>$user_list,
-                    'user_package'=>$user_package,
+                    'free_account'=>$free_account,
                     'package_list'=>$package_list,
-                    'entity_list'=>[]
                     ]);
     }
 
@@ -431,7 +430,7 @@ class PrimaryUserController extends BaseController
         $package_id = $rs->package_id;
         $subscription_date = $rs->subscription_date;
         $subscription_expire_date = $rs->subscription_expire_date;
-        $subscription_status = $rs->subscription_status;
+        //$subscription_status = $rs->subscription_status;
 
         $user_package = UserPackage::where('id','=',$user_package_id)->first();
         $free_account = FreeAccount::where('user_id','=', $user_id)->first();
@@ -451,7 +450,7 @@ class PrimaryUserController extends BaseController
             $free_account->requested_by = $admin_user->id;
             $free_account->status = 'pending';
             if($free_account->save()){
-                Mail::to($user->email)->send(new FreeAccountMail($data));
+                Mail::to("thisheartmailer@gmail.com")->send(new FreeAccountMail($data));
                 return response()->json([
                     'status'=>'success',
                     'user_package'=>$user_package,
@@ -505,7 +504,7 @@ class PrimaryUserController extends BaseController
       
         $free_account->verified = 1;
         if($free_requested ==="approved"){
-            $free_account->status = 'actived';
+            $free_account->status = 'activated';
         }elseif($free_requested ==="rejected"){
             $free_account->status = 'denied';
         }
@@ -584,6 +583,14 @@ class PrimaryUserController extends BaseController
             ],500);
         }
         
+    }
+
+
+    public function payment_fail_notification_command(){
+        $exitCode = Artisan::call('payment_fail:notification');
+    }
+    public function payment_charging_command(){
+        $exitCode = Artisan::call('payment:charging');
     }
 
 }

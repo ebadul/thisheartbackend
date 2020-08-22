@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -27,8 +28,11 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
         $schedule->command('payment:charging')
-                 ->everyMinute();
-                }
+                 ->daily();
+                
+        $schedule->command('payment_fail:notification')
+                 ->daily();
+    }
 
     /**
      * Register the commands for the application.

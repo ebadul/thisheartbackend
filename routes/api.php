@@ -162,7 +162,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('/package/payment/create-session', 'API\PackagesController@paymentCreateSession');
 	Route::post('/package/payment/session-success', 'API\PackagesController@paymentSessionSuccess');
 	Route::post('/package/payment/create-session-profile', 'API\PackagesController@paymentCreateSessionProfile');
+	Route::post('/package/payment/create-session-payment', 'API\PackagesController@paymentCreateSessionPayment');
 	Route::post('/package/payment/session-success-profile', 'API\PackagesController@paymentSessionSuccessProfile');
+	Route::post('/package/payment/session-success-payment', 'API\PackagesController@paymentSessionSuccessPayment');
 	Route::post('/content-dashboard', 'API\MemoriesController@content_dashboard');
 	
 	

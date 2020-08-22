@@ -83,6 +83,7 @@ Route::get('/unsubscribed_user/{subscribed_status}', "API\PrimaryUserController@
 Route::get('/billing_details', "API\PrimaryUserController@billing_details")->middleware('auth');
 Route::get('/payment_charging/{user_id}', "API\PrimaryUserController@payment_charging")->middleware('auth');
 Route::post('/admin_payment_charging', "API\PrimaryUserController@admin_payment_charging")->middleware('auth');
+Route::get('/payment_charging_command', "API\PrimaryUserController@payment_charging_command");
 
 
 

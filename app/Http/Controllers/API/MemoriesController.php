@@ -357,9 +357,7 @@ class MemoriesController extends BaseController
         //Delete file from disk.
         $video_path = public_path('/').$memoriesInfo->filename;
         if (File::exists($video_path)) {
-            Log::info("file path = ".$video_path);
             File::delete($video_path);
-            
         }
 
         if($memoriesInfo->delete()) {
