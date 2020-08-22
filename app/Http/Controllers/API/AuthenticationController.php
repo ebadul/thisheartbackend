@@ -80,6 +80,7 @@ class AuthenticationController extends BaseController
     public function login(Request $request){
       try{
                 $user = User::where('email', '=', $request->email)->first();
+                $status_unsubscribed = "";
                 if(!empty($user)){
                     $user_type = $user->user_types->user_type;
                     if($user_type==="primary" || $user_type==="beneficiary"){
