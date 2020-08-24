@@ -76,6 +76,7 @@
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Package</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Billing Cost</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Payment Type</th>
+                  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Recurring</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Billing Date</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Next Billing Date</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Status</th>
@@ -90,10 +91,11 @@
                   <tr role="row" class="odd">
                     <td title="{{$row->id}}">{{$row->id}}</td>
                     <td title="{{$row->user_id}}" id="lbl-email-{{$row['id']}}">{{$row->user->email}}</td>
-                    <td title="{{$row->user_id}}" id="lbl-package-{{$row['id']}}" class="text-center">
+                    <td id="lbl-package-{{$row['id']}}" class="text-center">
                         {{$row->user->user_package->package_info->package}}</td>
                     <td class="text-center">$ {{ $row['package_cost']}}</td>
-                    <td title="{{ $row['recurring_type']}}">{{ $row['payment_type']}}</td>
+                    <td class="text-center">{{ $row['payment_type']}}</td>
+                    <td class="text-center">{{ $row['recurring_type']}}</td>
                     <td>{{ $row['billing_date']}}</td>
                     <td>{{ empty($row['next_billing_date'])?'Not yet billed':$row['next_billing_date']}}</td>
                     <td class="text-center">

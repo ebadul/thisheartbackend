@@ -88,7 +88,7 @@ class User extends Authenticatable
     }
 
     public function user_package(){
-        return $this->hasOne(UserPackage::class);
+        return $this->hasOne(UserPackage::class,'user_id','id');
     }
 
     public function user_entities(){

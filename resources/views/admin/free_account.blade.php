@@ -80,21 +80,21 @@
                 </tr>
               </thead>
               <tbody>
-                <?php if ($free_account) : ?>
-                  @foreach ( $free_account as $row )
+                <?php if ($user_package) : ?>
+                  @foreach ( $user_package as $row )
                   <tr role="row" class="odd">
                     <td title="{{$row->user_id}}">{{$row->user_id}} </td>
                     <td title="{{$row->user_id}}">{{$row->user['email']}}</td>
                     <td>
-                      {{ !empty($row->user_pacakge->package_info)?$row->user_pacakge->package_info->package:'No package selected'}}
+                      {{ !empty($row->package_info)?$row->package_info->package:'No package selected'}}
                        
                     </td>
                     <td>{{ $row['created_at']}}</td>
                     <td class="text-center">
-                       {{$row['status']}}
+                       {{$row->free_account?$row->free_account->status:'-'}}
                     </td>
                     <td class="text-center">
-                      <button type="button" class="btn btn-info editBtn" user-data="{{$row}} ">
+                      <button type="button" class="btn btn-info editBtn" user-data="{{$row}} " {{$row->free_account?'disabled':''}}>
                         <span><i class="fa fa-edit"></i></span> Request for free</button>
                     </td>
                  

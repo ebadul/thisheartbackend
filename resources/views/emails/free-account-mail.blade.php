@@ -21,7 +21,7 @@
         </header>
         <div class="body">
             
-			<p><b>Hi, {{Crypt::decryptString($user->name)}},</b></p>
+			<p><b>Hello Admin,</b></p>
 			 
     
                 <p>To active free account, </p><br>

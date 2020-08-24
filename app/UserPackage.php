@@ -10,6 +10,7 @@ use App\User;
 use App\Beneficiary;
 use App\Account;
 use App\Letters;
+use App\FreeAccount;
 use Stripe\Stripe;
 use Mail;
 use App\Mail\PaymentSuccessMail;
@@ -38,6 +39,9 @@ class UserPackage extends Model
 
     public function package_info(){
         return $this->belongsTo(PackageInfo::class,'package_id','id');
+    }
+    public function free_account(){
+        return $this->hasOne(FreeAccount::class,'user_id','user_id');
     }
 
     public function package_entities(){
@@ -343,6 +347,8 @@ class UserPackage extends Model
         $session_id = $rs->id;
         $user = Auth::user();
 
+       
+
         $payment_session = PaymentSession::where('user_id','=',$user->id)
                             ->where('payment_session_id','=',$session_id)->first();
         if(empty($payment_session ) || $payment_session->paid===1 || 
@@ -353,7 +359,7 @@ class UserPackage extends Model
                 'message'=> 'Invalid payment requests!',
             ];
         } 
-
+       
         $user_package = new UserPackage;
         $session_status = $user_package->retriveSessionInfo($session_id);
         if(empty($session_status )){
@@ -1079,6 +1085,9 @@ class UserPackage extends Model
         // $user_billing->expire_date;
         $user_billing->payment_type = $meta_data->payment_type;
         $user_billing->recurring_type = $meta_data->billing_type;
+        $user_billing->subscribe_status=1;
+        $user_billing->package_changed=$user_billing->package_changed+1;
+        $user_billing->package_changed_date=date("Y-m-d");
         $user_billing->subscribe_status=1;
         $user_billing->save();
 

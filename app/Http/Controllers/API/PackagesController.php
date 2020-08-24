@@ -30,6 +30,7 @@ class PackagesController extends Controller
     public function __construct()
     {
         $this->access_url = Request()->headers->get('origin').'/';
+        $this->middleware('auth');
     }
 
     public function getPackages(){
@@ -500,6 +501,31 @@ class PackagesController extends Controller
     public function paymentCreateSessionProfile(Request $rs){
         $user = Auth::user();
         $userPackage = new UserPackage;
+        $package_id = $rs->item_id;
+        $today = date('Y-m-d');
+         
+        $user_pkg = UserPackage::where('user_id','=',$user->id)->first();
+        if(!empty($user_pkg) && 
+            $user_pkg->subscription_expire_date >$today &&  
+            $user_pkg->package_id===$package_id){
+            return response()->json([
+                'status'=>'error',
+                 'message'=>$rs->item. ", package is subscribed already!"
+            ], 500);
+        }
+
+        $user_billing = UserBilling::where([
+            ['user_id','=',$user->id],
+            ['package_changed','>',0]])->first();
+        $package_changed_date  = $user_billing->package_changed_date;  
+        if($package_changed_date>=$user_pkg->subscription_date && 
+        $package_changed_date<=$user_pkg->subscription_expire_date){
+            return response()->json([
+                'status'=>'error',
+                 'message'=>"You're not allowed to change packages right now!"
+            ], 500);
+        }
+
         $session_info = $userPackage->paymentCreateSessionProfile($rs);
         if($session_info['status']==="success"){
             return response()->json([

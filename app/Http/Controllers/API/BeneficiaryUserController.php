@@ -20,6 +20,11 @@ class BeneficiaryUserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function beneficiary_user (){
         $user = Auth::user();
         $user_type_id = $user->getUserTypeID("beneficiary");

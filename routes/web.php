@@ -45,35 +45,35 @@ Route::get('/delete_primary_user/{user_id}', "API\PrimaryUserController@delete_p
 Route::get('/delete_beneficiary_user/{user_id}', "API\PrimaryUserController@delete_beneficiary_user");
 
 
-Route::get('/beneficiary_user', "API\BeneficiaryUserController@beneficiary_user");
+Route::get('/beneficiary_user', "API\BeneficiaryUserController@beneficiary_user")->middleware('auth');
 Route::post('/beneficiary_user_edit', "API\BeneficiaryUserController@updateBnUserById")->name("beneficiary_user_edit");
 Route::post('/bnuser_status', "API\BeneficiaryUserController@changeStatus")->name("bnuser_status");
 
 //package list
-Route::get('/diagnosis_info', "API\MedicalHistoryController@diagnosis_info");
+Route::get('/diagnosis_info', "API\MedicalHistoryController@diagnosis_info")->middleware('auth');
 Route::any('/diagnosis_info_add', "API\MedicalHistoryController@diagnosis_info_add");
 Route::post('/diagnosis_info_edit', "API\MedicalHistoryController@diagnosis_info_edit");
 Route::get('/delete_diagnosis_info/{diagnosis_id}', "API\MedicalHistoryController@delete_diagnosis_info");
-Route::get('/package_info', "API\PackagesController@package_info");
+Route::get('/package_info', "API\PackagesController@package_info")->middleware('auth');
 Route::get('/delete_package_info/{user_id}', "API\PackagesController@delete_package_info");
 Route::post('/package_info_edit', "API\PackagesController@package_info_edit");
 Route::any('/package_info_add', "API\PackagesController@package_info_add");
 Route::get('/package_entity/{package_id}', "API\PackagesController@package_entities");
-Route::get('/user_package', "API\PackagesController@user_package");
+Route::get('/user_package', "API\PackagesController@user_package")->middleware('auth');
 Route::post('/user_package_edit', "API\PackagesController@user_package_edit");
 Route::get('/user_package_delete/{id}', "API\PackagesController@user_package_delete");
-Route::get('/package_entities_info', "API\PackagesController@package_entities_info");
+Route::get('/package_entities_info', "API\PackagesController@package_entities_info")->middleware('auth');
 Route::any('/package_entities_info_add', "API\PackagesController@package_entities_info_add");
 Route::post('/package_entities_info_edit', "API\PackagesController@package_entities_info_edit");
 Route::any('/package_entities_info_delete/{id}', "API\PackagesController@package_entities_info_delete");
-Route::get('/package_entities', "API\PackagesController@package_entities");
+Route::get('/package_entities', "API\PackagesController@package_entities")->middleware('auth');
 Route::any('/package_entities_add', "API\PackagesController@package_entities_add");
 Route::post('/package_entities_edit', "API\PackagesController@package_entities_edit");
 Route::any('/package_entities_delete/{id}', "API\PackagesController@package_entities_delete");
-Route::get('/user_activities', "API\PrimaryUserController@user_activities");
-Route::get('/free_account/{free_account_status}', "API\PrimaryUserController@free_account");
+Route::get('/user_activities', "API\PrimaryUserController@user_activities")->middleware('auth');
+Route::get('/free_account/{free_account_status}', "API\PrimaryUserController@free_account")->middleware('auth');
 Route::post('/free_user_package_edit', "API\PrimaryUserController@free_user_package_edit");
-Route::get('/user_activities_delete/{id}', "API\PrimaryUserController@user_activities_delete");
+Route::get('/user_activities_delete/{id}', "API\PrimaryUserController@user_activities_delete")->middleware('auth');
 Route::get('/inactive_primary_users', "API\PrimaryUserController@inactive_primary_users")->middleware('auth');
 Route::post('/inactive_user_notify_edit', "API\PrimaryUserController@inactive_user_notify_edit")->middleware('auth');
 Route::get('/inactive_beneficiary_users', "API\PrimaryUserController@inactive_beneficiary_users")->middleware('auth');

@@ -43,6 +43,7 @@ class PrimaryUserController extends BaseController
     public function __construct()
     {
         $this->access_url = Request()->headers->get('origin').'/';
+        //$this->middleware('auth');
     }
 
     public function loginAdmin (Request $request) {
@@ -408,6 +409,7 @@ class PrimaryUserController extends BaseController
     public function free_account($free_account_status=null){
         $user = Auth::user();
         $package_list = PackageInfo::all();
+        $user_package = UserPackage::all();
         if(!empty($free_account_status)){
             $free_account = FreeAccount::where('status','=',$free_account_status)->get();
         }else{
@@ -416,7 +418,7 @@ class PrimaryUserController extends BaseController
         
         return view('admin.free_account',[
                     'user'=>$user,
-                    'free_account'=>$free_account,
+                    'user_package'=>$user_package,
                     'package_list'=>$package_list,
                     ]);
     }
