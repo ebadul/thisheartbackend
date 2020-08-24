@@ -144,7 +144,6 @@ class AuthenticationController extends BaseController
                                 $inactive_user_notify = new InactiveUserNotify;
                                 $inactive_user_notify->user_id = $user->id;
                             }
-                                
                                 $inactive_user_notify->last_login = Carbon::now();
                                 $inactive_user_notify->first_send_email = null;
                                 $inactive_user_notify->second_send_email = null;
@@ -158,7 +157,7 @@ class AuthenticationController extends BaseController
                             $user->save();
 
                             $user_pkg = $user->user_package;
-                            $status = "success";
+                            $status = "NA";
                             if(!empty( $user_pkg)){
                                 $user_billing = $user->user_billing;
                                 if(!empty($user_billing) && $user_billing->subscribe_status===0){

@@ -517,13 +517,16 @@ class PackagesController extends Controller
         $user_billing = UserBilling::where([
             ['user_id','=',$user->id],
             ['package_changed','>',0]])->first();
-        $package_changed_date  = $user_billing->package_changed_date;  
-        if($package_changed_date>=$user_pkg->subscription_date && 
-        $package_changed_date<=$user_pkg->subscription_expire_date){
-            return response()->json([
-                'status'=>'error',
-                 'message'=>"You're not allowed to change packages right now!"
-            ], 500);
+
+        if(!empty($user_billing)){
+            $package_changed_date  = $user_billing->package_changed_date;  
+            if($package_changed_date>=$user_pkg->subscription_date && 
+            $package_changed_date<=$user_pkg->subscription_expire_date){
+                return response()->json([
+                    'status'=>'error',
+                     'message'=>"You're not allowed to change packages right now!"
+                ], 500);
+            }
         }
 
         $session_info = $userPackage->paymentCreateSessionProfile($rs);
