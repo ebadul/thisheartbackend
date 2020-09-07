@@ -248,6 +248,24 @@ class MemoriesController extends BaseController
         $max_size = (int)ini_get('upload_max_filesize') * 1000000;
         $user = Auth::user();
   
+            if($request->videoType==="videoLink"){
+                $memories = new Memories();
+                $memories->title = $request->urlTitle;
+                //$memories->filename = $path_str.'/'.$name; //filename and full path
+                $memories->filename = $request->urlLink;
+                $memories->urlcheck = $request->videoType;
+                $memories->filetype = "video";
+                $memories->user_id = $user->id;
+                $memories->save();
+                $memoriesTmp[] = $memories;
+
+                return response()->json([
+                    'message' => 'Video uploaded successfully.',
+                    'data' => $memoriesTmp
+                ], 200);
+                
+            }
+
             if($request->hasFile('videos')){
                 $user_package = new UserPackage;
 
@@ -264,17 +282,6 @@ class MemoriesController extends BaseController
                         'storage'=>$package_storage_action
                     ], 500); 
                 }
-
-                // $data=$request->all();
-                // $rules=['videos' =>'mimes:mpeg,ogg,ogv,mp4,webm,3gp,mov,flv,avi,wmv|max:'.$max_size.'|required'];
-                // $validator = Validator($data,$rules);
-                // if ($validator->fails()){
-                //     return response()->json([
-                //         'message' => 'Please select valid video file.',
-                //         'data' => $validator->messages(),
-                //     ], 500);
-                // }
-
 
                 
                 $memoriesTmp = [];

@@ -965,7 +965,7 @@ class UserPackage extends Model
                 ];
             }//end paid-unpaid 
         }//end foreach loop
-    }//end function payment charging
+    }//end function payment charging.
 
 
 
@@ -1080,7 +1080,7 @@ class UserPackage extends Model
                     'message'=>$errorMessage
                 ];
             }//end paid-unpaid 
-    }//end function payment charging
+    }//end function payment charging process
 
 
     //generate bill for next coming month
