@@ -253,7 +253,7 @@ class MemoriesController extends BaseController
                 $memories->title = $request->urlTitle;
                 //$memories->filename = $path_str.'/'.$name; //filename and full path
                 $memories->filename = $request->urlLink;
-                $memories->urlcheck = $request->videoType;
+                $memories->urlcheck = "videoLink";
                 $memories->filetype = "video";
                 $memories->user_id = $user->id;
                 $memories->save();
@@ -297,6 +297,7 @@ class MemoriesController extends BaseController
                     //$memories->filename = $path_str.'/'.$name; //filename and full path
                     $memories->filename = $path;
                     $memories->filetype = "video";
+                    $memories->urlcheck = "videoFile";
                     $memories->user_id = $user->id;
                     $memories->save();
                     $memoriesTmp[] = $memories;
@@ -381,6 +382,24 @@ class MemoriesController extends BaseController
         $max_size = (int)ini_get('upload_max_filesize') * 100000;
         $user = Auth::user();
 
+        if($request->audioType==="audioLink"){
+            $memories = new Memories();
+            $memories->title = $request->urlTitle;
+            //$memories->filename = $path_str.'/'.$name; //filename and full path
+            $memories->filename = $request->urlLink;
+            $memories->filetype = "record";
+            $memories->urlcheck = "audioFile";
+            $memories->user_id = $user->id;
+            $memories->save();
+            $memoriesTmp[] = $memories;
+
+            return response()->json([
+                'message' => 'Audio uploaded successfully.',
+                'data' => $memoriesTmp
+            ], 200);
+            
+        }
+
             if($request->hasFile('audios')){
 
                 $user_package = new UserPackage;
@@ -421,6 +440,7 @@ class MemoriesController extends BaseController
                     $memories->title = $title;
                     $memories->filename = $path;
                     $memories->filetype = "record";
+                    $memories->urlcheck = "audioFile";
                     $memories->user_id = $user->id;
                     $memories->save();
                     $memoriesTmp[] = $memories;

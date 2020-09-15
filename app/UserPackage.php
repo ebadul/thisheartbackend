@@ -347,15 +347,13 @@ class UserPackage extends Model
         $session_id = $rs->id;
         $user = Auth::user();
 
-       
-
         $payment_session = PaymentSession::where('user_id','=',$user->id)
                             ->where('payment_session_id','=',$session_id)->first();
         if(empty($payment_session ) || $payment_session->paid===1 || 
                 $payment_session->validated===1){
             return [
                 'status'=>'error',
-                'code'=>'102',
+                'code'=>'107',
                 'message'=> 'Invalid payment requests!',
             ];
         } 
@@ -424,7 +422,7 @@ class UserPackage extends Model
 
         }
       
-        Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
+        //Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
         return [
             'status'=>($payment_charging['status']==="fail")?"fail":'success',
             'data'=> $payment_session,
@@ -480,7 +478,6 @@ class UserPackage extends Model
 
        
         $next_billing = $this->make_next_billing($session_id,$rs['session_type']);
-     
         
         $session_status->date = date('Y-m-d');
         $meta_data = $session_status->metadata;
@@ -536,20 +533,36 @@ class UserPackage extends Model
             $payment_charging = $this->payment_charging(null,null, $billing_details_id);
         }
       
-        Mail::to($user->email)->send(new PaymentSuccessMail($user, $session_status));
-        return [
-            'status'=>'success',
-            'data'=> $payment_session,
-            'session_status'=> $session_status,
-            'payment_status'=> $payment_status,
-            'package_info'=> null,
-            'user_id'=>$user->id,
-            'package_id'=>$package_id,
-            'payment_type'=>$payment_type,
-            'billing_type'=>$billing_type,
-            'payment_charging'=>$payment_charging,
-            'rs'=>$rs->all(),
-        ];
+        if($payment_charging['status']==="fail"){
+            return [
+                'status'=>'error',
+                'data'=> $payment_session,
+                'session_status'=> $session_status,
+                'payment_status'=> $payment_status,
+                'package_info'=> null,
+                'user_id'=>$user->id,
+                'package_id'=>$package_id,
+                'payment_type'=>$payment_type,
+                'billing_type'=>$billing_type,
+                'payment_charging'=>$payment_charging,
+                'rs'=>$rs->all(),
+            ];
+        }else{
+            return [
+                'status'=>'success',
+                'data'=> $payment_session,
+                'session_status'=> $session_status,
+                'payment_status'=> $payment_status,
+                'package_info'=> null,
+                'user_id'=>$user->id,
+                'package_id'=>$package_id,
+                'payment_type'=>$payment_type,
+                'billing_type'=>$billing_type,
+                'payment_charging'=>$payment_charging,
+                'rs'=>$rs->all(),
+            ];
+        }
+      
     }
 
 
@@ -817,14 +830,14 @@ class UserPackage extends Model
         }
     }
 
-    public function payment_charging($user_id=null, $users=null, $billing_details=null){
+    public function payment_charging($user_id=null, $users=null, $billing_details_id=null){
         if(!empty($users)){
             $billing_details = BillingDetail::where('paid_status','=',0)->get();
         }elseif(!empty($user_id)){
             $billing_details = BillingDetail::where('paid_status','=',0)->
             where('user_id','=',$user_id)->orderBy('id','desc')->limit(1)->get();
-        }elseif(!empty($billing_details)){
-            $billing_details = BillingDetail::where('id','=',$billing_details)->get();
+        }elseif(!empty($billing_details_id)){
+            $billing_details = BillingDetail::where('id','=',$billing_details_id)->get();
         }
         $package_info = null;
         $errorMessage = "";
@@ -882,12 +895,24 @@ class UserPackage extends Model
                         $status = "paid";
                         
                     }else{
+                        //payment fail on payment charging
                         $cron_payment_charging->payment_status = 'fail';
                         $cron_payment_charging->save();
                         $payment_status = "fail";
                         $errorMessage = "Payment failed!";
                         $status = "failed";
-                        if($billing->payment_process_times>1){
+
+                        $billing->payment_process_times = $billing->payment_process_times+1;
+                        $billing->cron_payment_charging_id = $cron_payment_charging->id;
+                        $billing->process_stauts = 'fail';
+                        $billing->paid_status = 0;
+                        $billing->process_date = date('Y-m-d');
+                        $billing->save();
+
+                        $billing_failed_count = BillingDetail::where(['user_id'=>$billing->user_id, 
+                        'process_stauts'=>'fail'])->count();
+
+                        if($billing_failed_count>1){
                            //do something to block
                            $user_billing = UserBilling::where('user_id','=',$billing->user_id)->first();
                            $user_billing->subscribe_status = 0;
@@ -922,7 +947,12 @@ class UserPackage extends Model
                 $billing->process_date = date('Y-m-d');
                 $billing->save();
                 
-                if($billing->payment_process_times>1){
+                
+                $billing_failed_count = BillingDetail::where(['user_id'=>$billing->user_id, 
+                                                            'process_stauts'=>'fail'])->count();
+               
+
+                if($billing_failed_count>1){
                    //do something to block
                    $user_billing = UserBilling::where('user_id','=',$billing->user_id)->first();
                    $user_billing->subscribe_status = 0;

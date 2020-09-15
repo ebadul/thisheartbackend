@@ -105,7 +105,7 @@
                   
                     </td>
                     <td class="text-center">
-                    <button type="button" class="btn btn-success btnCharging" id="btnCharging-{{$row->id}}" billing-details-id="{{$row->id}}" {{ $row['paid_status']?'disabled':'Charging'}}>
+                    <button type="button" class="btn btn-success btnCharging" id="btnCharging-{{$row->id}}" billing-details-id="{{$row->id}}" {{ $row['paid_status'] || strtolower($row->user->user_package->package_info->package)==="free account"?'disabled':'Charging'}}>
                          <i class="fa fa-spinner fa-spin hidden"></i>
                         {{ $row['paid_status']?'Charging':'Charging'}}</button>
                     </td> 

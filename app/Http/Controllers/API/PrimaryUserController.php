@@ -439,7 +439,7 @@ class PrimaryUserController extends BaseController
 
         $user_email = $user->email;
         $activation_code = Crypt::encryptString($user_email);
-        $login_url = "http://45.35.50.179:3000/freeadminlogin/";
+        $login_url = "https://thisheart.co/freeadminlogin/";
         $data = ['user'=>$user,
                 'user_package'=>$user_package,
                 'activation_code'=>$activation_code, 
@@ -507,12 +507,13 @@ class PrimaryUserController extends BaseController
         $free_account->verified = 1;
         if($free_requested ==="approved"){
             $free_account->status = 'activated';
+            $user_package->package_id = $package_info->id;
         }elseif($free_requested ==="rejected"){
             $free_account->status = 'denied';
         }
        
         if($free_account->save()){
-            $user_package->package_id = $package_info->id;
+            
             $user_package->save();
             return response()->json([
                 'status'=>'success',
