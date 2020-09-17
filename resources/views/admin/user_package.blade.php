@@ -73,7 +73,7 @@
                     </td>
                     <td>{{ $row['subscription_date']}}</td>
                     <td>{{ $row['subscription_expire_date']}}</td>
-                    <td class="text-center">{{ $row['subscription_status']?'Actived':'Inactived'}}</td>
+                    <td class="text-center"><button type="button"  class="btn btn-success activeBtn" user-data="{{$row}} ">{{ $row['subscription_status']?'Active':'In-active'}}</button></td>
                     <td class="text-center">
                       <button type="button" class="btn btn-info editBtn" user-data="{{$row}} ">
                         <span><i class="fa fa-edit"></i></span> Edit</button>
@@ -169,6 +169,67 @@
     <!--------------------------------  Edit Modal End --------------------------------------------->
 
 
+        <!-----------------------------------------  Active/Inactive Modal start ---------------------------------------------->
+
+        <div class="modal modal-info fade" id="modal-active">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Active/In-active blocked user</h4>
+              </div>
+              <div class="modal-body">
+    
+                {{csrf_field()}}
+                <p>Are you sure, you want to reactive/unblock  this account?</p>
+    
+    
+                <div class="form-group hidden">
+                  <label for="user_id">User ID</label>
+                  <input type="hidden" class="form-control" id="active_user_package_id" value="" placeholder="User ID" readonly required>
+                  <input type="text" class="form-control" id="active_user_id" value="" placeholder="User ID" readonly required>
+                </div>
+                <div class="form-group hidden ">
+                  <label for="package_id">Package</label>
+                  <select class="form-control" id="active_package_id" required>
+                    <option>:: Select Package ::</option>
+                    @foreach($package_list as $package)
+                    <option value="{{$package->id}}">{{$package->package}}</option>
+                    @endforeach
+                  </select>
+    
+                </div>
+                <div class="form-group hidden">
+                  <label for="subscription_date">Subscription Date</label>
+                  <input type="text" class="form-control" id="active_subscription_date" value="" placeholder="Subscription Date" required>
+                </div>
+                <div class="form-group hidden">
+                  <label for="subscription_expire_date">Subscription Expire</label>
+                  <input type="text" class="form-control" id="active_subscription_expire_date" value="" placeholder="Expire Subscription" required>
+                </div>
+                <div class="form-group ">
+                  <label for="subscription_status"></label>
+                  <select class="form-control" id="active_subscription_status" required>
+                    <option value="1">Active</option>
+                    <option value="0">In-active</option>
+                  </select>
+                </div>
+    
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-success pull-left" data-dismiss="modal">Cancel</button>
+                <button type="submit" name="edit_ok" id="active_btn" class="btn btn-danger">Update Changes</button>
+              </div>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+    
+        <!--------------------------------  Active/Inactive Modal End --------------------------------------------->
+
+        
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
@@ -227,6 +288,19 @@
     //console.log("Event triggered");
   });
 
+  $(document).on('click', '.activeBtn', function() {
+    var user_package = JSON.parse($(this).attr('user-data'));
+
+    $('#active_user_package_id').val(user_package.id);
+    $('#active_user_id').val(user_package.user_id);
+    $('#active_package_id').val(user_package.package_id);
+    $('#active_subscription_date').val(user_package.subscription_date);
+    $('#active_subscription_expire_date').val(user_package.subscription_expire_date);
+    $('#active_subscription_status').val(user_package.subscription_status);
+    $('#modal-active').modal('show');
+
+  });
+
   $(document).on('click', '.editBtn', function() {
     var user_package = JSON.parse($(this).attr('user-data'));
 
@@ -251,7 +325,7 @@
       subscription_status: $('#subscription_status').val()
     }
 
-
+   
     $.ajax({
       url: "./user_package_edit",
       dataType: "json",
@@ -260,7 +334,7 @@
       beforeSend: function(xhr, type) {
         if (!type.crossDomain) {
           xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-          $('#edit_btn').text('Updating User Item....');
+          $('#edit_btn,#active_btn').text('Updating User Item....');
         }
       },
       success: function() {
@@ -275,6 +349,7 @@
         setTimeout(function() {
 
           $('#modal-edit').modal('hide');
+          $('#modal-active').modal('hide');
           $('#example1').dataTable();
 
           location.reload(true);
@@ -282,10 +357,60 @@
       },
       error: function(error) {
         console.log("error :", error);
-        $('#modal-edit').modal('hide');
+        $('#modal-edit, #modal-active').modal('hide');
       }
     });
   });
+
+  $('#active_btn').click(function(data) {
+
+var data = {
+  user_package_id: $('#active_user_package_id').val(),
+  user_id: $('#active_user_id').val(),
+  package_id: $('#active_package_id').val(),
+  subscription_date: $('#active_subscription_date').val(),
+  subscription_expire_date: $('#active_subscription_expire_date').val(),
+  subscription_status: $('#active_subscription_status').val()
+}
+
+console.log(data);
+
+$.ajax({
+  url: "./user_package_edit",
+  dataType: "json",
+  data: data,
+  method: "post",
+  beforeSend: function(xhr, type) {
+    if (!type.crossDomain) {
+      xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+      $('#edit_btn,#active_btn').text('Updating User Item....');
+    }
+  },
+  success: function() {
+    $.toast({
+      heading: 'Information',
+      text: 'Successfully, user package updated!',
+      icon: 'info',
+      position: 'bottom-right',
+      loader: true, // Change it to false to disable loader
+      bgColor: '#088' // To change the background
+    })
+    setTimeout(function() {
+
+      $('#modal-edit').modal('hide');
+      $('#modal-active').modal('hide');
+      $('#example1').dataTable();
+
+      location.reload(true);
+    }, 2000)
+  },
+  error: function(error) {
+    console.log("error :", error);
+    $('#modal-edit, #modal-active').modal('hide');
+  }
+});
+});
+
 </script>
 <!-- page script -->
 <script>

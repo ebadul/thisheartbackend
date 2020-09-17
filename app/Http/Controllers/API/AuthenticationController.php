@@ -160,34 +160,35 @@ class AuthenticationController extends BaseController
                             $status = "NA";
                             if(!empty( $user_pkg)){
                                 $user_billing = $user->user_billing;
-                                if(!empty($user_billing) && $user_billing->subscribe_status===0){
+                                if($user_pkg->subscription_status==="0"){
                                     $status_unsubscribed = "unsubscribed";
-                                }
-                                $package_info = PackageInfo::where('package','free account')->first();
-                                if($package_info->id===$user_pkg->package_id){
-                                    $user_pkg = "free account"; 
                                 }else{
-                                    $now = Carbon::now();
-                                    $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
-                                    $diff = $expire_date->diffInDays($now);
-                                    $user_pkg->push('package_info',$user_pkg->package_info);
-                                    $user_pkg->push('user_billing',$user_pkg->user_billing);
-                                    $user_pkg->access_url = $this->access_url;
-                                    $user_pkg->remaining_days = $diff;
-                                    $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
-                                    
-                                    if($now > $expire_date){
-                                        $status = "expired";
+                                    $package_info = PackageInfo::where('package','free account')->first();
+                                    if($package_info->id===$user_pkg->package_id){
+                                        $user_pkg = "free account"; 
                                     }else{
-                                        if($diff<16){
-                                            if(!$inactive_user_notify->package_expire_notify){
-                                                $inactive_user_notify->package_expire_notify = 1;
-                                                $inactive_user_notify->save();
-                                                Mail::to($user->email)->send(new MailNotifyFifteenDaysMail($user, $user_pkg));
+                                        $now = Carbon::now();
+                                        $expire_date = Carbon::parse($user_pkg->subscription_expire_date);
+                                        $diff = $expire_date->diffInDays($now);
+                                        $user_pkg->push('package_info',$user_pkg->package_info);
+                                        $user_pkg->push('user_billing',$user_pkg->user_billing);
+                                        $user_pkg->access_url = $this->access_url;
+                                        $user_pkg->remaining_days = $diff;
+                                        $user_pkg->encryptedString = Crypt::encryptString('packageSubscription');
+                                        
+                                        if($now > $expire_date){
+                                            $status = "expired";
+                                        }else{
+                                            if($diff<16){
+                                                if(!$inactive_user_notify->package_expire_notify){
+                                                    $inactive_user_notify->package_expire_notify = 1;
+                                                    $inactive_user_notify->save();
+                                                    Mail::to($user->email)->send(new MailNotifyFifteenDaysMail($user, $user_pkg));
+                                                }
                                             }
                                         }
-                                    }
-                                } 
+                                    } 
+                                }
 
                             }else{
                                 $user_pkg = "NA";
@@ -212,7 +213,7 @@ class AuthenticationController extends BaseController
                                         }
 
                                         $primary_user_billing = $primary_user->user_billing;
-                                        if(!empty($primary_user_billing) && $primary_user_billing->subscribe_status===0){
+                                        if(!empty($primary_user_package) && $primary_user_package->subscription_status==="0"){
                                             $status_unsubscribed = "unsubscribed";
                                         }
                                     }
