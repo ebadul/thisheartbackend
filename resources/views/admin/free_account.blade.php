@@ -138,14 +138,16 @@
             </div>
             <div class="form-group">
               <label for="package_id">Package</label>
-              <select class="form-control" id="package_id" readonly required>
-               
                 @foreach($package_list as $package)
-                    <option {{strtolower($package->package)===strtolower("FREE ACCOUNT")?'selected':'disabled'}} value="{{$package->id}}">{{$package->package}}</option>
+                  <?php
+                      if(strtolower($package->package)===strtolower("FREE ACCOUNT")){
+                        ?>
+                        <input type="text" class="form-control" id="package_name" value="{{$package->package}}" placeholder="User ID" readonly required>
+                        <input type="hidden" class="form-control" id="package_id" value="{{$package->id}}" readonly required>
+                     <?php
+                      }
+                  ?>
                 @endforeach
-              </select>
-
-         
             
               <input type="hidden" class="form-control" id="subscription_date" value="" placeholder="Subscription Date" required>
             

@@ -18,6 +18,8 @@ use App\Mail\PaymentChargingMail;
 use App\Mail\UnsubscribePackageMail;
 use App\Mail\PaymentChargingPaidMail;
 use App\Mail\PaymentChargingFailMail;
+use App\Mail\UserBlockedMail;
+use App\Mail\UserUnblockedMail;
 use Auth;
 use File;
 use Crypt;
@@ -339,7 +341,7 @@ class UserPackage extends Model
         if(empty($token[0]) || empty($token[1])){
             return  [
                 'status'=>'error',
-                'code'=>'101',
+                'code'=>'PS101',
                 'message'=> 'Invalid payment request!',
             ];
         }
@@ -353,7 +355,7 @@ class UserPackage extends Model
                 $payment_session->validated===1){
             return [
                 'status'=>'error',
-                'code'=>'107',
+                'code'=>'PS107',
                 'message'=> 'Invalid payment requests!',
             ];
         } 
@@ -363,7 +365,7 @@ class UserPackage extends Model
         if(empty($session_status )){
             return [
                 'status'=>'error',
-                'code'=>'104',
+                'code'=>'PS104',
                 'message'=> 'Invalid payment requests!',
             ];
         } 
@@ -447,7 +449,7 @@ class UserPackage extends Model
         if(empty($token[0]) || empty($token[1])){
             return  [
                 'status'=>'error',
-                'code'=>'101',
+                'code'=>'P101',
                 'message'=> 'Invalid payment request!',
             ];
         }
@@ -461,7 +463,7 @@ class UserPackage extends Model
                 $payment_session->validated===1){
             return [
                 'status'=>'error',
-                'code'=>'102',
+                'code'=>'P102',
                 'message'=> 'Invalid payment requests!',
             ];
         } 
@@ -471,7 +473,7 @@ class UserPackage extends Model
         if(empty($session_status )){
             return [
                 'status'=>'error',
-                'code'=>'104',
+                'code'=>'P104',
                 'message'=> 'Invalid payment requests!',
             ];
         } 
@@ -536,6 +538,7 @@ class UserPackage extends Model
         if($payment_charging['status']==="fail"){
             return [
                 'status'=>'error',
+                'code'=>'P570',
                 'data'=> $payment_session,
                 'session_status'=> $session_status,
                 'payment_status'=> $payment_status,
@@ -893,6 +896,17 @@ class UserPackage extends Model
                                                 ]);
                         $payment_status = "paid";
                         $status = "paid";
+
+                        $billing_failed_rows = BillingDetail::where(['user_id'=>$billing->user_id, 
+                        'process_stauts'=>'fail'])->get();
+                        foreach($billing_failed_rows as $billing_row){
+                            $billing_row->process_stauts = 'success';
+                            $billing_row->paid_status = 1;
+                            $billing_row->process_date = date('Y-m-d');
+                            $billing_row->save();
+                        }
+
+                        Mail::to($user->email)->send(new UserUnblockedMail($user,$billing));
                         
                     }else{
                         //payment fail on payment charging
@@ -921,6 +935,8 @@ class UserPackage extends Model
                            $user_package_block = UserPackage::where('user_id','=',$billing->user_id)->first();
                            $user_package_block->subscription_status = 0;
                            $user_package_block->save();
+
+                           Mail::to($user->email)->send(new UserBlockedMail($user,$billing));
                         }else{
                             $package_rs = [
                                 'user_id'=>$billing->user_id,
@@ -961,6 +977,9 @@ class UserPackage extends Model
                    $user_package_block = UserPackage::where('user_id','=',$billing->user_id)->first();
                    $user_package_block->subscription_status = 0;
                    $user_package_block->save();
+
+                   Mail::to($user->email)->send(new UserBlockedMail($user,$billing));
+
                 }else{
                     $package_rs = [
                         'user_id'=>$billing->user_id,
@@ -1061,6 +1080,7 @@ class UserPackage extends Model
                            $user_billing->subscribe_status = 0;
                            $user_billing->notes = "Payment failed";
                            $user_billing->save();
+                           Mail::to($user->email)->send(new UserBlockedMail($user,$billing));
                         }
                     }
             } catch (\Stripe\Exception\CardException $e) {
@@ -1084,9 +1104,10 @@ class UserPackage extends Model
                    $user_billing->subscribe_status = 0;
                    $user_billing->notes = "Payment failed";
                    $user_billing->save();
+                   Mail::to($user->email)->send(new UserBlockedMail($user,$billing));
                 }
 
-                echo 'Error code is:' . $e->getError()->code;
+        
                 $errorMessage = $e->getMessage();
                 $payment_intent_id = $e->getError()->payment_intent->id;
                 $payment_intent = \Stripe\PaymentIntent::retrieve($payment_intent_id);

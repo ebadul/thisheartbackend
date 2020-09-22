@@ -73,7 +73,12 @@
                     </td>
                     <td>{{ $row['subscription_date']}}</td>
                     <td>{{ $row['subscription_expire_date']}}</td>
-                    <td class="text-center"><button type="button"  class="btn btn-success activeBtn" user-data="{{$row}} ">{{ $row['subscription_status']?'Active':'In-active'}}</button></td>
+                    <td class="text-center">
+                      <button type="button"  class="btn btn-success activeBtn" user-data="{{$row}} ">
+                        <span><i class="fa fa-edit"></i></span>
+                        {{ $row['subscription_status']?'Active':'In-active'}}
+                      </button>
+                    </td>
                     <td class="text-center">
                       <button type="button" class="btn btn-info editBtn" user-data="{{$row}} ">
                         <span><i class="fa fa-edit"></i></span> Edit</button>
