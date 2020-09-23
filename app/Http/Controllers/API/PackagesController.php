@@ -9,6 +9,7 @@ use Mail;
 use App\Mail\PaymentSuccessMail;
 use App\Mail\PaymentChargingMail;
 use App\Mail\UnsubscribePackageMail;
+use App\Mail\UserUnblockedMail;
 use App\Services\OTPService;
 use App\WizardStep;
 use App\PackageInfo;
@@ -19,6 +20,7 @@ use App\PackageEntitiesInfo;
 use App\PaymentSession;
 use App\UserBilling;
 use App\BillingDetail;
+use App\User;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Crypt;
@@ -249,7 +251,7 @@ class PackagesController extends Controller
     }
 
     public function user_package_edit(Request $rs){
-        $user = Auth::user();
+        $user = User::where('id','=',$rs->user_id)->first();
         $user_package_id = $rs->user_package_id;
         $user_id = $rs->user_id;
         $package_id = $rs->package_id;
@@ -264,10 +266,13 @@ class PackagesController extends Controller
             $user_package->subscription_expire_date = $subscription_expire_date;
             $user_package->subscription_status = $subscription_status;
             if($user_package->save()){
+                if($subscription_status>0){
+                    Mail::to($user->email)->send(new UserUnblockedMail($user,$user_package));
+                }
                 return response()->json([
                     'status'=>'success',
                     'user_package'=>$user_package,
-                    'user_package'=>$rs->all(),
+                    'data'=>$rs->all(),
                 ], 200);
             }else{
                 return response()->json([

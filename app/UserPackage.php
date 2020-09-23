@@ -844,6 +844,7 @@ class UserPackage extends Model
         }
         $package_info = null;
         $errorMessage = "";
+        $billing_failed_count = "";
         $user_package = new UserPackage;
         foreach( $billing_details as $billing){
             $user = User::where('id','=',$billing->user_id)->first();
@@ -897,16 +898,7 @@ class UserPackage extends Model
                         $payment_status = "paid";
                         $status = "paid";
 
-                        $billing_failed_rows = BillingDetail::where(['user_id'=>$billing->user_id, 
-                        'process_stauts'=>'fail'])->get();
-                        foreach($billing_failed_rows as $billing_row){
-                            $billing_row->process_stauts = 'success';
-                            $billing_row->paid_status = 1;
-                            $billing_row->process_date = date('Y-m-d');
-                            $billing_row->save();
-                        }
-
-                        Mail::to($user->email)->send(new UserUnblockedMail($user,$billing));
+                        //Mail::to($user->email)->send(new UserUnblockedMail($user,$billing));
                         
                     }else{
                         //payment fail on payment charging
@@ -935,8 +927,7 @@ class UserPackage extends Model
                            $user_package_block = UserPackage::where('user_id','=',$billing->user_id)->first();
                            $user_package_block->subscription_status = 0;
                            $user_package_block->save();
-
-                           Mail::to($user->email)->send(new UserBlockedMail($user,$billing));
+                           Mail::to($user->email)->send(new UserBlockedMail($user,null));
                         }else{
                             $package_rs = [
                                 'user_id'=>$billing->user_id,
@@ -963,10 +954,8 @@ class UserPackage extends Model
                 $billing->process_date = date('Y-m-d');
                 $billing->save();
                 
-                
                 $billing_failed_count = BillingDetail::where(['user_id'=>$billing->user_id, 
                                                             'process_stauts'=>'fail'])->count();
-               
 
                 if($billing_failed_count>1){
                    //do something to block
@@ -978,7 +967,7 @@ class UserPackage extends Model
                    $user_package_block->subscription_status = 0;
                    $user_package_block->save();
 
-                   Mail::to($user->email)->send(new UserBlockedMail($user,$billing));
+                   Mail::to($user->email)->send(new UserBlockedMail($user,null));
 
                 }else{
                     $package_rs = [
@@ -1000,16 +989,31 @@ class UserPackage extends Model
             $package_info = $billing->package_info;
             if($payment_status === "paid"){
                 Mail::to($user->email)->send(new PaymentChargingPaidMail($user,$billing));
+                if(!empty($billing_details_id)){
+                    $billing_failed_rows = BillingDetail::where(['user_id'=>$billing->user_id, 
+                    'process_stauts'=>'fail'])->get();
+                    foreach($billing_failed_rows as $billing_row){
+                        $billing_row->process_stauts = 'success';
+                        $billing_row->paid_status = 1;
+                        $billing_row->process_date = date('Y-m-d');
+                        $billing_row->save();
+                    }
+                }
+               
                 return [
                     'status'=>'success',
                     'payment_intent'=>$payment_intent,
                 ];
             }elseif($payment_status === "fail"){
                 Mail::to($user->email)->send(new PaymentChargingFailMail($user,$billing));
+                if($billing_failed_count>1){
+                    Mail::to($user->email)->send(new UserBlockedMail($user,null));
+                 }
                 return [
                     'status'=>'fail',
                     'payment_intent'=>$payment_intent,
                     'message'=>$errorMessage,
+                    'failure_count'=>$billing_failed_count,
                   
                 ];
             }//end paid-unpaid 

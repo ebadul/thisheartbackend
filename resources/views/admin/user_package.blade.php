@@ -406,7 +406,7 @@ $.ajax({
       $('#modal-active').modal('hide');
       $('#example1').dataTable();
 
-      location.reload(true);
+      //location.reload(true);
     }, 2000)
   },
   error: function(error) {
