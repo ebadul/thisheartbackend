@@ -286,27 +286,37 @@ class MemoriesController extends BaseController
                 
                 $memoriesTmp = [];
                 foreach($videos as $video){
-                    $videoName = str_random(60);
-                    $name = $videoName.'.'.$video->getClientOriginalExtension();
-                    $path_str = 'uploads/'.$user->id.'/videos';
-                    $path = $video->storeAs($path_str,$name);
-                    $file_name = $video->getClientOriginalName();
-                    $title = pathinfo($file_name, PATHINFO_FILENAME);;
-                    $memories = new Memories();
-                    $memories->title = $title;
-                    //$memories->filename = $path_str.'/'.$name; //filename and full path
-                    $memories->filename = $path;
-                    $memories->filetype = "video";
-                    $memories->urlcheck = "videoFile";
-                    $memories->user_id = $user->id;
-                    $memories->save();
-                    $memoriesTmp[] = $memories;
+                    try{
+                    $ffmpeg = "/exe/bin/ffmpeg.exe";
+                    
+                    // $videoName = str_random(60);
+                    // $name = $videoName.'.'.$video->getClientOriginalExtension();
+                    // $path_str = 'uploads/'.$user->id.'/videos';
+                    // $path = $video->storeAs($path_str,$name);
+                    // $file_name = $video->getClientOriginalName();
+                    // $title = pathinfo($file_name, PATHINFO_FILENAME);;
+                    // $memories = new Memories();
+                    // $memories->title = $title;
+                    // //$memories->filename = $path_str.'/'.$name; //filename and full path
+                    // $memories->filename = $path;
+                    // $memories->filetype = "video";
+                    // $memories->urlcheck = "videoFile";
+                    // $memories->user_id = $user->id;
+                    // $memories->save();
+                    // $memoriesTmp[] = $memories;
+
+                    $command = "$ffmpeg -i $video -an -ss 5 -s 120x90 /01.jpg";
+                    shell_exec($command);
+                    }catch (\Exception $e) {
+                        return $e->getMessage();
+                    }
                 }
 
                 
                 return response()->json([
                     'message' => 'Video uploaded successfully.',
-                    'data' => $memoriesTmp
+                    //'data' => $memoriesTmp,
+                    ' $command' => $command,
                 ], 200);
                     
             } else{

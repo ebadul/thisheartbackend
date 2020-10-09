@@ -10,6 +10,7 @@ use App\MedicalHistory;
 use App\WizardStep;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 use Auth;
 
 class MedicalHistoryController extends BaseController
@@ -27,8 +28,8 @@ class MedicalHistoryController extends BaseController
         if(count($diagnosisCheck) == 0){
             $diagnosisInfo = new DiagnosisInfo();
 
-            $diagnosisInfo->diagnosis_name = $request->diagnosis_name;
-            $diagnosisInfo->description = $request->description;
+            $diagnosisInfo->diagnosis_name = Crypt::encryptString($request->diagnosis_name);
+            $diagnosisInfo->description =Crypt::encryptString( $request->description);
     
             $diagnosisInfo->save();
 
@@ -69,6 +70,12 @@ class MedicalHistoryController extends BaseController
     public function getAllDiagnosisName()
     {
         $diagnosisInfo = DiagnosisInfo::all();
+        foreach( $diagnosisInfo as $diagnosis){
+            if(Crypt::decryptString($diagnosis->diagnosis_name)){
+                $diagnosis->diagnosis_name = Crypt::decryptString($diagnosis->diagnosis_name);
+                $diagnosis->description = Crypt::decryptString($diagnosis->description);
+            }
+        }
 
         return response()->json(['diagnosisInfo' => $diagnosisInfo], 200);
     }
@@ -77,6 +84,12 @@ class MedicalHistoryController extends BaseController
     {
         //Get the data
         $diagnosisInfo = DiagnosisInfo::findOrfail($id);
+        foreach( $diagnosisInfo as $diagnosis){
+            if(Crypt::decryptString($diagnosis->diagnosis_name)){
+                $diagnosis->diagnosis_name = Crypt::decryptString($diagnosis->diagnosis_name);
+                $diagnosis->description = Crypt::decryptString($diagnosis->description);
+            }
+        }
 
         return response()->json($diagnosisInfo, 200);
     }
@@ -85,8 +98,8 @@ class MedicalHistoryController extends BaseController
     {
         $diagnosisInfo = DiagnosisInfo::findOrfail($id);
         if($diagnosisInfo){
-            $diagnosisInfo->diagnosis_name = $request->diagnosis_name;
-            $diagnosisInfo->description = $request->description;
+            $diagnosisInfo->diagnosis_name = Crypt::encryptString($request->diagnosis_name);
+            $diagnosisInfo->description = Crypt::encryptString($request->description);
 
             $diagnosisInfo->save();
 
@@ -118,22 +131,13 @@ class MedicalHistoryController extends BaseController
 
     public function saveMedicalHistory(Request $request)
     {
-        //Below line need when call from postman
-        //$diagnosisList = json_decode($request->diagnosis_list);
-        
-        //Below line need when call from front-end
         $diagnosisList = $request->diagnosis_list;
-        //Log::info("Request = ".json_encode($diagnosisList));
-        //DB::enableQueryLog();
         $addedDiagnosisList = [];
         $diagnosisCSV = "";
         foreach ($diagnosisList as $diagnosisId) {
             //Log::info("diagnosisId = ".$diagnosisId);
             $matchThese = ['user_id' => $request->user_id, 'diagnosis_id' => $diagnosisId, 'member_type' => $request->member_type];
             $dataInfo = MedicalHistory::where($matchThese)->get();
-           // Log::info("dataInfo ".$dataInfo);
-            //$query = DB::getQueryLog();
-            //Log::info($query);
 
             if(count($dataInfo) == 0){
                 $historyInfo = new MedicalHistory();
@@ -151,7 +155,9 @@ class MedicalHistoryController extends BaseController
                 ->whereIn('diagnosis_id',$addedDiagnosisList)
                 ->where('member_type','=',$request->member_type)
                 ->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
-         
+        foreach($historyInfoNew as $new){
+            $new->diagnosis_name = Crypt::decryptString($new->diagnosis_name);
+        } 
         return response()->json([
             'message' => 'Diagnosis name added successfully!',
             'data' => $historyInfoNew
@@ -187,7 +193,12 @@ class MedicalHistoryController extends BaseController
         //Log::info("Id ".$id  ." Type= ".$type);
         $historyInfo = DB::table('medical_histories')->join('diagnosis_infos','diagnosis_id','=','diagnosis_infos.id')
         ->where('user_id','=',$id)->where('member_type','=',$type)->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
-
+        foreach( $historyInfo as $history){
+            if(Crypt::decryptString($history->diagnosis_name)){
+                $history->diagnosis_name = Crypt::decryptString($history->diagnosis_name);
+                //$history->description = Crypt::decryptString($history->description);
+            }
+        }
         return response()->json($historyInfo, 200);
     }
 
@@ -243,8 +254,8 @@ class MedicalHistoryController extends BaseController
     public function diagnosis_info_edit(Request $rs){
         $user = Auth::user();
         $id = $rs->id;
-        $diagnosis_name = $rs->diagnosis_name;
-        $description = $rs->description;
+        $diagnosis_name = Crypt::encryptString($rs->diagnosis_name);
+        $description = Crypt::encryptString($rs->description);
     
 
         $diagnosis_infos = DiagnosisInfo::where('id','=',$id)->first();
@@ -286,8 +297,8 @@ class MedicalHistoryController extends BaseController
         $user = Auth::user();
         if($rs->isMethod('post')){
              $diagnosis_info = new DiagnosisInfo;
-             $diagnosis_info->diagnosis_name = $rs->diagnosis_name;
-             $diagnosis_info->description = $rs->description;
+             $diagnosis_info->diagnosis_name = Crypt::encryptString($rs->diagnosis_name);
+             $diagnosis_info->description = Crypt::encryptString($rs->description);
            
              $save_diag_info = $diagnosis_info->save();
              if( $save_diag_info){

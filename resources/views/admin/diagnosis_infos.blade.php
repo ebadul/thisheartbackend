@@ -67,9 +67,21 @@
                   <tr role="row" class="odd">
 
                     <td>
-                        {{ $row['diagnosis_name']}}
+                         
+                        <?php
+                            if(Crypt::decryptString($row['diagnosis_name'])){
+                              echo Crypt::decryptString($row['diagnosis_name']);
+                            }else{
+                              echo Crypt::decryptString($row['diagnosis_name']);
+                            }
+                         
+                
+                            $row['diagnosis_name'] = Crypt::decryptString($row['diagnosis_name']);
+                            $row['description'] = Crypt::decryptString($row['description']);
+                        
+                      ?>
                     </td>
-                    <td title="{{$row['description']}}">{{ substr($row['description'],0,25)}}...</td>
+                    <td title="{{$row['description']}}">{{ $row['description']}}</td>
                     
                     <td class="text-center">
                       <button type="button" class="btn btn-info editBtn" user-data="{{$row}}"><span><i class="fa fa-edit"></i></span> Edit</button>
