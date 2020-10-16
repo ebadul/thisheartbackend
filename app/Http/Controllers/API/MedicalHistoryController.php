@@ -172,7 +172,12 @@ class MedicalHistoryController extends BaseController
                 ->where('member_type','=',$request->member_type)
                 ->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
         foreach($historyInfoNew as $new){
-            $new->diagnosis_name = Crypt::decryptString($new->diagnosis_name);
+            try{
+                $new->diagnosis_name = Crypt::decryptString($new->diagnosis_name);
+            }catch(\Exception $ex){
+                $new->diagnosis_name = $new->diagnosis_name;
+            }
+            
         } 
         return response()->json([
             'message' => 'Diagnosis name added successfully!',
