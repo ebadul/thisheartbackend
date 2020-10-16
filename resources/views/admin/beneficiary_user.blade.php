@@ -50,8 +50,8 @@
             <th rowspan="1" colspan="1">Beneficiary User Name</th>
             <th rowspan="1" colspan="1">Email</th>
             
-            <th>Action</th>
-            <th>Status</th>
+            <th class="text-center">Status</th>
+            {{-- <th class="text-center">Action</th> --}}
           </tr>
         </thead>
         <tbody>
@@ -68,13 +68,13 @@
                       data-toggle="toggle" data-onstyle="success" 
                       data-offstyle="danger" data-on="Active" data-off="Deactive"/> 
                   </td>     
-                  <td class="text-center" >
+                  {{-- <td class="text-center" >
                     <a href="{{url("/delete_beneficiary_user/".$row['id'])}}" 
                       class="btn btn-block btn-danger" 
                       role="button" 
                       onclick="return confirm('Do you want to delete beneficiary user data')" alt="Delete Beneficiary User">
                       Delete</a>  
-                    </td>         
+                    </td>          --}}
                 </tr>
                 @endforeach
               <?php endif;?>

@@ -58,7 +58,7 @@
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending" style="width: 224px;">Diagnosis</th>
                   <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending" style="width: 199px;">Description</th>
                   <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Edit</th>
-                  <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending" style="width: 156px; text-align:center;">Delete</th>
+                  <th style="width: 156px; text-align:center;">Delete</th>
                 </tr>
               </thead>
               <tbody>
@@ -69,15 +69,23 @@
                     <td>
                          
                         <?php
-                            if(Crypt::decryptString($row['diagnosis_name'])){
-                              echo Crypt::decryptString($row['diagnosis_name']);
-                            }else{
-                              echo Crypt::decryptString($row['diagnosis_name']);
+                            try{
+                              
+                               echo Crypt::decryptString($row['diagnosis_name']);
+                              $row['diagnosis_name'] = Crypt::decryptString($row['diagnosis_name']);
+                            }catch(\Exception $ex){
+                              echo $row['diagnosis_name'];
+                              $row['diagnosis_name'] =$row['diagnosis_name'];
                             }
                          
+                            try{
+                              $row['description'] = Crypt::decryptString($row['description']);
+                           }catch(\Exception $ex){
+                            $row['description'] = $row['description'];
+                           }
                 
-                            $row['diagnosis_name'] = Crypt::decryptString($row['diagnosis_name']);
-                            $row['description'] = Crypt::decryptString($row['description']);
+                            
+                            
                         
                       ?>
                     </td>

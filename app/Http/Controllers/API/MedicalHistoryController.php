@@ -71,10 +71,19 @@ class MedicalHistoryController extends BaseController
     {
         $diagnosisInfo = DiagnosisInfo::all();
         foreach( $diagnosisInfo as $diagnosis){
-            if(Crypt::decryptString($diagnosis->diagnosis_name)){
+            try{
                 $diagnosis->diagnosis_name = Crypt::decryptString($diagnosis->diagnosis_name);
-                $diagnosis->description = Crypt::decryptString($diagnosis->description);
+            }catch(\Exception $ex){
+                $diagnosis->diagnosis_name = $diagnosis->diagnosis_name;
             }
+
+            try{
+                $diagnosis->description = Crypt::decryptString($diagnosis->description);
+            }catch(\Exception $ex){
+                $diagnosis->description = $diagnosis->description;
+            }
+
+             
         }
 
         return response()->json(['diagnosisInfo' => $diagnosisInfo], 200);
@@ -85,9 +94,16 @@ class MedicalHistoryController extends BaseController
         //Get the data
         $diagnosisInfo = DiagnosisInfo::findOrfail($id);
         foreach( $diagnosisInfo as $diagnosis){
-            if(Crypt::decryptString($diagnosis->diagnosis_name)){
+            try{
                 $diagnosis->diagnosis_name = Crypt::decryptString($diagnosis->diagnosis_name);
+            }catch(\Exception $ex){
+                $diagnosis->diagnosis_name = $diagnosis->diagnosis_name;
+            }
+
+            try{
                 $diagnosis->description = Crypt::decryptString($diagnosis->description);
+            }catch(\Exception $ex){
+                $diagnosis->description = $diagnosis->description;
             }
         }
 
@@ -194,10 +210,19 @@ class MedicalHistoryController extends BaseController
         $historyInfo = DB::table('medical_histories')->join('diagnosis_infos','diagnosis_id','=','diagnosis_infos.id')
         ->where('user_id','=',$id)->where('member_type','=',$type)->select('medical_histories.id','medical_histories.diagnosis_id','medical_histories.member_type', 'diagnosis_infos.diagnosis_name')->get();
         foreach( $historyInfo as $history){
-            if(Crypt::decryptString($history->diagnosis_name)){
+            try{
                 $history->diagnosis_name = Crypt::decryptString($history->diagnosis_name);
-                //$history->description = Crypt::decryptString($history->description);
+            }catch(\Exception $ex){
+                $history->diagnosis_name = $history->diagnosis_name;
             }
+
+            // try{
+            //     $diagnosis->description = Crypt::decryptString($diagnosis->description);
+            // }catch(\Exception $ex){
+            //     $diagnosis->description = $diagnosis->description;
+            // }
+
+            
         }
         return response()->json($historyInfo, 200);
     }

@@ -88,29 +88,31 @@
               <tbody>
                 <?php if ($billing_list) : ?>
                   @foreach ( $billing_list as $row )
-                  <tr role="row" class="odd">
-                    <td title="{{$row->id}}">{{$row->id}}</td>
-                    <td title="{{$row->user_id}}" id="lbl-email-{{$row['id']}}">{{$row->user->email}}</td>
-                    <td id="lbl-package-{{$row['id']}}" class="text-center">
-                        {{$row->user->user_package->package_info->package}}</td>
-                    <td class="text-center">$ {{ $row['package_cost']}}</td>
-                    <td class="text-center">{{ $row['payment_type']}}</td>
-                    <td class="text-center">{{ $row['recurring_type']}}</td>
-                    <td>{{ $row['billing_date']}}</td>
-                    <td>{{ empty($row['next_billing_date'])?'Not yet billed':$row['next_billing_date']}}</td>
-                    <td class="text-center">
-                        <button class="btn btn-info btnMore" billing-details="{{$row}}">
-                          More <i class="fa fa-caret-right" aria-hidden="true"></i>
-                        </button>
-                  
-                    </td>
-                    <td class="text-center">
-                    <button type="button" class="btn btn-success btnCharging" id="btnCharging-{{$row->id}}" billing-details-id="{{$row->id}}" {{ $row['paid_status'] || strtolower($row->user->user_package->package_info->package)==="free account"?'disabled':'Charging'}}>
-                         <i class="fa fa-spinner fa-spin hidden"></i>
-                        {{ $row['paid_status']?'Charging':'Charging'}}</button>
-                    </td> 
-                 
-                  </tr>
+                    @if(!empty($row->user))
+                      <tr role="row" class="odd">
+                        <td title="{{$row->id}}">{{$row->id}}</td>
+                        <td title="{{$row->user_id}}" id="lbl-email-{{$row['id']}}">{{$row->user->email}}</td>
+                        <td id="lbl-package-{{$row['id']}}" class="text-center">
+                            {{$row->user->user_package->package_info->package}}</td>
+                        <td class="text-center">$ {{ $row['package_cost']}}</td>
+                        <td class="text-center">{{ $row['payment_type']}}</td>
+                        <td class="text-center">{{ $row['recurring_type']}}</td>
+                        <td>{{ $row['billing_date']}}</td>
+                        <td>{{ empty($row['next_billing_date'])?'Not yet billed':$row['next_billing_date']}}</td>
+                        <td class="text-center">
+                            <button class="btn btn-info btnMore" billing-details="{{$row}}">
+                              More <i class="fa fa-caret-right" aria-hidden="true"></i>
+                            </button>
+                      
+                        </td>
+                        <td class="text-center">
+                        <button type="button" class="btn btn-success btnCharging" id="btnCharging-{{$row->id}}" billing-details-id="{{$row->id}}" {{ $row['paid_status'] || strtolower($row->user->user_package->package_info->package)==="free account"?'disabled':'Charging'}}>
+                            <i class="fa fa-spinner fa-spin hidden"></i>
+                            {{ $row['paid_status']?'Charging':'Charging'}}</button>
+                        </td> 
+                    
+                      </tr>
+                    @endif
                   @endforeach
                 <?php endif; ?>
               </tbody>
