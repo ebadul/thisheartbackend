@@ -287,26 +287,37 @@ class MemoriesController extends BaseController
                 $memoriesTmp = [];
                 foreach($videos as $video){
                     try{
-                            //$ffmpeg = "/exe/bin/ffmpeg.exe";
-                            
+                            $imageName = str_random(60);
+                            $path_str = 'uploads/'.$user->id.'/images';
+                            $name_thumbnail = $path_str."/".'thumbnail_'.$imageName.'.png';
+                            $command = "ffmpeg -i $video -r 30 -t 2 -ss 2 -frames:v 1 $name_thumbnail";
+                            if(!system($command)){
+                                shell_exec($command);
+                            } 
+
                             $videoName = str_random(60);
                             $name = $videoName.'.'.$video->getClientOriginalExtension();
                             $path_str = 'uploads/'.$user->id.'/videos';
-                            $path = $video->storeAs($path_str,$name);
+                            $path_tmp = $path_str.'/'.$name;
+                            //$path = $video->storeAs($path_str,$name);
+                            $command_video = "ffmpeg -i $video -vcodec libx265 -crf 28 $path_tmp";
+                           
+                            if(!system($command_video)){
+                                shell_exec($command_video);
+                            } 
                             $file_name = $video->getClientOriginalName();
                             $title = pathinfo($file_name, PATHINFO_FILENAME);;
                             $memories = new Memories();
                             $memories->title = $title;
                             //$memories->filename = $path_str.'/'.$name; //filename and full path
-                            $memories->filename = $path;
+                            $memories->filename = $path_tmp;
                             $memories->filetype = "video";
                             $memories->urlcheck = "videoFile";
                             $memories->user_id = $user->id;
+                            $memories->thumbnail_url =$name_thumbnail;
                             $memories->save();
                             $memoriesTmp[] = $memories;
 
-                            //$command = "$ffmpeg -i $video -an -ss 5 -s 120x90 /01.jpg";
-                            //shell_exec($command);
                     }catch (\Exception $e) {
                         return response()->json([
                             'message' => $e->getMessage(),
