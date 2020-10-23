@@ -302,7 +302,8 @@ class MemoriesController extends BaseController
                             File::isDirectory($path_str) or File::makeDirectory($path_str, 0777, true, true);
                             $path_tmp = $path_str.'/'.$name;
                             //$path = $video->storeAs($path_str,$name);
-                            $command_video = "ffmpeg -i $video -vcodec libx265 -crf 28 $path_tmp";
+                            // $command_video = "ffmpeg -i $video -vcodec libx265 -crf 28 $path_tmp";
+                            $command_video = "ffmpeg -i $video -vcodec h264 -acodec aac -y $path_tmp";
                            
                             if(!system($command_video)){
                                 shell_exec($command_video);
