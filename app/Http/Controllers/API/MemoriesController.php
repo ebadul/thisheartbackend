@@ -289,6 +289,7 @@ class MemoriesController extends BaseController
                     try{
                             $imageName = str_random(60);
                             $path_str = 'uploads/'.$user->id.'/images';
+                            File::isDirectory($path_str) or File::makeDirectory($path_str, 0777, true, true);
                             $name_thumbnail = $path_str."/".'thumbnail_'.$imageName.'.png';
                             $command = "ffmpeg -i $video -r 30 -t 2 -ss 2 -frames:v 1 $name_thumbnail";
                             if(!system($command)){
@@ -298,6 +299,7 @@ class MemoriesController extends BaseController
                             $videoName = str_random(60);
                             $name = $videoName.'.'.$video->getClientOriginalExtension();
                             $path_str = 'uploads/'.$user->id.'/videos';
+                            File::isDirectory($path_str) or File::makeDirectory($path_str, 0777, true, true);
                             $path_tmp = $path_str.'/'.$name;
                             //$path = $video->storeAs($path_str,$name);
                             $command_video = "ffmpeg -i $video -vcodec libx265 -crf 28 $path_tmp";
