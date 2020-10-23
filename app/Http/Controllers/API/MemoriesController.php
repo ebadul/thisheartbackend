@@ -291,7 +291,7 @@ class MemoriesController extends BaseController
                             $path_str = 'uploads/'.$user->id.'/images';
                             File::isDirectory($path_str) or File::makeDirectory($path_str, 0777, true, true);
                             $name_thumbnail = $path_str."/".'thumbnail_'.$imageName.'.png';
-                            $command = "ffmpeg -i $video -r 30 -t 2 -ss 2 -frames:v 1 $name_thumbnail";
+                            $command = "ffmpeg -i $video -r 30 -t 2 -ss 2 -frames:v 1 -y $name_thumbnail";
                             if(!system($command)){
                                 shell_exec($command);
                             } 
