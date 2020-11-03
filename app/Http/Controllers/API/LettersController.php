@@ -51,6 +51,7 @@ class LettersController extends BaseController
         $lettersInfo->subject = $request->subject;
         $lettersInfo->description = $request->description;
         $lettersInfo->user_id = $request->user_id;
+        $lettersInfo->tags = $request->tags;
         $lettersInfo->leter_from = $request->letter_from;
 
         $lettersInfo->save();

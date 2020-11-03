@@ -98,6 +98,7 @@ class MemoriesController extends BaseController
                 $memories->filename = $path;
                 $memories->thumbnail_url =$name_thumbnail;
                 $memories->filetype = "image";
+                $memories->tags = $request->tags;
                 $memories->user_id = $user->id;
     
                 $memories->save();
@@ -256,6 +257,7 @@ class MemoriesController extends BaseController
                 $memories->urlcheck = "videoLink";
                 $memories->filetype = "video";
                 $memories->user_id = $user->id;
+                $memories->tags = $request->tags;
                 $memories->save();
                 $memoriesTmp[] = $memories;
 
@@ -318,6 +320,7 @@ class MemoriesController extends BaseController
                             $memories->urlcheck = "videoFile";
                             $memories->user_id = $user->id;
                             $memories->thumbnail_url =$name_thumbnail;
+                            $memories->tags = $request->tags;
                             $memories->save();
                             $memoriesTmp[] = $memories;
 
@@ -417,6 +420,7 @@ class MemoriesController extends BaseController
             $memories->filetype = "record";
             $memories->urlcheck = "audioFile";
             $memories->user_id = $user->id;
+            $memories->tags = $request->tags;
             $memories->save();
             $memoriesTmp[] = $memories;
 
@@ -469,6 +473,7 @@ class MemoriesController extends BaseController
                     $memories->filetype = "record";
                     $memories->urlcheck = "audioFile";
                     $memories->user_id = $user->id;
+                    $memories->tags = $request->tags;
                     $memories->save();
                     $memoriesTmp[] = $memories;
                 }
