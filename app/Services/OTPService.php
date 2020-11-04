@@ -305,20 +305,13 @@ class OTPService{
         }else{
             $otp_setting = $user->OTPSetting;
         }
-        if(!empty($otp_setting)){
-            // $otp_enable = $this->isEnableOTP($otp_setting);
-            // if(!$otp_enable){
-                //empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
-                empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
-                $user->OTPSetting->otp_enable=true;
-                $user->OTPSetting->save();
-            // }
-        }
+       
          
-        if($otp_setting->otp_method==="sms"){
-            $user->mobile = $request->mobile;
-            $user->save();
-            if(empty($user->mobile)){
+        if($request->otp_method==="sms"){
+            $user_tmp = $user;
+            $user_tmp->mobile = $request->mobile;
+            // $user->save();
+            if(empty($user_tmp->mobile)){
                 return [
                     'status'=>'error',
                     'method'=>'sms',
@@ -326,28 +319,56 @@ class OTPService{
                     'data'=>null
                     ];
             }
-            $this->createOtpSMS($user);
+            $this->createOtpSMS($user_tmp);
+
+            if(!empty($otp_setting)){
+                // $otp_enable = $this->isEnableOTP($otp_setting);
+                // if(!$otp_enable){
+                    //empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
+    
+                    $user->mobile = $request->mobile;
+                    $user->save();
+                
+                    empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
+                    $user->OTPSetting->otp_enable=true;
+                    $user->OTPSetting->save();
+                // }
+            }
             return [
                 'status'=>'success',
                 'method'=>'sms',
                 'data'=>null
                 ];
 
-        }elseif($otp_setting->otp_method==="email"){
+        }elseif($request->otp_method==="email"){
             $emailSent = $this->createOtpEmail($user);
+
+            if(!empty($otp_setting)){
+                    empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
+                    $user->OTPSetting->otp_enable=true;
+                    $user->OTPSetting->save();
+            }
+
             return [
                 'status'=>'success',
                 'method'=>'email',
                 'data'=>$emailSent
                 ];
-        }elseif($otp_setting->otp_method==="googleauth"){
+        }elseif($request->otp_method==="googleauth"){
             $google_qrcode_url = $this->createQRCodeGoogle($user, $otp_setting);
+            if(!empty($otp_setting)){
+                    empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
+                    $user->OTPSetting->otp_enable=true;
+                    $user->OTPSetting->save();
+            }
             return [
                 'status'=>'success',
                 'method'=>'googleauth',
                 'data'=>$google_qrcode_url
                 ];
         }
+
+       
     }
 
 
@@ -562,7 +583,7 @@ class OTPService{
             $this->twilio->messages->create(
                 $to,
                 [
-                    "body" => 'OTP is : '.$otp,
+                    "body" => 'ThisHeart-OTP is : '.$otp,
                     "from" => $twilioNumber
                 ]
             );    
@@ -571,6 +592,7 @@ class OTPService{
         }
         return true;
     }
+    
     public function sendWelcomeSMS($to,$otp)
     {
         $accountSid = env('TWILIO_SID');
