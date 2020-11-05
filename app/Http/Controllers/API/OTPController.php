@@ -8,6 +8,7 @@ use Auth;
 use DB;
 use App\Services\OTPService;
 use App\WizardStep;
+use App\User;
 use Illuminate\Support\Facades\Validator;
 
 class OTPController extends Controller
@@ -86,8 +87,18 @@ class OTPController extends Controller
         if(empty($user)){
             return response()->json([
                 'status'=>'error',
+                'code'=>'U101',
                 'message'=>'User not found!',
             ]);
+        }
+
+        $users = User::where('mobile', $request->mobile)->get();
+        if(!empty($users)){
+            return response()->json([
+                'status'=>'error',
+                'code'=>'M102',
+                'message'=>'This mobile number is used already',
+            ],500);
         }
 
         $otpService = new OTPService;

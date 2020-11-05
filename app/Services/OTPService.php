@@ -321,18 +321,13 @@ class OTPService{
             }
             $this->createOtpSMS($user_tmp);
 
-            if(!empty($otp_setting)){
-                // $otp_enable = $this->isEnableOTP($otp_setting);
-                // if(!$otp_enable){
-                    //empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
-    
+            if(!empty($otp_setting)){    
                     $user->mobile = $request->mobile;
                     $user->save();
                 
                     empty($request->otp_method)?true:$user->OTPSetting->otp_method=$request->otp_method;
                     $user->OTPSetting->otp_enable=true;
                     $user->OTPSetting->save();
-                // }
             }
             return [
                 'status'=>'success',
